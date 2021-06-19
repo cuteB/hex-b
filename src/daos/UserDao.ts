@@ -1,9 +1,9 @@
-import { IUser } from '@models/User';
+import User, { IUser, DBUser } from '@models/User';
 
 export interface IUserDao {
   getOne: (email: string) => Promise<IUser | null>;
   getAll: () => Promise<IUser[]>;
-  add: (user: IUser) => Promise<void>;
+  create: (user: IUser) => Promise<IUser>;
   update: (user: IUser) => Promise<void>;
   delete: (id: number) => Promise<void>;
 }
@@ -14,6 +14,7 @@ class UserDao implements IUserDao {
   * @param email
   */
   public async getOne(email: string): Promise<IUser | null> {
+
     // TODO
     return [] as any;
   }
@@ -22,17 +23,37 @@ class UserDao implements IUserDao {
   *
   */
   public async getAll(): Promise<IUser[]> {
-    // TODO
-    return [] as any;
+    return DBUser.find({}, (err: any, users: typeof DBUser[]) => {
+      if (err) {
+        return [];
+      }
+      console.log(users)
+      return users;
+
+    }).catch((err: any[]) => {
+      console.log(err)
+      return [];
+    })
+
   }
 
   /**
   *
   * @param user
   */
-  public async add(user: IUser): Promise<void> {
-    // TODO
-    return {} as any;
+  public async create(value: IUser): Promise<IUser> {
+    let dbo = new DBUser(value)
+
+    return dbo.save()
+      .then((res: any) => {
+        let user: IUser = new User(res);
+        user.Password = ""; // make sure that Password doesn't get returned
+
+        return new User(user);
+      })
+      .catch((error: any) => {
+        return {};
+      })
   }
 
   /**

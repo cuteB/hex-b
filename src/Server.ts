@@ -6,16 +6,15 @@ import helmet from 'helmet';
 import express, { Request, Response, NextFunction } from 'express';
 import { BAD_REQUEST } from 'http-status-codes';
 import 'express-async-errors';
+import db from './db';
 
 import BaseRouter from './routes';
 
 // Init express
 const app = express();
-
-/************************************************************************************
-*                              Set basic express settings
-***********************************************************************************/
-
+//---------------------------------------------------------
+//  Basic express Settings
+//---------------------------------------------------------
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -30,7 +29,14 @@ if (process.env.NODE_ENV === 'production') {
   app.use(helmet());
 }
 
-// Add APIs
+//---------------------------------------------------------
+//  Database
+//---------------------------------------------------------
+db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+
+//---------------------------------------------------------
+//  Attach api Routes
+//---------------------------------------------------------
 app.use('/api', BaseRouter);
 
 // Export express instance

@@ -1,6 +1,8 @@
 import { AxiosError } from 'axios';
 import { Request, Response, Router } from 'express';
-import { BAD_REQUEST, CREATED, OK } from 'http-status-codes';
+import { BAD_REQUEST, CREATED, OK,
+  NOT_FOUND,
+} from 'http-status-codes';
 import { ParamsDictionary } from 'express-serve-static-core';
 
 import UserDao from '@daos/UserDao';
@@ -14,105 +16,126 @@ const router = Router();
 const userDao = new UserDao();
 
 //---------------------------------------------------------
-//  Authenticate - "POST /api/User/POSTAuthenticate"
-//---------------------------------------------------------
-router.post('/POSTAuthenticate', async (req: Request, res: Response) => {
-  let creds: User = new User(req.body)
-
-  let responseUser: IUser = UserController.authenticateUser(creds)
-
-  if (responseUser) {
-    return res.status(OK).json(responseUser)
-
-  } else {
-    return res.status(BAD_REQUEST).json({error: "bad login"});
-
-  }
-
-  // userApi.userLogin(creds).then((response: IUser) => {
-  //   return res.status(OK).json(response);
-  // }).catch((error: AxiosError<Error>) => {
-  //   // maybe change to BAD_REQUEST although not really bad just wrong user/pass
-  //   return res.status(OK).json(error.response.data);
-  // });
-});
-
-//---------------------------------------------------------
-//  Get All Users - "POST /api/User/GETList"
-//---------------------------------------------------------
-router.post('/GETList', async (req: Request, res: Response) => {
-  const token = getToken(req);
-
-  return res.status(OK).json([]);
-});
-
-//---------------------------------------------------------
-//
-//---------------------------------------------------------
-router.post('/GETByID', async (req: Request, res: Response) => {
-  const token = getToken(req);
-  const user = new User(req.body);
-
-  userApi.getUserByID(user, token).then((response: IUser) => {
-    // TODO handle errors. possible to return an error
-    return res.status(OK).json(response);
-  }).catch((error: AxiosError<Error>) => {
-    // maybe change to BAD_REQUEST although not really bad just wrong user/pass
-    return res.status(OK).json([]);
-  });
-});
-
-//---------------------------------------------------------
 //  Create - "POST /api/User/POSTCreate"
 //---------------------------------------------------------
 router.post('/POSTCreate', async (req: Request, res: Response) => {
+  if (!req.body) {
+    return res.status(BAD_REQUEST).json({
+      success: false,
+      error: 'Need to provide a valid user'
+    });
+  }
+
   const token = getToken(req);
   const user = new User(req.body);
-  user.InternalID = undefined;
 
-  userApi.updateUser(user, token).then((response: IUser) => {
-    return res.status(OK).json(response);
-  }).catch((error: AxiosError<Error>) => {
-  });
+  userDao.create(user).then((user: IUser) => {
+    if (user) {
+      return res.status(OK).json(user);
+    } else {
+      return res.status(BAD_REQUEST).json({
+        success: false,
+        error: 'fail'
+      })
+    }
+  })
+
 });
 
+//---------------------------------------------------------
+//  Get All Users - "POST /api/User/GETAll"
+//---------------------------------------------------------
+router.post('/GETAll', async (req: Request, res: Response) => {
+  const token = getToken(req);
+
+  userDao.getAll().then((users: IUser[]) => {
+    console.log(users)
+    if (users.length === 0) {
+      return res.status(NOT_FOUND).json({
+        success: false,
+        error: 'Users not found',
+      })
+    }
+
+    return res.status(OK).json(users);
+  })
+
+});
 
 //---------------------------------------------------------
 //  Update - "PUT /api/User/POSTUpdate"
 //---------------------------------------------------------
-router.post('/POSTUpdate', async (req: Request, res: Response) => {
-  const token = getToken(req);
-  const user = new User(req.body);
+// router.post('/POSTUpdate', async (req: Request, res: Response) => {
+//   const token = getToken(req);
+//   const user = new User(req.body);
+//
+//   userApi.updateUser(user, token).then((response: User) => {
+//     return res.status(OK).json(response);
+//   }).catch((error: AxiosError<Error>) => {
+//     return res.status(BAD_REQUEST).json(error.response.data);
+//   });
+//
+// });
 
-  userApi.updateUser(user, token).then((response: IUser) => {
-    return res.status(OK).json(response);
-  }).catch((error: AxiosError<Error>) => {
-    return res.status(BAD_REQUEST).json(error.response.data);
-  });
+//---------------------------------------------------------
+//  Authenticate - "POST /api/User/POSTAuthenticate"
+//---------------------------------------------------------
+// router.post('/POSTAuthenticate', async (req: Request, res: Response) => {
+//   let creds: User = new User(req.body)
+//
+//   let responseUser: User = UserController.authenticateUser(creds)
+//
+//   if (responseUser) {
+//     return res.status(OK).json(responseUser)
+//
+//   } else {
+//     return res.status(BAD_REQUEST).json({error: "bad login"});
+//
+//   }
+//
+// });
 
-});
+
+
+//---------------------------------------------------------
+//
+//---------------------------------------------------------
+// router.post('/GETByID', async (req: Request, res: Response) => {
+//   const token = getToken(req);
+//   const user = new User(req.body);
+//
+//   userApi.getUserByID(user, token).then((response: User) => {
+//     // TODO handle errors. possible to return an error
+//     return res.status(OK).json(response);
+//   }).catch((error: AxiosError<Error>) => {
+//     // maybe change to BAD_REQUEST although not really bad just wrong user/pass
+//     return res.status(OK).json([]);
+//   });
+// });
+
+
 
 //---------------------------------------------------------
 //  Delete - "DELETE /api/User/delete/:id"
 //---------------------------------------------------------
-router.delete('/delete/:id', async (req: Request, res: Response) => {
-  const { id } = req.params as ParamsDictionary;
-  await userDao.delete(Number(id));
-  return res.status(OK).end();
-});
+// router.delete('/delete/:id', async (req: Request, res: Response) => {
+//   const { id } = req.params as ParamsDictionary;
+//   await userDao.delete(Number(id));
+//   return res.status(OK).end();
+// });
 
 //---------------------------------------------------------
 //  Check Token - "POST /api/User/POSTUpdate"
 //---------------------------------------------------------
-router.post('/POSTCheckToken', async (req: Request, res: Response) => {
-  const token = getToken(req);
-
-  userApi.checkToken(token).then((response: IUser) => {
-    return res.status(OK).json(response);
-  }).catch((error: AxiosError<Error>) => {
-    return res.status(BAD_REQUEST).json(error.response.data);
-  });
-});
+// router.post('/POSTCheckToken', async (req: Request, res: Response) => {
+//   const token = getToken(req);
+//
+//   userApi.checkToken(token).then((response: User) => {
+//     return res.status(OK).json(response);
+//   }).catch((error: AxiosError<Error>) => {
+//     return res.status(BAD_REQUEST).json(error.response.data);
+//   });
+// });
 
 //---------------------------------------------------------
 //  Export
