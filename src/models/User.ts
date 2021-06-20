@@ -1,43 +1,118 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt-nodejs';
+import uniqueValidator from 'mongoose-unique-validator';
 
+// remove deprication warnings for unique
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
+//---------------------------------------------------------
+//  Interfaces
+//---------------------------------------------------------
 export interface IUser {
-  Username?: string;
-  SystemRights?: string;
-  Password?: string;
+  _id?: string;
+  username: string;
+  systemRights: string;
+  password: string;
 }
 
-class User implements IUser {
-  Username?: string;
-  SystemRights?: string;
-  Password?: string;
+export interface UserDoc extends mongoose.Document {
+  username: string;
+  systemRights: string;
+  password: string;
 
-  constructor(UsernameOrUser: string | IUser,
-    SystemRights?: string,
-    Password?: string,
-  ) {
-    if (typeof UsernameOrUser === 'string') {
-      this.Username = UsernameOrUser;
-      this.SystemRights = SystemRights;
-      this.Password = Password;
-    } else {
-      this.Username = UsernameOrUser.Username;
-      this.SystemRights = UsernameOrUser.SystemRights;
-      this.Password = UsernameOrUser.Password;
-    }
-  }
+  // methods and such
+  generateHash: (password: string) => string;
+  validPassword: (password: string) => string;
+}
+
+export interface IUserModel extends mongoose.Model<UserDoc> {
+  build(attr: IUser): any;
+  generateHash(password: string): string;
+  validPassword(password: string): boolean;
 }
 
 //---------------------------------------------------------
 //  DB Model
 //---------------------------------------------------------
-const _DBUser = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
-    Username: { type: String, required: true },
-    SystemRights: { type: String, required: true },
-    Password: { type: String, required: true },
+    username: {
+      type: String,
+      required: true,
+      index: { unique: true, dropDups: true },
+    },
+    systemRights: {
+      type: String,
+      required: true
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
   },
   { timestamps: true },
 );
 
-export const DBUser = mongoose.model('users', _DBUser);
-export default User;
+//---------------------------------------------------------
+//  Functions
+//---------------------------------------------------------
+// constructor
+userSchema.statics.build = (attr: IUser) => {
+  return new User(attr);
+}
+
+// Hash password
+userSchema.methods.generateHash = function(
+  this: UserDoc,
+  password: string,
+) {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(8));
+}
+
+// Check password is valid
+userSchema.methods.validPassword = function(
+  this: UserDoc,
+  password: string,
+) {
+  return bcrypt.compareSync(password, this.password);
+}
+
+//---------------------------------------------------------
+//  Middleware
+//---------------------------------------------------------
+// hash password before save
+userSchema.pre("save", function(
+  this: UserDoc,
+  next: () => void,
+) {
+  if (this.isModified("password")) {
+    this.password = this.generateHash(this.password);
+  }
+
+  next();
+})
+
+/* don't need these password functions but will keep these demos
+// remove password
+userSchema.post("find", function(doc: UserDoc[]) {
+  if (doc) {
+    doc.forEach((user: UserDoc) => {
+      user.password = ""
+    })
+  }
+})
+
+// remove password
+userSchema.post("findOne", function(doc: UserDoc) {
+  if (doc) {
+    doc.password = "";
+  }
+})
+*/
+
+userSchema.plugin(uniqueValidator);
+
+export const User = mongoose.model<UserDoc, IUserModel>('User', userSchema);

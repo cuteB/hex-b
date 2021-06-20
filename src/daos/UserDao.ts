@@ -1,11 +1,11 @@
-import User, { IUser, DBUser } from '@models/User';
+import { IUser, User, UserDoc } from '@models/User';
 
 export interface IUserDao {
   getOne: (email: string) => Promise<IUser | null>;
   getAll: () => Promise<IUser[]>;
   create: (user: IUser) => Promise<IUser>;
-  update: (user: IUser) => Promise<void>;
-  delete: (id: number) => Promise<void>;
+  update: (user: IUser) => Promise<IUser>;
+  delete: (id: number) => Promise<boolean>;
 }
 
 class UserDao implements IUserDao {
@@ -13,25 +13,32 @@ class UserDao implements IUserDao {
   /**
   * @param email
   */
-  public async getOne(email: string): Promise<IUser | null> {
+  public async getOne(id: string): Promise<IUser | null> {
+    return User.findOne({ _id: id }).then((res: IUser) => {
+      if (res) {
+        return res;
+      } else {
+        return null
+      }
+    }).catch((err: any) => {
+      console.log(err);
+      return null;
+    })
 
-    // TODO
-    return [] as any;
   }
 
   /**
   *
   */
   public async getAll(): Promise<IUser[]> {
-    return DBUser.find({}, (err: any, users: typeof DBUser[]) => {
+    return User.find({}, (err: any, users: IUser[]) => {
       if (err) {
         return [];
       }
-      console.log(users)
       return users;
 
     }).catch((err: any[]) => {
-      console.log(err)
+      console.log(err) // Keep Console
       return [];
     })
 
@@ -41,18 +48,19 @@ class UserDao implements IUserDao {
   *
   * @param user
   */
-  public async create(value: IUser): Promise<IUser> {
-    let dbo = new DBUser(value)
+  public async create(value: IUser): Promise<UserDoc | null> {
+    let dbo = new User(value)
 
     return dbo.save()
       .then((res: any) => {
         let user: IUser = new User(res);
-        user.Password = ""; // make sure that Password doesn't get returned
+        user.password = ""; // make sure that Password doesn't get returned
 
         return new User(user);
       })
       .catch((error: any) => {
-        return {};
+        console.log(error);
+        return null;
       })
   }
 
@@ -60,18 +68,41 @@ class UserDao implements IUserDao {
   *
   * @param user
   */
-  public async update(user: IUser): Promise<void> {
-    // TODO
-    return {} as any;
+  public async update(user: IUser): Promise<UserDoc | null> {
+
+    return User.findOneAndUpdate(
+      { _id: user._id },
+      user,
+      { new: true }, // return new document
+    ).then((res: IUser) => {
+      if (res) {
+        return res;
+      } else {
+        return null
+      }
+    }).catch((err: any) => {
+      console.log(err);
+      return null;
+    })
   }
 
   /**
   *
   * @param id
   */
-  public async delete(id: number): Promise<void> {
-    // TODO
-    return {} as any;
+  public async delete(id: number): Promise<boolean> {
+
+    return User.deleteOne({ _id: id }).then((res: any) => {
+      if (res.deletedCount && res.deletedCount !== 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }).catch((err: any) => {
+      console.log(err);
+      return null;
+    })
+
   }
 }
 
