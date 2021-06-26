@@ -102,8 +102,25 @@ class UserDao implements IUserDao {
       console.log(err);
       return null;
     })
-
   }
+
+  public async authenticate(user: IUser): Promise<boolean> {
+    return User.findOne({ username: user.username })
+    .select('+password') // grap password for this call
+    .then((res: IUser) => {
+      if (res && res.validPassword(user.password)) {
+        return true;
+      }
+
+      return false
+    }).catch((err: any) => {
+      console.log(err);
+      return false;
+    })
+  }
+
 }
+
+
 
 export default UserDao;

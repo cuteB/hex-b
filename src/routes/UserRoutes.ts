@@ -89,7 +89,7 @@ router.post('/POSTUpdate', async (req: Request, res: Response) => {
   const token = getToken(req);
   const user = new User(req.body);
 
-  userDao.update(req.body).then((user: IUser) => {
+  userDao.update(user).then((user: IUser) => {
     if (user) {
       return res.status(OK).json(user);
     } else {
@@ -109,11 +109,11 @@ router.post('/POSTDelete', async (req: Request, res: Response) => {
   const token = getToken(req);
   const body = req.body;
 
-  userDao.delete(req.body.id).then((success: boolean) => {
+  userDao.delete(body.id).then((success: boolean) => {
     if (success) {
       return res.status(OK).json({
         success: true,
-        error: 'User deleted',
+        message: 'User deleted',
       });
     } else {
       return res.status(NOT_FOUND).json({
@@ -129,15 +129,22 @@ router.post('/POSTDelete', async (req: Request, res: Response) => {
 //  Authenticate - "POST /api/User/POSTAuthenticate"
 //---------------------------------------------------------
 router.post('/POSTAuthenticate', async (req: Request, res: Response) => {
+  const user = new User(req.body);
+
+  userDao.authenticate(user).then((success: boolean) => {
+    if (success) {
+      return res.status(OK).json({
+        success: true,
+        token: 'santoehusantih',
+      });
+    } else {
+      return res.status(NOT_FOUND).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+  })
 
 });
-
-
-
-
-
-
-
-
 
 export default router;

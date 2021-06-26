@@ -15,6 +15,8 @@ export interface IUser {
   username: string;
   systemRights: string;
   password: string;
+
+  validPassword: (password: string) => string;
 }
 
 export interface UserDoc extends mongoose.Document {
@@ -76,7 +78,7 @@ userSchema.methods.generateHash = function(
 userSchema.methods.validPassword = function(
   this: UserDoc,
   password: string,
-) {
+): boolean {
   return bcrypt.compareSync(password, this.password);
 }
 
