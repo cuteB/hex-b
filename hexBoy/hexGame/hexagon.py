@@ -5,17 +5,21 @@ from aggdraw import Draw, Brush, Pen
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
 
-def hexBoard():
-  image = Image.new('RGB', (500, 800), 'white')
+
+# The game board
+def hexBoard(size):
+  boardSize = size + 2
+  xLen = boardSize * 62
+  yLen = boardSize * 101
+  image = Image.new('RGB', (xLen, yLen), 'white')
   draw = Draw(image)
   hexagon_generator = HexagonGenerator(40)
 
-  boardSize = 8
 
   for row in range(boardSize):
     for col in range(boardSize):
       colour = getHexColour(boardSize, row, col)
-      label = getHexLabel(row, col)
+      # label = getHexLabel(row, col)
       hexagon = hexagon_generator(row, col)
       draw.polygon(list(hexagon), Pen('black'), Brush(colour))
 
@@ -42,6 +46,7 @@ def getHexLabel(row, col):
   if (row != 0 and col != 0):
     return ""
 
+# The Hexagon
 class HexagonGenerator(object):
   """Returns a hexagon generator for hexagons of the specified size"""
 
