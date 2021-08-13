@@ -1,19 +1,9 @@
-import cv2
-from hexGame.hexagon import hexBoard
-
-def clickCallback(event,x,y,flags,param):
-  print(x + "," + y)
-
+from testGame.TestGame import TestGame_main
+from hexGame.HexGame import HexGame_main
 
 def main():
   print('Am hex boy')
-
-  board = hexBoard(11)
-  cv2.setMouseCallback('image',clickCallback)
-  cv2.imshow('image', board)
-  cv2.waitKey(0)
-
-
+  HexGame_main()
 
 #-------------------------------------------
 #   start
