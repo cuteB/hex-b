@@ -22,12 +22,13 @@ class HexGame:
   def __init__(self):
     pygame.init()
 
-    hexSize = 40
-    boardSize = 11
+    self.hexSize = 40
+    self.boardSize = 11
 
     self.playing = True # game loop check
-    self.graphics = Graphics(boardSize, hexSize)
-    self.board = Board(boardSize)
+    self.turn = 1    # current player's turn
+    self.graphics = Graphics(self.boardSize, self.hexSize)
+    self.board = Board(self.boardSize)
 
   def setupGame(self):
     self.graphics.setupWindow()
@@ -47,9 +48,24 @@ class HexGame:
       if event.type == QUIT:
         self.terminateGame()
 
+      # Mouse click
       if (event.type == MOUSEBUTTONDOWN):
-        self.onClickFindHexagon()
+        cell = self.onClickFindHexagonCoords()
+        # Check if the click was in a cell on the board
+        if self.validateClickCell(cell):
+          # Check if it is a valid move and do the move if it is
+          if (self.board.validateMove(cell)):
+            self.board.makeMove(cell, self.turn)
+            self.endTurn()
 
+  # Swap player turns
+  def endTurn(self):
+    if (self.turn == 1):
+      self.turn = 2
+    else:
+      self.turn = 1
+
+  # Update display
   def update(self):
     self.graphics.updateWindow(self.board)
 
@@ -57,8 +73,49 @@ class HexGame:
   def terminateGame(self):
     self.playing = False
 
-  def onClickFindHexagon(self):
-    print(self.mousePos)
+  # Check if the click was on a valid cell
+  def validateClickCell(self, cellCoords):
+    (row, col) = cellCoords
+
+    if (row < 0 or col < 0):
+      return False
+    elif (row >= self.boardSize or col >= self.boardSize):
+      return False
+    else:
+      return True
+
+  # Return the position of the clicked cell in the board matrix
+  def onClickFindHexagonCoords(self):
+    '''
+    Just going to half ass this on click for now. Want it to work before
+    getting the perfect hex click function. (Half ass algorithm works well)
+
+    Right now I'll basically create a square grid and get a rough estimate
+    of what cell was clicked. Will work fine when the user clicks in the middle
+
+    Using Rectangles to estimate the hexagon
+    - Height = Hexagon Size
+    - Width = Hexagon Size * 3/4 (Need to account for interlock)
+    '''
+
+    (xMouse, yMouse) = self.mousePos
+
+    hexSize = self.hexSize
+
+    # Extra space between screen border and hexagons
+    borderOffset = (hexSize / 2) + (hexSize / 8)
+    rectWidth = hexSize * (3/4) # using rectangles to estimate the hexagons
+    rectHeight = hexSize
+
+    xMouseAdjusted = xMouse - borderOffset
+    xRow = xMouseAdjusted // rectWidth
+
+    #account for offset y coords of columns as rows increase
+    yMouseAdjusted = (yMouse - borderOffset)
+    yMouseAdjusted -= (xRow * rectHeight / 2)
+    yRow = yMouseAdjusted // rectHeight
+
+    return (int(xRow), int(yRow))
 
   def main(self):
     self.setupGame()
@@ -78,8 +135,17 @@ class Board:
 
   def initGameBoard(self):
     boardMatrix = [[None] * self.boardSize for i in range(self.boardSize)]
-
     return boardMatrix
+
+  def validateMove(self, cell):
+    (x, y) = cell
+
+    return self.board[x][y] == None
+
+  def makeMove(self, cell, player):
+    (x, y) = cell
+
+    self.board[x][y] = player
 
 '''
 -----------------------------------------------
