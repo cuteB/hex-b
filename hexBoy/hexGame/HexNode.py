@@ -15,13 +15,13 @@ class HexNode:
     RED_END     = 7
     BLUE_END    = 8
 
-  # List of barriers for each player (can't pass a barrier)
+  # List of spaces for each player (others are barriers)
     blueSpaces  = [1, 3, 5, 7]
-    redSpaces = [2, 4, 6, 8]
+    redSpaces   = [2, 4, 6, 8]
 
   nodeValue = None  # colour (Space) of the hex
-  pathCost = None   # Used for path finder algorithm
-  parentPos = None # Refrence to parent (tuple)
+  pathCost  = None  # Used for path finder algorithm. Cost to use this cell
+  parentPos = None  # Refrence to parent (tuple)
 
   # Gonna use these for the heuristic later
   g = None  # Current Score
@@ -36,6 +36,7 @@ class HexNode:
     self.h = 0
     self.f = 0
 
+    # set the edges to no cost.
     if (space == self.Space.BLUE_EDGE or space == self.Space.RED_EDGE):
       self.pathCost = 0
 
@@ -52,10 +53,10 @@ class HexNode:
   def scoreNode(self, parentPos, parentValue, endPos):
     self.setParent(parentPos)
 
-    # score cost of this node
+    # score cost of this node (previous cost + node cost)
     self.g = parentValue + self.pathCost
 
-    # score heuristic
+    # score heuristic 
     if (self.checkIfBlue()):
       # score blue based on difference in y values
       self.h = abs(endPos[1] - parentPos[1])

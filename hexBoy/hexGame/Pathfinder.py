@@ -6,9 +6,9 @@ The PathFinder
 -----------------------------------------------
 '''
 class Pathfinder:
-  sortFunc      = None
-  getAdjacentSpaces  = None
-  getSortValue  = None
+  sortFunc            = None  # The type of pathfinding algorithm to use
+  getAdjacentSpaces   = None  # funciton, get adjacent spaces of cell
+  getSortValue        = None  # function to get the value to use for sorting
 
 
   def __init__(self, getAdjacentSpaces, algorithmId = 0):
@@ -28,7 +28,7 @@ class Pathfinder:
 
     self.getSortValue = getSortValue
 
-  # Get the path
+  # Get the path using the defined pathfinding algorithm
   def findPath(self, nodeDict, startNode, endNode, checkIfBarrier):
     return self.sortFunc(nodeDict, startNode, endNode, checkIfBarrier)
 
@@ -39,8 +39,10 @@ class Pathfinder:
   '''
   def AStar(self, nodes, startPos, endPos, checkIfBarrier):
     # Init open and close SortedDictionaries
-
+    # Open: add newly found nodes to this and pop off to get the next node to
+    # look at
     openNodes = SortedDict(getSortValue = self.getSortValue)
+    # Closed: contains all nodes that have been looked at already
     closedNodes = SortedDict()
 
     # Get hex space ids
@@ -49,7 +51,7 @@ class Pathfinder:
     currentPos = startPos
     currentNode = nodes[currentPos]
     openNodes[currentPos] = currentNode
-
+    
     adjacentSpaces = None
     nextNode = None
 
@@ -71,8 +73,10 @@ class Pathfinder:
         # Only check if not a barrier and not in closed
         if (not checkIfBarrier(nextNode) and not closedNodes.hasKey(nextPos)):
           if openNodes.hasKey(nextPos):
-            # Already in open, Check if this path is better
-            if (nextNode.g < (currentNode.g + nextNode.pathCost)):
+            # Already in open,
+            # Check if the current value of the node is more than the
+            # cost from the current node would be.
+            if (nextNode.g > (currentNode.g + nextNode.pathCost)):
               nextNode.scoreNode(currentPos, currentNode.g, endPos)
               nodes[nextPos] = nextNode
               openNodes[nextPos] = nextNode

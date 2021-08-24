@@ -1,22 +1,16 @@
-# I don't like the pygame startup message so I hide. Also doesn't work
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+# I don't like the pygame startup message. Needs to be before pygame import
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 import pygame
 import sys
 from pygame.locals import *
 from math import cos, sin, pi
 
+# My imports
 from hexGame.Pathfinder import Pathfinder
 from hexGame.HexNode import HexNode
-
-# COLOURS  R    G    B
-WHITE = (255, 255, 255)
-BLACK = (  0,   0,   0)
-RED   = (255,   0,   0)
-BLUE  = (  0,   0, 255)
-DARK_RED = (150, 0, 0)
-DARK_BLUE = (0,0,150)
+from hexGame.HexGraphics import Graphics
 
 '''
 -----------------------------------------------
@@ -24,6 +18,17 @@ Main hex game class
 -----------------------------------------------
 '''
 class HexGame:
+  hexSize     = None  # Int, Size of the hexagons in pixels
+  boardSize   = None  # Int, Size of the playing board (default is 11)
+
+  playing     = None  # Bool, While true loop through the game
+  turn        = None  # Int, Current player. Blue=1, Red=2
+  winPath     = None  # (x,y)[], list of coordinates for the winning path
+
+  graphics    = None  # Graphics, render the game board
+  board       = None  # Board, Hex Board Object
+  pathfinder  = None  # Pathfinder, Algorithms to find paths
+
   def __init__(self):
     pygame.init()
 
@@ -31,53 +36,59 @@ class HexGame:
     self.boardSize = 11
 
     self.playing = True # game loop check
-    self.turn = 1    # current player's turn (1 = blue, 2 = red)
+    self.turn = 1       # current player's turn, Blue starts
+    self.winPath = None
+
     self.graphics = Graphics(self.boardSize, self.hexSize)
     self.board = Board(self.boardSize)
     self.pathfinder = Pathfinder(self.board.getAdjacentSpaces, 0)
-    self.winPath = None
-
-  def setupGame(self):
-    self.graphics.setupWindow()
 
   '''
-  Main Event loop
-  Check events and do the things
+  ------------------
+  Game Loops
+  ------------------
   '''
+  # event loop when the game is being played
   def eventLoop(self):
-    self.mousePos = pygame.mouse.get_pos()
-
     # loop through events
     for event in pygame.event.get():
-      # get mouse position
 
-      # quit
+      # Quit button
       if event.type == QUIT:
         self.terminateGame()
 
       # Mouse click
       if (event.type == MOUSEBUTTONDOWN):
+        self.mousePos = pygame.mouse.get_pos()
+        # Grab the cell coords that the click was in
         cell = self.onClickFindHexagonCoords()
         # Check if the click was in a cell on the board
         if self.validateClickCell(cell):
-          # Check if it is a valid move and do the move if it is
+          # Check if it is a valid move and do the move
           if (self.board.validateMove(cell)):
             self.board.makeMove(cell, self.turn)
             self.endTurn()
 
+  # event loop after the game is finished
   def endEventLoop(self):
     # loop through events
     for event in pygame.event.get():
-      # get mouse position
 
       # quit
       if event.type == QUIT:
         self.terminateGame()
 
-  # Swap player turns
+  '''
+  ------------------
+  Game Management
+  ------------------
+  '''
+  # End of turn process. Evaluate position.
+  # Check if there is a winner or go to next player's turn
   def endTurn(self):
+    # Blue=1, Red=2
     if (self.turn == 1):
-      # blue just went
+      # blue just went, Look for a completed blue path
       winPath = self.pathfinder.AStar(
         self.board.getNodeDict(),
         self.board.blueStartSpace,
@@ -85,15 +96,17 @@ class HexGame:
         HexNode.checkIfBlueBarrier
       )
 
-
+      # found a winning path for blue
       if (len(winPath) != 0):
         print("Blue Wins!")
         self.winPath = winPath
         self.playing = False
-      else:
-        self.turn = 2; # red's turn next
+
+      else: # go to red's turn
+        self.turn = 2;
+
     else:
-      # red just went
+      # red just went, Look for a completed red path
       winPath = self.pathfinder.AStar(
         self.board.getNodeDict(),
         self.board.redStartSpace,
@@ -101,23 +114,32 @@ class HexGame:
         HexNode.checkIfRedBarrier
       )
 
+      # found a winning path for red
       if (len(winPath) != 0):
         print("Red Wins!")
         self.winPath = winPath
         self.playing = False
-      else:
-        self.turn = 1 # blue's turn next
 
+      else: # go to Blue's turn
+        self.turn = 1
 
+  # Setup game
+  def setupGame(self):
+    self.graphics.setupWindow()
 
   # Update display
-  def update(self):
+  def updateGame(self):
     self.graphics.updateWindow(self.board, self.winPath)
 
   # Exit the game
   def terminateGame(self):
     self.playing = False
 
+  '''
+  ------------------
+  Handle clicks on the board
+  ------------------
+  '''
   # Check if the click was on a valid cell
   def validateClickCell(self, cellCoords):
     (row, col) = cellCoords
@@ -140,9 +162,19 @@ class HexGame:
     # Using Rectangles to estimate the hexagon
     # - Height = Hexagon Size
     # - Width = Hexagon Size * 3/4 (Need to account for interlock)
+    '''
+     __
+    |  |__
+    |__|  |__
+    |  |__|  |
+    |__|  |__|
+    |  |__|  |
+    |__|  |__|
+       |__|  |
+          |__|
+    '''
 
     (xMouse, yMouse) = self.mousePos
-
     hexSize = self.hexSize
 
     # Extra space between screen border and hexagons
@@ -150,31 +182,38 @@ class HexGame:
     rectWidth = hexSize * (3/4) # using rectangles to estimate the hexagons
     rectHeight = hexSize
 
+    # adjust for left border and divide by the rectangle width to get x value
     xMouseAdjusted = xMouse - borderOffset
     xRow = xMouseAdjusted // rectWidth
 
-    #account for offset y coords of columns as rows increase
+    # adjust for top border
+    # account for offset y coords of columns as rows increase
+    # divide by rectangle height to get y value
     yMouseAdjusted = (yMouse - borderOffset)
     yMouseAdjusted -= (xRow * rectHeight / 2)
     yRow = yMouseAdjusted // rectHeight
 
+    # make sure type int
     return (int(xRow), int(yRow))
 
+  '''
+  ------------------
+  Main Hex Game
+  ------------------
+  '''
   def main(self):
     self.setupGame()
 
     # main game loop
     while self.playing:
       self.eventLoop()
-      self.update()
+      self.updateGame()
 
     # end game loop
-    print(self.winPath)
     self.playing = True
     while self.playing:
       self.endEventLoop()
-      self.update()
-
+      self.updateGame()
 
 '''
 -----------------------------------------------
@@ -182,253 +221,112 @@ Game Board
 -----------------------------------------------
 '''
 class Board:
-  boardDict = None
-  boardSize = None
-  SpaceProps = None
+  boardDict       = None  # dict<HexNode>, Cells on the board and their values
+  boardSize       = None  # int, size of the board
 
-  redStartSpace = None
-  redEndSpace = None
-  blueStartSpace = None
-  blueEndSpace = None
+  # HexNode.Space, object of the different types of hex spaces.
+  hexTypes      = None
+
+  # tuples of the (x,y) coordinates of the red/blue start/end spaces
+  redStartSpace   = None
+  redEndSpace     = None
+  blueStartSpace  = None
+  blueEndSpace    = None
 
   def __init__(self, boardSize):
     self.boardSize = boardSize
-    self.boardDict = self.initGameBoard()
-    self.spaceProps = HexNode.Space
+    self.hexTypes = HexNode.Space
 
     self.redStartSpace = (-1, 0)
     self.redEndSpace = (self.boardSize, self.boardSize - 1)
     self.blueStartSpace = (0, -1)
     self.blueEndSpace = (self.boardSize -1, self.boardSize)
 
+    self.boardDict = self.initGameBoard()
+
+  # Return the board node dict
   def getNodeDict(self):
     return self.boardDict
 
+  # Initialize the starting game board.
   def initGameBoard(self):
     dict = {}
-    hexTypes = HexNode.Space
 
     #initialize playing spaces
     for x in range(self.boardSize):
       for y in range(self.boardSize):
-        dict[(x,y)] = HexNode(hexTypes.EMPTY)
+        dict[(x,y)] = HexNode(self.hexTypes.EMPTY)
 
     # Itialize edges in dict
-    # Initialize blue edge
+    # blue edge
     for x in range(self.boardSize):
-      dict[(x,-1)] = HexNode(hexTypes.BLUE_EDGE)
-      dict[(x,self.boardSize)] = HexNode(hexTypes.BLUE_EDGE)
-    # Initialize red edge
+      dict[(x,-1)] = HexNode(self.hexTypes.BLUE_EDGE)
+      dict[(x,self.boardSize)] = HexNode(self.hexTypes.BLUE_EDGE)
+    # red edge
     for y in range(self.boardSize):
-      dict[(-1,y)] = HexNode(hexTypes.RED_EDGE)
-      dict[(self.boardSize,y)] = HexNode(hexTypes.RED_EDGE)
+      dict[(-1,y)] = HexNode(self.hexTypes.RED_EDGE)
+      dict[(self.boardSize,y)] = HexNode(self.hexTypes.RED_EDGE)
 
     return dict
 
+  # Check if the given cell is a valid move. (hex is empty)
   def validateMove(self, cell):
-    return self.boardDict[cell].getValue() == self.spaceProps.EMPTY
+    return self.boardDict[cell].getValue() == self.hexTypes.EMPTY
 
+  # Make the move on the board dict
   def makeMove(self, cell, player):
     self.boardDict[cell].setValue(player)
 
+  # Check if the move is within the board or edges
   def isSpaceWithinBounds(self, cell):
     boardSize = self.boardSize
     x = cell[0]
     y = cell[1]
 
-    # include the edges around the matrix, cells within [-1, boardsize] bound
-    return x >= -1 and y >= -1 and x <= boardSize and y <= boardSize and not ((x == -1 or x == boardSize) and (y == -1 or y == boardSize))
+    # include the edges around the matrix, cells within [-1, boardsize] bound.
+    return (x >= -1 and y >= -1
+      and x <= boardSize and y <= boardSize
+      # Don't include (-1,-1), (-1, len), (len, -1), (len, len)
+      and not ((x == -1 or x == boardSize) and (y == -1 or y == boardSize)))
 
+  # Get adjacent spaces
   def getAdjacentSpaces(self, cell):
+    '''
+    Here is what the hex space looks like. just treat them like squares
+    with too extra edges
+     ___
+    /0,0\___
+    \___/1,0\___
+    /0,1\___/2,0\___
+    \___/1,1\___/3,0\
+    /0,2\___/2,1\___/
+    \___/1,2\___/3,1\
+    /0,3\___/2,2\___/
+    \___/1,3\___/3,2\
+        \___/2,3\___/
+            \___/3,3\
+                \___/
+    '''
     x = cell[0]
     y = cell[1]
 
+    # eg for cell       (1,1)
     adjacentSpaces = []
     potentialSpaces = [
-      (x,   y-1),
-      (x,   y+1),
-      (x-1, y),
-      (x+1, y),
-      (x-1, y+1),
-      (x+1, y-1),
+      (x,   y-1),     # (1,0) up
+      (x,   y+1),     # (1,2) down
+      (x-1, y),       # (0,1) left
+      (x+1, y),       # (2,1) right
+      (x-1, y+1),     # (0,2) down+left
+      (x+1, y-1),     # (2,0) up+right
     ]
 
+    # validate the potential spaces and return the adjacent spaces
     for space in potentialSpaces:
       if (self.isSpaceWithinBounds(space)):
         adjacentSpaces.append(space)
 
     return adjacentSpaces
-
-'''
------------------------------------------------
-All Graphics drawing hexagons on a board
------------------------------------------------
-'''
-# ty https://github.com/ThomasRush/py_a_star for the Hexagon rendering ideas
-class Graphics:
-  def __init__(self, size, hexSize):
-    self.hexSize = hexSize        # Hexagon size in pixels
-    self.boardSize = size         # Board size in Hexagons
-    self.caption = "Hex Game"
-
-    self.fps = 60
-    self.clock = pygame.time.Clock()
-
-    self.xWindowLength = 400
-    self.yWindowLength = 700
-    self.screen = pygame.display.set_mode(
-      (self.xWindowLength, self.yWindowLength)
-    )
-
-    self.hexBlue = Hexagon(BLUE, self.hexSize, True)
-    self.hexRed = Hexagon(RED, self.hexSize, True)
-    self.hexWhite = Hexagon(WHITE, self.hexSize, True)
-    self.hexBlueEdge = Hexagon(BLUE, self.hexSize, False)
-    self.hexRedEdge = Hexagon(RED, self.hexSize, False)
-    self.hexBlack = Hexagon(BLACK, self.hexSize, False)
-    self.hexBlueWin =  Hexagon(DARK_BLUE, self.hexSize, True)
-    self.hexRedWin =  Hexagon(DARK_RED, self.hexSize, True)
-
-  def setupWindow(self):
-    pygame.display.set_caption(self.caption)
-    self.screen.fill(WHITE)
-    # pygame.draw.rect(self.screen, BLUE, (40, 0, 700, 250))
-    # pygame.draw.rect(self.screen, BLUE, (0, 400, 360, 400))
-
-    boardSize = self.boardSize
-    hexSize = self.hexSize
-
-    # Draw boarder Hexagons for red and blue sides
-    for x in range(boardSize + 2):
-      for y in range(boardSize + 2):
-        # if it is an edge
-        if x == 0 or x == (boardSize + 1) or y == 0 or y == (boardSize + 1):
-          xPos = x * hexSize - (hexSize / 4)
-          yPos = y * hexSize - (hexSize)
-
-          # offset yPos. Each column is half lower than previous
-          yPos += x * (hexSize / 2)
-          # offset xPos. Each row is quarter more to the left
-          xPos -= x * (hexSize / 4)
-
-        # Render the hex based on board position
-        if (x == 0 and y == 0) or (x == (boardSize+1) and y == (boardSize+1)):
-          self.screen.blit(self.hexBlack.getHexagon(), (xPos, yPos))
-        elif x == 0 or (x == (boardSize + 1)):
-          self.screen.blit(self.hexRedEdge.getHexagon(), (xPos, yPos))
-        else:
-          self.screen.blit(self.hexBlueEdge.getHexagon(), (xPos, yPos))
-
-    pygame.display.flip()
-
-  # Put the hexagons on the board
-  def updateWindow(self, gameBoard, winPath = []):
-
-    board = gameBoard.getNodeDict()
-
-    boardSize = self.boardSize
-    hexSize = self.hexSize
-    borderOffset = hexSize / 2 # Extra space between screen border and hexagons
-
-    # draw hexagons
-    for x in range(boardSize):
-      for y in range(boardSize):
-        cell = (x,y)
-
-        xPos = x * hexSize + borderOffset
-        yPos = y * hexSize + borderOffset
-
-        # offset yPos. Each column is half lower than previous
-        yPos += x * (hexSize / 2)
-        # offset xPos. Each row is quarter more to the left
-        xPos -= x * (hexSize / 4)
-
-        # Render the hex based on board position
-        if board[cell].getValue() == 1:
-          self.screen.blit(self.hexBlue.getHexagon(), (xPos, yPos))
-        elif board[cell].getValue() == 2:
-          self.screen.blit(self.hexRed.getHexagon(), (xPos, yPos))
-        else:
-          self.screen.blit(self.hexWhite.getHexagon(), (xPos, yPos))
-
-    # Draw path if supplied
-    if (winPath != None and len(winPath) != 0):
-      for pos in winPath:
-        cell = (pos[0],pos[1])
-
-        xPos = pos[0] * hexSize + borderOffset
-        yPos = pos[1] * hexSize + borderOffset
-
-        # offset yPos. Each column is half lower than previous
-        yPos += pos[0] * (hexSize / 2)
-        # offset xPos. Each row is quarter more to the left
-        xPos -= pos[0] * (hexSize / 4)
-
-        if board[cell].getValue() == 1:
-          self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
-        elif board[cell].getValue() == 2:
-          self.screen.blit(self.hexRedWin.getHexagon(), (xPos, yPos))
-
-    pygame.display.flip()
-
-    self.clock.tick(self.fps)
-
-'''
------------------------------------------------
-Hexagon shape for board
------------------------------------------------
-'''
-class Hexagon:
-  def __init__(self, colour, size, drawEdges):
-    self.colour = colour
-    self.hexSize = size
-    self.drawEdges = drawEdges
-
-  def getHexagon(self):
-    hexSize = self.hexSize
-    surface = pygame.Surface((hexSize, hexSize))
-
-    # fill in background and set it as the transparent colour
-    surface.fill(WHITE)
-    surface.set_colorkey(WHITE)
-
-    half = hexSize / 2 # half of the hexagon size
-    qter = hexSize / 4 # quarter of the hexagon size
-
-    # Hexagon points
-    #  1 2
-    # 6   3
-    #  5 4
-    point1 = (qter,        0)
-    point2 = (3 * qter,    0)
-    point3 = (hexSize - 1, half)
-    point4 = (3 * qter,    hexSize - 1)
-    point5 = (qter,        hexSize - 1)
-    point6 = (0,           half)
-
-    # draw hexagon points and fill in with colour
-    points = [point1, point2, point3, point4, point5, point6]
-    pygame.draw.polygon(surface, self.colour, points)
-
-    # draw outline
-    if self.drawEdges:
-      pygame.draw.line(surface, BLACK, point1, point2, 1)
-      pygame.draw.line(surface, BLACK, point2, point3, 1)
-      pygame.draw.line(surface, BLACK, point3, point4, 1)
-      pygame.draw.line(surface, BLACK, point4, point5, 1)
-      pygame.draw.line(surface, BLACK, point5, point6, 1)
-      pygame.draw.line(surface, BLACK, point6, point1, 1)
-
-    return surface
-
-'''
------------------------------------------------
-Hexagon shape for board
------------------------------------------------
-'''
-class PathFinder:
-  def __init__(self):
-    self
 
 '''
 -----------------------------------------------

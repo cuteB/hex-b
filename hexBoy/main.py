@@ -1,4 +1,3 @@
-from testGame.TestGame import TestGame_main
 from hexGame.HexGame import HexGame_main
 
 def main():
