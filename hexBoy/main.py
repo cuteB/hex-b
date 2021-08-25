@@ -1,7 +1,6 @@
 from hexGame.HexGame import HexGame_main
 
 def main():
-  print('Am hex boy')
   HexGame_main()
 
 #-------------------------------------------
