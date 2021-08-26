@@ -24,10 +24,10 @@ class Board:
     self.hexTypes = HexNode.Space
     self.moveHistory = []
 
-    self.redStartSpace = (-1, 0)
-    self.redEndSpace = (self.boardSize, self.boardSize - 1)
-    self.blueStartSpace = (0, -1)
-    self.blueEndSpace = (self.boardSize -1, self.boardSize)
+    self.redStartSpace = (-1, 5)
+    self.redEndSpace = (self.boardSize, 5)
+    self.blueStartSpace = (5, -1)
+    self.blueEndSpace = (5, self.boardSize)
 
     self.boardDict = self.initGameBoard()
 
@@ -42,23 +42,24 @@ class Board:
     #initialize playing spaces
     for x in range(self.boardSize):
       for y in range(self.boardSize):
-        dict[(x,y)] = HexNode(self.hexTypes.EMPTY)
+        dict[(x,y)] = HexNode(self.hexTypes.EMPTY, (x,y))
 
     # Itialize edges in dict
     # blue edge
     for x in range(self.boardSize):
-      dict[(x,-1)] = HexNode(self.hexTypes.BLUE_EDGE)
-      dict[(x,self.boardSize)] = HexNode(self.hexTypes.BLUE_EDGE)
+      dict[(x,-1)] = HexNode(self.hexTypes.BLUE_EDGE, (x,-1))
+      dict[(x,self.boardSize)] = HexNode(self.hexTypes.BLUE_EDGE, (x,self.boardSize))
     # red edge
     for y in range(self.boardSize):
-      dict[(-1,y)] = HexNode(self.hexTypes.RED_EDGE)
-      dict[(self.boardSize,y)] = HexNode(self.hexTypes.RED_EDGE)
+      dict[(-1,y)] = HexNode(self.hexTypes.RED_EDGE, (-1,y))
+      dict[(self.boardSize,y)] = HexNode(self.hexTypes.RED_EDGE, (self.boardSize,y))
 
     return dict
 
   # Check if the given cell is a valid move. (hex is empty)
   def validateMove(self, cell):
-    return self.boardDict[cell].getValue() == self.hexTypes.EMPTY
+
+    return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].getValue() == self.hexTypes.EMPTY
 
   # Make the move on the board dict, add to move history
   def makeMove(self, cell, player):
@@ -115,3 +116,9 @@ class Board:
         adjacentSpaces.append(space)
 
     return adjacentSpaces
+
+  def resetGame(self):
+    self.boardDict = self.initGameBoard()
+
+  def evaluateCell(self, cell):
+    return 1

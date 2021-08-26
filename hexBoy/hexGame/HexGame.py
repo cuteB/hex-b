@@ -3,6 +3,7 @@ from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 import pygame
+import random
 import sys
 from pygame.locals import *
 from math import cos, sin, pi
@@ -25,8 +26,10 @@ class HexGame:
   boardSize   = None  # Int, Size of the playing board (default is 11)
 
   playing     = None  # Bool, While true loop through the game
+  quitGame   = None  # bool, force quit the game
   turn        = None  # Int, Current player. Blue=1, Red=2
   winPath     = None  # (x,y)[], list of coordinates for the winning path
+  showOutput = None
 
   graphics    = None  # Graphics, render the game board
   board       = None  # Board, Hex Board Object
@@ -37,7 +40,12 @@ class HexGame:
 
   nextMove = None
 
-  def __init__(self, computer1 = None, computer2 = None, showDisplay = True):
+  def __init__(self,
+    computer1 = None,
+    computer2 = None,
+    showDisplay = True,
+    hideEndGame = False
+  ):
     pygame.init()
 
     self.showDisplay = showDisplay # somtimes hide the display
@@ -45,8 +53,11 @@ class HexGame:
     self.boardSize = 11
 
     self.playing = True # game loop check
+    self.quitGame = False
     self.turn = 1       # current player's turn, Blue starts
     self.winPath = None
+    self.hideEndGame = hideEndGame
+    self.showOutput = True
 
     if (self.showDisplay):
       self.graphics = Graphics(self.boardSize, self.hexSize)
@@ -56,10 +67,20 @@ class HexGame:
 
     # Set AIs if provided
     if (computer1 != None):
-      self.player1AI = computer1
+      hexBoy1 = HexAI(
+        1, # Blue
+        self.board,
+        computer1,
+      )
+      self.player1AI = hexBoy1
 
     if (computer2 != None):
-      self.player2AI = computer2
+      hexBoy2 = HexAI(
+        2, #red
+        self.board,
+        computer2,
+      )
+      self.player2AI = hexBoy2
 
   '''
   ------------------
@@ -113,11 +134,15 @@ class HexGame:
     # if the current player is an AI get it's move
 
     if (self.turn == 1 and self.player1AI != None):
-      self.nextMove = self.player1AI.makeMove(self.board)
+      self.nextMove = self.player1AI.makeMove(
+        self.board,
+      )
       pygame.event.post(pygame.event.Event(DO_MOVE))
 
     elif (self.turn == 2 and self.player2AI != None):
-      self.nextMove = self.player2AI.makeMove(self.board)
+      self.nextMove = self.player2AI.makeMove(
+        self.board,
+      )
       pygame.event.post(pygame.event.Event(DO_MOVE))
 
   # End of turn process. Evaluate position.
@@ -126,16 +151,19 @@ class HexGame:
     # Blue=1, Red=2
     if (self.turn == 1):
       # blue just went, Look for a completed blue path
-      winPath = self.pathfinder.AStar(
+      winPath = self.pathfinder.findPath(
         self.board.getNodeDict(),
         self.board.blueStartSpace,
         self.board.blueEndSpace,
-        HexNode.checkIfBlueBarrier
+        HexNode.checkIfBlueBarrier,
+        HexNode.getCellValueForWinningPath
       )
 
       # found a winning path for blue
       if (len(winPath) != 0):
-        print("Blue Wins!")
+        if (self.showOutput):
+          print("Blue Wins!")
+
         self.winPath = winPath
         self.playing = False
 
@@ -145,16 +173,19 @@ class HexGame:
 
     else:
       # red just went, Look for a completed red path
-      winPath = self.pathfinder.AStar(
+      winPath = self.pathfinder.findPath(
         self.board.getNodeDict(),
         self.board.redStartSpace,
         self.board.redEndSpace,
-        HexNode.checkIfRedBarrier
+        HexNode.checkIfRedBarrier,
+        HexNode.getCellValueForWinningPath
       )
 
       # found a winning path for red
       if (len(winPath) != 0):
-        print("Red Wins!")
+        if (self.showOutput):
+          print("Red Wins!")
+
         self.winPath = winPath
         self.playing = False
 
@@ -172,10 +203,17 @@ class HexGame:
     else:
       return self.player2AI == None
 
-  # Setup game
+  # Setup game and start first turn
   def setupGame(self):
+
     if self.showDisplay:
       self.graphics.setupWindow()
+
+    self.board.resetGame()
+
+    self.winPath = None
+
+    self.startTurn()
 
   # Update display
   def updateGame(self):
@@ -185,6 +223,23 @@ class HexGame:
   # Exit the game
   def terminateGame(self):
     self.playing = False
+    self.quitGame = True
+
+  def playGame(self):
+    self.setupGame()
+
+    # main game loop
+    while (self.playing):
+      self.eventLoop()
+      self.updateGame()
+
+    # end game loop
+    self.playing = True
+    while (self.playing and self.showDisplay and not self.hideEndGame):
+      self.endEventLoop()
+      self.updateGame()
+
+    return self.turn
 
   '''
   ------------------
@@ -252,20 +307,37 @@ class HexGame:
   Main Hex Game
   ------------------
   '''
-  def main(self):
-    self.setupGame()
+  def main(self, numGames = None):
 
-    # main game loop
-    self.startTurn()
-    while (self.playing):
-      self.eventLoop()
-      self.updateGame()
+    if (numGames == None):
+      self.playGame()
 
-    # end game loop
-    self.playing = True
-    while (self.playing and self.showDisplay):
-      self.endEventLoop()
-      self.updateGame()
+    else:
+      self.showOutput = False
+
+      blueWins = 0
+      redWins = 0
+      blueName = ""
+      redName = ""
+
+      if (self.player1AI != None):
+        blueName = "(" + self.player1AI.name + ")"
+
+      if (self.player2AI != None):
+        redName = "(" + self.player2AI.name + ")"
+
+      for i in range(numGames):
+        if (not self.quitGame):
+          self.turn = (i % 2) + 1 # altertate turns
+          self.playGame()
+
+          if (self.turn == 1):
+            blueWins += 1
+          else:
+            redWins += 1
+
+        sys.stdout.write("\rGame #%d, Blue%s wins: %d, Red%s wins: %d" % (i+1, blueName, blueWins, redName, redWins))
+        sys.stdout.flush()
 
 '''
 -----------------------------------------------
@@ -273,8 +345,13 @@ Main
 -----------------------------------------------
 '''
 def HexGame_main():
-  hexBoy = HexAI()
 
   # game = HexGame()
-  game = HexGame(computer1 = hexBoy, computer2 = hexBoy)
-  game.main()
+  game = HexGame(
+    computer1=1,
+    computer2=1,
+    hideEndGame = True,
+    showDisplay = True,
+  )
+
+  game.main(10000)

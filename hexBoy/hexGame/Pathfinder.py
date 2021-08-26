@@ -6,7 +6,7 @@ The PathFinder
 -----------------------------------------------
 '''
 class Pathfinder:
-  sortFunc            = None  # The type of pathfinding algorithm to use
+  pathFunc            = None  # The type of pathfinding algorithm to use
   getAdjacentSpaces   = None  # funciton, get adjacent spaces of cell
   getSortValue        = None  # function to get the value to use for sorting
 
@@ -16,11 +16,11 @@ class Pathfinder:
 
     # A*
     if (algorithmId == 0):
-      self.sortFunc = self.AStar
+      self.pathFunc = self.AStar
 
     # default is A*
     else:
-      self.sortFunc = self.AStar
+      self.pathFunc = self.AStar
 
 
     def getSortValue(item):
@@ -29,15 +29,15 @@ class Pathfinder:
     self.getSortValue = getSortValue
 
   # Get the path using the defined pathfinding algorithm
-  def findPath(self, nodeDict, startNode, endNode, checkIfBarrier):
-    return self.sortFunc(nodeDict, startNode, endNode, checkIfBarrier)
+  def findPath(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
+    return self.pathFunc(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
 
   '''
   ------------------
   AStar
   ------------------
   '''
-  def AStar(self, nodes, startPos, endPos, checkIfBarrier):
+  def AStar(self, nodes, startPos, endPos, checkIfBarrier, getCellCost):
     # Init open and close SortedDictionaries
     # Open: add newly found nodes to this and pop off to get the next node to
     # look at
@@ -51,7 +51,7 @@ class Pathfinder:
     currentPos = startPos
     currentNode = nodes[currentPos]
     openNodes[currentPos] = currentNode
-    
+
     adjacentSpaces = None
     nextNode = None
 
@@ -76,14 +76,14 @@ class Pathfinder:
             # Already in open,
             # Check if the current value of the node is more than the
             # cost from the current node would be.
-            if (nextNode.g > (currentNode.g + nextNode.pathCost)):
-              nextNode.scoreNode(currentPos, currentNode.g, endPos)
+            if (nextNode.g > (currentNode.g + getCellCost(nextNode))):
+              nextNode.scoreNode(getCellCost(nextNode), currentPos, currentNode.g, endPos)
               nodes[nextPos] = nextNode
               openNodes[nextPos] = nextNode
 
           else:
             # Not in open, Score and add to open
-            nextNode.scoreNode(currentPos, currentNode.g, endPos)
+            nextNode.scoreNode(getCellCost(nextNode), currentPos, currentNode.g, endPos)
             nodes[nextPos] = nextNode
             openNodes[nextPos] = nextNode
 
