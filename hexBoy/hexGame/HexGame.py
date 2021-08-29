@@ -13,8 +13,9 @@ from hexGame.Pathfinder import Pathfinder
 from hexGame.HexNode import HexNode
 from hexGame.HexGraphics import Graphics
 from hexGame.HexBoard import Board
-from hexGame.HexAI import HexAI
+from hexGame.HexAgent import HexAgent
 
+# Custom Events
 DO_MOVE = pygame.USEREVENT + 1
 '''
 -----------------------------------------------
@@ -26,17 +27,17 @@ class HexGame:
   boardSize   = None  # Int, Size of the playing board (default is 11)
 
   playing     = None  # Bool, While true loop through the game
-  quitGame   = None  # bool, force quit the game
+  quitGame    = None  # bool, force quit the game
   turn        = None  # Int, Current player. Blue=1, Red=2
   winPath     = None  # (x,y)[], list of coordinates for the winning path
-  showOutput = None
+  showOutput  = None  # show print statements
 
   graphics    = None  # Graphics, render the game board
   board       = None  # Board, Hex Board Object
   pathfinder  = None  # Pathfinder, Algorithms to find paths
 
-  player1AI   = None  # AIs for player, None = human
-  player2AI   = None
+  blueAgent   = None  # AIs for player, None = human
+  redAgent    = None
 
   nextMove = None
 
@@ -67,20 +68,20 @@ class HexGame:
 
     # Set AIs if provided
     if (computer1 != None):
-      hexBoy1 = HexAI(
+      hexBoy1 = HexAgent(
         1, # Blue
         self.board,
         computer1,
       )
-      self.player1AI = hexBoy1
+      self.blueAgent = hexBoy1
 
     if (computer2 != None):
-      hexBoy2 = HexAI(
+      hexBoy2 = HexAgent(
         2, #red
         self.board,
         computer2,
       )
-      self.player2AI = hexBoy2
+      self.redAgent = hexBoy2
 
   '''
   ------------------
@@ -133,14 +134,14 @@ class HexGame:
 
     # if the current player is an AI get it's move
 
-    if (self.turn == 1 and self.player1AI != None):
-      self.nextMove = self.player1AI.makeMove(
+    if (self.turn == 1 and self.blueAgent != None):
+      self.nextMove = self.blueAgent.makeMove(
         self.board,
       )
       pygame.event.post(pygame.event.Event(DO_MOVE))
 
-    elif (self.turn == 2 and self.player2AI != None):
-      self.nextMove = self.player2AI.makeMove(
+    elif (self.turn == 2 and self.redAgent != None):
+      self.nextMove = self.redAgent.makeMove(
         self.board,
       )
       pygame.event.post(pygame.event.Event(DO_MOVE))
@@ -167,6 +168,11 @@ class HexGame:
         self.winPath = winPath
         self.playing = False
 
+        if (self.blueAgent != None):
+          self.blueAgent.scoreWin(self.board)
+        if (self.redAgent != None):
+          self.redAgent.scoreLoss(self.board)
+
       else: # go to red's turn
         self.turn = 2;
         self.startTurn()
@@ -189,6 +195,11 @@ class HexGame:
         self.winPath = winPath
         self.playing = False
 
+        if (self.redAgent != None):
+          self.redAgent.scoreWin(self.board)
+        if (self.blueAgent != None):
+          self.blueAgent.scoreLoss(self.board)
+
       else: # go to Blue's turn
         self.turn = 1
         self.startTurn()
@@ -199,9 +210,9 @@ class HexGame:
     turn = self.turn
 
     if (turn == 1):
-      return self.player1AI == None
+      return self.blueAgent == None
     else:
-      return self.player2AI == None
+      return self.redAgent == None
 
   # Setup game and start first turn
   def setupGame(self):
@@ -320,11 +331,11 @@ class HexGame:
       blueName = ""
       redName = ""
 
-      if (self.player1AI != None):
-        blueName = "(" + self.player1AI.name + ")"
+      if (self.blueAgent != None):
+        blueName = self.blueAgent.name
 
-      if (self.player2AI != None):
-        redName = "(" + self.player2AI.name + ")"
+      if (self.redAgent != None):
+        redName = self.redAgent.name
 
       for i in range(numGames):
         if (not self.quitGame):
@@ -339,6 +350,12 @@ class HexGame:
         sys.stdout.write("\rGame #%d, Blue%s wins: %d, Red%s wins: %d" % (i+1, blueName, blueWins, redName, redWins))
         sys.stdout.flush()
 
+      blueWinPerc = blueWins / numGames
+      redWinPerc = redWins / numGames
+      print()
+      print("Blue%s Win:  %0.2f" % (blueName, blueWinPerc))
+      print("Red%s Win:  %0.2f" % (redName, redWinPerc))
+
 '''
 -----------------------------------------------
 Main
@@ -349,7 +366,7 @@ def HexGame_main():
   # game = HexGame()
   game = HexGame(
     computer1=1,
-    computer2=1,
+    computer2=2,
     hideEndGame = True,
     showDisplay = True,
   )

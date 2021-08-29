@@ -87,14 +87,17 @@ class Board:
     /0,0\___
     \___/1,0\___
     /0,1\___/2,0\___
-    \___/1,1\___/3,0\
-    /0,2\___/2,1\___/
-    \___/1,2\___/3,1\
-    /0,3\___/2,2\___/
-    \___/1,3\___/3,2\
-        \___/2,3\___/
-            \___/3,3\
-                \___/
+    \___/1,1\___/3,0\___
+    /0,2\___/2,1\___/4,0\
+    \___/1,2\___/3,1\___/
+    /0,3\___/2,2\___/4,1\
+    \___/1,3\___/3,2\___/
+    /0,4\___/2,3\___/4,2\
+    \___/1,4\___/3,3\___/
+        \___/2,4\___/4,3\
+            \___/3,4\___/
+                \___/4,4\
+                    \___/
     '''
     x = cell[0]
     y = cell[1]
@@ -117,8 +120,56 @@ class Board:
 
     return adjacentSpaces
 
+  def get2AwaySpaces(self, cell):
+    # return nodes within 2 spaces of the cell
+    x = cell[0]
+    y = cell[1]
+
+    adjacentSpaces = []
+    potentialSpaces = [
+      (x-2, y),
+      (x-2, y+1),
+      (x-2, y+2),
+      (x-1, y-1),
+      (x-1, y+2),
+      (x,   y-2),
+      (x,   y+2),
+      (x+1, y+1),
+      (x+1, y-2),
+      (x+2, y),
+      (x+2, y-1),
+      (x+2, y-2),
+    ]
+
+    # validate the potential spaces and return the adjacent spaces
+    for space in potentialSpaces:
+      if (self.isSpaceWithinBounds(space)):
+        adjacentSpaces.append(space)
+
+    return adjacentSpaces
+
   def resetGame(self):
     self.boardDict = self.initGameBoard()
+    self.moveHistory = []
 
-  def evaluateCell(self, cell):
-    return 1
+  '''
+  ------------------
+  Functions for moves
+  ------------------
+  '''
+  def getDistanceToCenter(self, move):
+    (x,y) = move
+    return abs(x-5) + abs(y-5)
+
+  def getPlayerMoves(self, playerId=None):
+    playerMoves = []
+    if (playerId != None):
+      player = playerId - 1
+    else :
+      player = (len(self.moveHistory) % 2)
+
+    for i in range(len(self.moveHistory)):
+      if (i % 2 == player):
+        playerMoves.append(self.moveHistory[i])
+
+    return playerMoves
