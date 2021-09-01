@@ -13,7 +13,7 @@ from hexGame.Pathfinder import Pathfinder
 from hexGame.HexNode import HexNode
 from hexGame.HexGraphics import Graphics
 from hexGame.HexBoard import Board
-from hexGame.HexAgent import HexAgent
+from hexGame.agent.HexAgent import HexAgent
 
 # Custom Events
 DO_MOVE = pygame.USEREVENT + 1
@@ -129,6 +129,8 @@ class HexGame:
   Game Management
   ------------------
   '''
+  # TODO agent needs to score game after updating the window. Currently doesn't show the last move on the board
+
   def startTurn(self):
     # not much happens at the start of the turn
 
@@ -168,6 +170,7 @@ class HexGame:
         self.winPath = winPath
         self.playing = False
 
+        self.updateGame()
         if (self.blueAgent != None):
           self.blueAgent.scoreWin(self.board)
         if (self.redAgent != None):
@@ -195,6 +198,7 @@ class HexGame:
         self.winPath = winPath
         self.playing = False
 
+        self.updateGame()
         if (self.redAgent != None):
           self.redAgent.scoreWin(self.board)
         if (self.blueAgent != None):
@@ -350,6 +354,7 @@ class HexGame:
         sys.stdout.write("\rGame #%d, Blue%s wins: %d, Red%s wins: %d" % (i+1, blueName, blueWins, redName, redWins))
         sys.stdout.flush()
 
+      numGames = blueWins + redWins
       blueWinPerc = blueWins / numGames
       redWinPerc = redWins / numGames
       print()
@@ -367,7 +372,7 @@ def HexGame_main():
   game = HexGame(
     computer1=1,
     computer2=2,
-    hideEndGame = True,
+    hideEndGame = False,
     showDisplay = True,
   )
 

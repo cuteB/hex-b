@@ -3,6 +3,8 @@ import random
 from hexGame.Pathfinder import Pathfinder
 from hexGame.HexBoard import Board
 from hexGame.HexNode import HexNode
+from hexGame.agent.BoardEval import BoardStates
+from hexGame.agent.MoveEval import evaluateMove
 
 '''
 -----------------------------------------------
@@ -52,6 +54,9 @@ class HexAgent:
   -----------------------------------------------
   '''
   def initAgentAlgorithm(self, algorithmId):
+    self.scoreWin = self._defaultScoreWin
+    self.scoreLoss = self._defaultScoreLoss
+
     # Set algorithm
     if (algorithmId == 0):
       self.name += "(rand)"
@@ -65,6 +70,13 @@ class HexAgent:
       self.name += "(eval)"
       self.pathfinder = Pathfinder(self.getAdjacentSpaces, 1)
       self.moveAlgorithm = self.strongMove
+
+    elif (algorithmId == 3):
+      self.name += "(board)"
+      self.boardEval = BoardStates(self.player)
+      self.moveAlgorithm = self.evaluateBoardMove
+      self.scoreWin = self.boardEval.scoreBoardWin
+      self.scoreLoss = self.boardEval.scoreBoardLoss
 
     else:
       self.name += "(rand)"
@@ -96,12 +108,11 @@ class HexAgent:
 
   '''
   -----------------------------------------------
-  Actions
+  Public Actions
   -----------------------------------------------
   '''
   def makeMove(self, gameBoard):
     return self.moveAlgorithm(gameBoard)
-
 
   '''
   -----------------------------------------------
@@ -176,79 +187,44 @@ class HexAgent:
     )
 
     move = self.randomMove(gameBoard)
-    moveVal = self.evaluateMove(move, gameBoard, winPath, opponentPath)
+    moveVal = evaluateMove(move, gameBoard, winPath, opponentPath)
 
     for x in range(gameBoard.boardSize):
       for y in range(gameBoard.boardSize):
         nextMove = (x,y)
         if (gameBoard.validateMove(nextMove)):
-          nextVal = self.evaluateMove(nextMove, gameBoard, winPath, opponentPath)
+          nextVal = evaluateMove(nextMove, gameBoard, winPath, opponentPath)
           if (nextVal > moveVal):
             moveVal = nextVal
             move = nextMove
 
     return move
 
-  def evaluateMove(self, move, gameBoard, winPath, opponentPath):
 
-    value = 1
-    if (self.isStrongMove(move, gameBoard)):
-      value += 5
+  '''
+  ------------------
+  Strong Moves
+  ------------------
+  '''
+  def evaluateBoardMove(self, gameBoard):
 
-    if (move in winPath):
-      value += 5
+    move = self.randomMove(gameBoard)
+    moveVal = self.boardEval.evaluateBoard(gameBoard.moveHistory)
 
-    if (move in opponentPath):
-      value += 4
 
-    value += (8 - gameBoard.getDistanceToCenter(move))
+    for x in range(gameBoard.boardSize):
+      for y in range(gameBoard.boardSize):
+        nextMove = (x,y)
+        if (gameBoard.validateMove(nextMove)):
+          nextMoveHistory = gameBoard.moveHistory
+          nextMoveHistory.append(nextMove)
 
-    return value
+          nextVal = self.boardEval.evaluateBoard(nextMoveHistory)
+          if (nextVal > moveVal):
+            moveVal = nextVal
+            move = nextMove
 
-  def isStrongMove(self, move, gameBoard):
-    playerMoves = gameBoard.getPlayerMoves()
-    (x,y) = move
-    strongMoves = [
-      (x-2, y+1),
-      (x-1, y-1),
-      (x-1, y+2),
-      (x+1, y+1),
-      (x+1, y-2),
-      (x+2, y-1)
-    ]
-    strongDict = {}
-    strongDict[strongMoves[0]] = [(x-1,y  ), (x-1,y+1)]
-    strongDict[strongMoves[1]] = [(x-1,y  ), (x,  y-1)]
-    strongDict[strongMoves[4]] = [(x-1,y+1), (x,  y+1)]
-    strongDict[strongMoves[3]] = [(x,  y+1), (x+1,y  )]
-    strongDict[strongMoves[2]] = [(x+1,y-1), (x,  y-1)]
-    strongDict[strongMoves[5]] = [(x+1,y  ), (x+1,y-1)]
-
-    potentialStrongMoves = []
-    for sMove in strongMoves:
-      if (gameBoard.isSpaceWithinBounds(sMove)):
-        potentialStrongMoves.append(sMove)
-
-    for strongMove in potentialStrongMoves:
-      if (strongMove in playerMoves):
-
-        movesToStrongMove = strongDict[strongMove]
-        if (not movesToStrongMove[0] in gameBoard.moveHistory
-          and not movesToStrongMove[1] in gameBoard.moveHistory
-        ):
-          return True
-
-    return False
-
-  def spacesNearWinPath(self, winPath, gameBoard):
-    nearPath = {}
-
-    for space in winPath:
-      adjacentSpaces = self.getAdjacentSpaces(space)
-      for closeBy in adjacentSpaces:
-        nearPath[closeBy] = closeBy
-
-    return nearPath
+    return move
 
   '''
   -----------------------------------------------
@@ -261,8 +237,8 @@ class HexAgent:
     else:
       self.scoreLoss(gameBoard)
 
-  def scoreWin(self, gameBoard):
+  def _defaultScoreWin(self, gameBoard):
     a = 1
 
-  def scoreLoss(self, gameBoard):
+  def _defaultScoreLoss(self, gameBoard):
     a = 2
