@@ -58,3 +58,24 @@ def isStrongMove( move, gameBoard):
 #       nearPath[closeBy] = closeBy
 #
 #   return nearPath
+
+# From agent strong?
+def evaluateBoardMove(self, gameBoard):
+
+  move = self.randomMove(gameBoard)
+  moveVal = self.boardEval.evaluateBoard(gameBoard.moveHistory)
+
+
+  for x in range(gameBoard.boardSize):
+    for y in range(gameBoard.boardSize):
+      nextMove = (x,y)
+      if (gameBoard.validateMove(nextMove)):
+        nextMoveHistory = gameBoard.moveHistory
+        nextMoveHistory.append(nextMove)
+
+        nextVal = self.boardEval.evaluateBoard(nextMoveHistory)
+        if (nextVal > moveVal):
+          moveVal = nextVal
+          move = nextMove
+
+  return move

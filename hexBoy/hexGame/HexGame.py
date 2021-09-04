@@ -13,7 +13,6 @@ from hexGame.Pathfinder import Pathfinder
 from hexGame.HexNode import HexNode
 from hexGame.HexGraphics import Graphics
 from hexGame.HexBoard import Board
-from hexGame.agent.HexAgent import HexAgent
 
 # Custom Events
 DO_MOVE = pygame.USEREVENT + 1
@@ -45,7 +44,7 @@ class HexGame:
     computer1 = None,
     computer2 = None,
     showDisplay = True,
-    hideEndGame = False
+    showEndGame = True
   ):
     pygame.init()
 
@@ -57,7 +56,7 @@ class HexGame:
     self.quitGame = False
     self.turn = 1       # current player's turn, Blue starts
     self.winPath = None
-    self.hideEndGame = hideEndGame
+    self.showEndGame = showEndGame
     self.showOutput = True
 
     if (self.showDisplay):
@@ -68,20 +67,13 @@ class HexGame:
 
     # Set AIs if provided
     if (computer1 != None):
-      hexBoy1 = HexAgent(
-        1, # Blue
-        self.board,
-        computer1,
-      )
-      self.blueAgent = hexBoy1
+      self.blueAgent = computer1
+      self.blueAgent.setGameBoardAndPlayer(self.board, 1)
 
     if (computer2 != None):
-      hexBoy2 = HexAgent(
-        2, #red
-        self.board,
-        computer2,
-      )
-      self.redAgent = hexBoy2
+      self.redAgent = computer2
+      self.redAgent.setGameBoardAndPlayer(self.board, 2)
+
 
   '''
   ------------------
@@ -137,15 +129,11 @@ class HexGame:
     # if the current player is an AI get it's move
 
     if (self.turn == 1 and self.blueAgent != None):
-      self.nextMove = self.blueAgent.makeMove(
-        self.board,
-      )
+      self.nextMove = self.blueAgent.getAgentMove()
       pygame.event.post(pygame.event.Event(DO_MOVE))
 
     elif (self.turn == 2 and self.redAgent != None):
-      self.nextMove = self.redAgent.makeMove(
-        self.board,
-      )
+      self.nextMove = self.redAgent.getAgentMove()
       pygame.event.post(pygame.event.Event(DO_MOVE))
 
   # End of turn process. Evaluate position.
@@ -172,9 +160,9 @@ class HexGame:
 
         self.updateGame()
         if (self.blueAgent != None):
-          self.blueAgent.scoreWin(self.board)
+          self.blueAgent.scoreGame()
         if (self.redAgent != None):
-          self.redAgent.scoreLoss(self.board)
+          self.redAgent.scoreGame()
 
       else: # go to red's turn
         self.turn = 2;
@@ -200,9 +188,9 @@ class HexGame:
 
         self.updateGame()
         if (self.redAgent != None):
-          self.redAgent.scoreWin(self.board)
+          self.redAgent.scoreGame()
         if (self.blueAgent != None):
-          self.blueAgent.scoreLoss(self.board)
+          self.blueAgent.scoreGame()
 
       else: # go to Blue's turn
         self.turn = 1
@@ -250,7 +238,7 @@ class HexGame:
 
     # end game loop
     self.playing = True
-    while (self.playing and self.showDisplay and not self.hideEndGame):
+    while (self.playing and self.showDisplay and self.showEndGame):
       self.endEventLoop()
       self.updateGame()
 
@@ -366,14 +354,20 @@ class HexGame:
 Main
 -----------------------------------------------
 '''
-def HexGame_main():
+def HexGame_main(
+  agentA = None,
+  agentB = None,
+  showEndGame = False,
+  showDisplay = True,
+  numGames = None
+):
 
   # game = HexGame()
   game = HexGame(
-    computer1=1,
-    computer2=2,
-    hideEndGame = False,
-    showDisplay = True,
+    computer1=agentA,
+    computer2=agentB,
+    showEndGame = showEndGame,
+    showDisplay = showDisplay,
   )
 
-  game.main(10000)
+  game.main(numGames)

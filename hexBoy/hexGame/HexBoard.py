@@ -69,8 +69,7 @@ class Board:
   # Check if the move is within the board or edges
   def isSpaceWithinBounds(self, cell):
     boardSize = self.boardSize
-    x = cell[0]
-    y = cell[1]
+    (x,y) = cell
 
     # include the edges around the matrix, cells within [-1, boardsize] bound.
     return (x >= -1 and y >= -1
