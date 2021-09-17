@@ -23,6 +23,8 @@ class HexNode:
   pathCost  = None  # Used for path finder algorithm. Cost to use this cell
   parentPos = None  # Refrence to parent (tuple)
   nodePos = None    # Node's position
+  bestPathCost = None # Used to store the best
+  extraPathsToThisNode = None
 
   # Gonna use these for the heuristic later
   g = None  # Current Score
@@ -38,6 +40,8 @@ class HexNode:
     self.h = 0
     self.f = 0
 
+    self.extraPathsToThisNode = 0
+
     # set the edges to no cost.
     if (space == self.Space.BLUE_EDGE or space == self.Space.RED_EDGE):
       self.pathCost = 0
@@ -50,6 +54,9 @@ class HexNode:
 
   def setParent(self, parent):
     self.parent = parent
+
+  def setBestPathCost(self, cost):
+    self.bestPathCost = cost
 
   # Score this node and set its parent
   def scoreNode(self, nodeCost, parentPos, parentValue, endPos):
@@ -87,7 +94,6 @@ class HexNode:
 
   def checkIfEnd(self):
     space = self.getValue()
-    print(space)
     return (space == self.Space.RED_END or space == self.Space.BLUE_END)
 
   def checkIfBlue(self):
@@ -106,10 +112,16 @@ class HexNode:
       return 0
 
     elif (hexnode.nodeValue == spaces.EMPTY):
-      return 2
+      return 1
 
     elif (hexnode.nodeValue == spaces.BLUE or hexnode.nodeValue == spaces.RED):
       return 0
 
     else:
       return 1
+
+  def addExtraPathsToNode(self, paths):
+    self.extraPathsToThisNode += paths
+
+  def setExtraPathsToNode(self, paths):
+    self.extraPathsToThisNode = paths

@@ -1,6 +1,5 @@
 import random
 
-from hexGame.Pathfinder import Pathfinder
 from hexGame.HexBoard import Board
 from hexGame.HexNode import HexNode
 
@@ -37,7 +36,7 @@ class HexAgent:
   def getAgentMove(self):
     return self._randomMove()
 
-  # Score game and get good
+  # Score game and get good. Also reset I guess
   def scoreGame(self):
     return
 
@@ -56,12 +55,13 @@ class HexAgent:
   Agent Setup
   ------------------
   '''
-  def __initGameBoard(self, gameBoard):
+  def _initGameBoard(self, gameBoard):
     self.gameBoard = gameBoard
     self.getAdjacentSpaces = gameBoard.getAdjacentSpaces
 
   def _initPlayerBoard(self, player):
     self.player = player
+    gameBoard = self.gameBoard
 
     # Blue player
     if (self.player == 1):

@@ -116,6 +116,8 @@ class Graphics:
           self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
         elif board[cell].getValue() == 2:
           self.screen.blit(self.hexRedWin.getHexagon(), (xPos, yPos))
+        else:
+          self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
 
     pygame.display.flip()
 

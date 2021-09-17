@@ -9,7 +9,7 @@ from pygame.locals import *
 from math import cos, sin, pi
 
 # My imports
-from hexGame.Pathfinder import Pathfinder
+from hexGame.pathfinder.PathBoy import PathBoy
 from hexGame.HexNode import HexNode
 from hexGame.HexGraphics import Graphics
 from hexGame.HexBoard import Board
@@ -63,7 +63,7 @@ class HexGame:
       self.graphics = Graphics(self.boardSize, self.hexSize)
 
     self.board = Board(self.boardSize)
-    self.pathfinder = Pathfinder(self.board.getAdjacentSpaces, 0)
+    self.pathfinder = PathBoy(self.board.getAdjacentSpaces, 0)
 
     # Set AIs if provided
     if (computer1 != None):

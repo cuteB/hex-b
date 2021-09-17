@@ -1,6 +1,6 @@
 import random
 
-from hexGame.Pathfinder import Pathfinder
+from hexGame.pathfinder.PathBoy import PathBoy
 from hexGame.HexBoard import Board
 from hexGame.AI.HexAgent import HexAgent
 from hexGame.HexNode import HexNode
@@ -53,7 +53,7 @@ class AgentAStar(HexAgent):
     HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
     # AStar Pathfinder
-    self.pathfinder = Pathfinder(
+    self.pathfinder = PathBoy(
       self.getAdjacentSpaces,
       1 #AStar
     )

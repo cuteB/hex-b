@@ -1,6 +1,6 @@
 import random
 
-from hexGame.Pathfinder import Pathfinder
+from hexGame.pathfinder.PathBoy import PathBoy
 from hexGame.HexBoard import Board
 from hexGame.AI.HexAgent import HexAgent
 from hexGame.HexNode import HexNode
@@ -19,7 +19,7 @@ class AgentStrong(HexAgent):
     self.name = "Agent_Strong"
 
     # Pathfinder
-    self.pathfinder = Pathfinder(
+    self.pathfinder = PathBoy(
       self.getAdjacentSpaces,
       1 #AStar
     )
@@ -39,6 +39,8 @@ class AgentStrong(HexAgent):
       self.checkIfBarrier,
       HexNode.getCellValueForNextMove
     )
+
+
     opponentPath = self.pathfinder.findPath(
       gameBoard.getNodeDict(),
       self.opponentStart,
@@ -46,6 +48,7 @@ class AgentStrong(HexAgent):
       self.checkIfOpponentBarrier,
       HexNode.getCellValueForNextMove
     )
+
 
     move = self._randomMove()
     moveVal = evaluateMove(move, gameBoard, winPath, opponentPath)
@@ -66,7 +69,7 @@ class AgentStrong(HexAgent):
     HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
     # AStar Pathfinder
-    self.pathfinder = Pathfinder(
+    self.pathfinder = PathBoy(
       self.getAdjacentSpaces,
       1 #AStar
     )

@@ -1,6 +1,5 @@
 import random
 
-from hexGame.Pathfinder import Pathfinder
 from hexGame.HexBoard import Board
 from hexGame.AI.HexAgent import HexAgent
 from hexGame.HexNode import HexNode
