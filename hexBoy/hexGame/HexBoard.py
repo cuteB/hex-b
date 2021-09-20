@@ -1,6 +1,6 @@
 import copy
 
-from hexGame.HexNode import HexNode
+from hexBoy.HexNode import HexNode
 
 '''
 -----------------------------------------------

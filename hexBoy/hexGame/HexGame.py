@@ -9,10 +9,10 @@ from pygame.locals import *
 from math import cos, sin, pi
 
 # My imports
-from hexGame.pathfinder.PathBoy import PathBoy
-from hexGame.HexNode import HexNode
-from hexGame.HexGraphics import Graphics
-from hexGame.HexBoard import Board
+from hexBoy.pathfinder.PathBoy import PathBoy
+from hexBoy.HexNode import HexNode
+from hexBoy.HexGraphics import Graphics
+from hexBoy.HexBoard import Board
 
 # Custom Events
 DO_MOVE = pygame.USEREVENT + 1
@@ -355,7 +355,7 @@ class HexGame:
 Main
 -----------------------------------------------
 '''
-def HexGame_main(
+def HexGame_Play(
   agentA = None,
   agentB = None,
   showEndGame = False,
