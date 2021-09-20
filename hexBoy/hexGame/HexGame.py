@@ -101,7 +101,7 @@ class HexGame:
             self.board.makeMove(cell, self.turn)
             self.endTurn()
 
-      if (event.type == DO_MOVE):
+      elif (event.type == DO_MOVE):
         cell = self.nextMove
         if (self.board.validateMove(cell)):
           self.board.makeMove(cell, self.turn)
@@ -124,6 +124,7 @@ class HexGame:
   # TODO agent needs to score game after updating the window. Currently doesn't show the last move on the board
 
   def startTurn(self):
+    self.updateGame()
     # not much happens at the start of the turn
 
     # if the current player is an AI get it's move

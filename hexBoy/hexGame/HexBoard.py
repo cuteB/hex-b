@@ -1,3 +1,5 @@
+import copy
+
 from hexGame.HexNode import HexNode
 
 '''
@@ -56,9 +58,11 @@ class Board:
 
     return dict
 
+  def setBoardDict(self, dict):
+    self.boardDict = dict
+
   # Check if the given cell is a valid move. (hex is empty)
   def validateMove(self, cell):
-
     return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].getValue() == self.hexTypes.EMPTY
 
   # Make the move on the board dict, add to move history
@@ -172,3 +176,29 @@ class Board:
         playerMoves.append(self.moveHistory[i])
 
     return playerMoves
+
+  '''
+  ------------------
+  Functions for board
+  ------------------
+  '''
+  # return a copy of the current board
+  def getBoardFromMove(self, move, player):
+    boardCopy = Board(self.boardSize)
+    dictCopy = copy.deepcopy(self.getNodeDict())
+    boardCopy.setBoardDict(dictCopy)
+
+    boardCopy.makeMove(move, player)
+
+    return boardCopy
+
+  # return a list of possible moves in this board
+  def getPossibleMoves(self):
+    possibleMoves = []
+
+    for x in range(self.boardSize):
+      for y in range(self.boardSize):
+        if (self.validateMove((x,y))):
+          possibleMoves.append((x,y))
+
+    return possibleMoves
