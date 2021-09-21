@@ -1,4 +1,4 @@
-from hexBoy.HexGame import HexGame_Play
+from hexBoy.hex.HexGame import HexGame_Play
 from hexBoy.AI.GetAgent import GetAgent
 
 def main():

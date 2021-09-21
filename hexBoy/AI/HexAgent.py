@@ -1,7 +1,7 @@
 import random
 
-from hexBoy.HexBoard import Board
-from hexBoy.HexNode import HexNode
+from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.HexNode import HexNode
 
 '''
 -----------------------------------------------
