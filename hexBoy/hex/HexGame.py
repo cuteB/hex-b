@@ -2,6 +2,17 @@
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
+
+"""
+Play the game as just a path finder
+- Click to select barriers, and place pieces
+- graphic shows the path and costs
+
+Tweak now that I understand how the flow should go
+  - Change up the game to do only pathfinding
+  
+"""
+
 import pygame
 import random
 import sys

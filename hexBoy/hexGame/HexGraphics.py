@@ -7,6 +7,12 @@ RED   = (255,   0,   0)
 BLUE  = (  0,   0, 255)
 DARK_RED = (150, 0, 0)
 DARK_BLUE = (0,0,150)
+
+"""
+
+
+"""
+
 '''
 -----------------------------------------------
 All Graphics drawing hexagons on a board

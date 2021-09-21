@@ -2,6 +2,23 @@ import copy
 
 from hexBoy.hex.HexNode import HexNode
 
+"""
+  Changes
+  - Need to modify the board to help out the pathfinder
+    - Each agent needs to modify values of the nodes to save time
+    - Need to get available moves and future states quick without breaking the
+      board for the other player
+  - IDEA commit the current board to mem. then make moves to find future states
+    - then reset board to last commit or commit the next move
+
+  Needs to be faster for pathfinder
+  - Need to look deeper faster
+
+  IDEA: make a board for pathfinders to modify values for their nodes
+
+"""
+
+
 '''
 -----------------------------------------------
 Game Board

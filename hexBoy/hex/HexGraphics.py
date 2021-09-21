@@ -1,5 +1,15 @@
 import pygame
 
+"""
+Improvements
+- Populate the space with the current turn and who is playing (agent, player)
+- Work on a graphic for the pathfinder to show paths and costs and other ways
+  to visualize the algorithm
+- Visualize pathfinder looking around
+    Modify to show paths from the pathfinder board
+"""
+
+
 # COLOURS  R    G    B
 WHITE = (255, 255, 255)
 BLACK = (  0,   0,   0)
@@ -116,7 +126,7 @@ class Graphics:
           self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
         elif board[cell].getValue() == 2:
           self.screen.blit(self.hexRedWin.getHexagon(), (xPos, yPos))
-        else:
+        elif not (board[cell].getValue() == 3 or board[cell].getValue() == 4):
           self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
 
     pygame.display.flip()

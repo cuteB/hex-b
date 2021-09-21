@@ -3,6 +3,15 @@
 Hex Node
 -----------------------------------------------
 '''
+
+"""
+Probs gotta refactor this Kinda sloppy with how everyone uses it
+- values are hard to remember what they are
+- Way to manage parents and children
+- Count Free spaces properly
+"""
+
+
 class HexNode:
   class Space:
     EMPTY       = 0

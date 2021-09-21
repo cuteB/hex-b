@@ -1,19 +1,35 @@
-import random
-
-from hexBoy.hex.HexBoard import Board
-from hexBoy.hex.HexNode import HexNode
-
 '''
 -----------------------------------------------
 HexAgent
 -----------------------------------------------
 '''
-class HexAgent:
-  name = "HexBoy"
-  player                  = None  # 1: blue or 2: red
+
+"""
+Save RL agent to keep smart?
+- Store best as a greedy agent
+
+Think about composition and inheritence.
+- Pathfinders seem to fall into categories that they can use. 
+"""
+
+
+
+import random
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
+from typing import Optional
+
+from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.HexNode import HexNode
+
+
+@dataclass
+class HexAgent(ABC):
+  name: str
+  player: int                # 1: blue or 2: red
 
   # Board
-  gameBoard               = None
+  gameBoard: Board
   getAdjacentSpaces       = None
 
   # pathfinder: player positions and barrier checks
@@ -32,9 +48,9 @@ class HexAgent:
   Public (Override these)
   -----------------------------------------------
   '''
-  # Get the next move
-  def getAgentMove(self):
-    return self._randomMove()
+  @abstractmethod
+  def getAgentMove(self) -> tuple:
+    '''Get the next move for the agent'''
 
   # Score game and get good. Also reset I guess
   def scoreGame(self):
@@ -44,6 +60,9 @@ class HexAgent:
   def setGameBoardAndPlayer(self, gameBoard, player):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
+
+
+
 
   '''
   -----------------------------------------------

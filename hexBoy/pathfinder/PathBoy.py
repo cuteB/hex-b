@@ -2,6 +2,11 @@ import copy
 
 from hexBoy.hex.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
+"""
+Pathboy more like Slow bois ,amirite
+- for real though. need to find a way to save the current seach values
+- should be able to keep a hexboard for the boy to remember
+"""
 
 
 '''

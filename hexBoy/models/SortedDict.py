@@ -1,3 +1,5 @@
+"""Dict actually working well. Maybe a bit of love to make it more readable"""
+
 '''
 -----------------------------------------------
 Hexagon shape for board
