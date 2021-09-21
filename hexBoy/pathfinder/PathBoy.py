@@ -43,7 +43,7 @@ class PathBoy:
     return self.pathFunc(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
 
   def getNumBestPaths(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
-    self.NumBestPaths(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
+    return self.NumBestPaths(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
 
   '''
   ------------------
@@ -101,7 +101,11 @@ class PathBoy:
     pathPos = nodes[endPos].parent
     path=[]
     while pathPos != None:
-      path.append(pathPos)
+      if not ( # don't include start, end edges
+        pathPos[0] == -1 or pathPos[1] == -1
+        or pathPos[0] == 11 or pathPos[1] == 11 # TODO change to boardSize
+      ):
+        path.append(pathPos)
       pathPos = nodes[pathPos].parent
 
     return path
@@ -113,6 +117,9 @@ class PathBoy:
   ------------------
   '''
   def ScorePath(self, nodes, path, getCellCost):
+    if (len(path) == 0):
+      return 10000
+
     cost = 0
     stepNode = None
     for step in path:
@@ -141,7 +148,6 @@ class PathBoy:
 
     winPath = self.AStar(nodes, startPos, endPos, checkIfBarrier, getCellCost)
     bestCost = self.ScorePath(nodes, winPath, getCellCost)
-
 
     openNodes = SortedDict(getSortValue = self.getSortValue)
     closedNodes = SortedDict()
@@ -247,4 +253,5 @@ class PathBoy:
       i, num = numPaths.popItem()
       ez.append(num)
       total += num
+    print(total, ez)
     return total

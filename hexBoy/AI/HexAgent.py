@@ -9,7 +9,7 @@ Save RL agent to keep smart?
 - Store best as a greedy agent
 
 Think about composition and inheritence.
-- Pathfinders seem to fall into categories that they can use. 
+- Pathfinders seem to fall into categories that they can use.
 """
 
 
@@ -60,8 +60,6 @@ class HexAgent(ABC):
   def setGameBoardAndPlayer(self, gameBoard, player):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
-
-
 
 
   '''
