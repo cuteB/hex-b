@@ -1,7 +1,7 @@
 import copy
 
-from hexBoy.HexNode import HexNode
-from hexBoy.SortedDict import SortedDict
+from hexBoy.hex.HexNode import HexNode
+from hexBoy.models.SortedDict import SortedDict
 
 
 '''

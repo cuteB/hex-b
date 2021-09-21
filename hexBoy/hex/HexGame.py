@@ -10,9 +10,9 @@ from math import cos, sin, pi
 
 # My imports
 from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.HexNode import HexNode
-from hexBoy.HexGraphics import Graphics
-from hexBoy.HexBoard import Board
+from hexBoy.hex.HexNode import HexNode
+from hexBoy.hex.HexGraphics import Graphics
+from hexBoy.hex.HexBoard import Board
 
 # Custom Events
 DO_MOVE = pygame.USEREVENT + 1

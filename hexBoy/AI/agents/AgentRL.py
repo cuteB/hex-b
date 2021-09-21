@@ -1,12 +1,12 @@
 import random
 
 from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.HexBoard import Board
+from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.HexNode import HexNode
 from hexBoy.AI.HexAgent import HexAgent
-from hexBoy.HexNode import HexNode
 from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
-from hexBoy.SortedDict import SortedDict
+from hexBoy.models.SortedDict import SortedDict
 
 '''
 -----------------------------------------------
