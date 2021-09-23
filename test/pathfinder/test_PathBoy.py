@@ -9,19 +9,15 @@ def before_and_after_test(tmpdir):
   def sortFunc(item):
     return item[1].g
 
-  # before
   tmpdir.board = Board(11)
-
   tmpdir.pf = PathBoy(
     tmpdir.board.getAdjacentSpaces,
     1, #AStar
     sortFunc
   )
-
+  # ^^^ before ^^^
   yield # run the rest
-
-  # after
-
+  # vvv After vvv
 
 def test_EmptyBoardPath(tmpdir):
   """Test Empty Board Path Cost"""
@@ -129,7 +125,6 @@ def test_WinPathFound(tmpdir):
 
   for i in range(11):
     board.makeMove((5,i), 1)
-
 
   bestPath = tmpdir.pf.findPath(
     board.getNodeDict(),

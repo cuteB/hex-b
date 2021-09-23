@@ -140,6 +140,7 @@ class Board:
 
     return adjacentSpaces
 
+  # XXX Don't really like this anymore. Remove it probably
   def get2AwaySpaces(self, cell):
     # return nodes within 2 spaces of the cell
     x = cell[0]
@@ -177,10 +178,15 @@ class Board:
   Functions for moves
   ------------------
   '''
+  # TODO this is wrong for hexes,
   def getDistanceToCenter(self, move):
     (x,y) = move
-    return abs(x-5) + abs(y-5)
+    center = int(self.boardSize // 2)
 
+
+    return abs(x-center) + abs(y-center)
+
+  # COMBAK not sure if this is how I want to deal with this
   def getPlayerMoves(self, playerId=None):
     playerMoves = []
     if (playerId != None):
@@ -199,6 +205,7 @@ class Board:
   Functions for board
   ------------------
   '''
+  # FIXME these two functions are ugly and bad
   # return a copy of the current board
   def getBoardFromMove(self, move, player):
     boardCopy = Board(self.boardSize)

@@ -19,10 +19,10 @@ class HexNode:
     RED         = 2
     BLUE_EDGE   = 3
     RED_EDGE    = 4
-    RED_START   = 5
-    BLUE_START  = 6
-    RED_END     = 7
-    BLUE_END    = 8
+    BLUE_START  = 5
+    RED_START   = 6
+    BLUE_END    = 7
+    RED_END     = 8
 
   # List of spaces for each player (others are barriers)
     blueSpaces  = [1, 3, 5, 7]
@@ -105,8 +105,13 @@ class HexNode:
     space = self.getValue()
     return (space == self.Space.RED_END or space == self.Space.BLUE_END)
 
+  # TODO This isn't good enough to check if it is a red space.
+  # -Only use this in the score function. Scoring a node is never an empty node
   def checkIfBlue(self):
     return self.getValue() in HexNode.Space.blueSpaces
+
+  def checkIfRed(self):
+    return self.getValue() in HexNodes.Spaces.redSpaces
 
   def getCellValueForWinningPath(hexnode):
     spaces = HexNode.Space

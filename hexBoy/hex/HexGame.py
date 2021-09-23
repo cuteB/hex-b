@@ -11,6 +11,8 @@ Play the game as just a path finder
 Tweak now that I understand how the flow should go
   - Change up the game to do only pathfinding
 
+Pygame Separation
+- Try to separate Pygame so testing is easier
 """
 
 import pygame
@@ -165,7 +167,6 @@ class HexGame:
 
       # found a winning path for blue
       if (len(winPath) != 0):
-        print(winPath)
         if (self.showOutput):
           print("Blue Wins!")
 
@@ -194,7 +195,6 @@ class HexGame:
 
       # found a winning path for red
       if (len(winPath) != 0):
-        print(winPath)
         if (self.showOutput):
           print("Red Wins!")
 

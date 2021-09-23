@@ -5,19 +5,19 @@ from hexBoy.AI.GetAgent import GetAgent
 I'll put ideas here
 - Tests, do them. I wanna tryout the TTD
 - Command line args to make easy to play games
-- Push to GitHub more to learn make the history pretty. 
+- Push to GitHub more to learn make the history pretty.
 """
 
 
 def main() -> None:
   """ Main Function """
-  a = GetAgent(0)
-  b = GetAgent(0)
+  a = GetAgent(1)
+  b = GetAgent(3)
 
   HexGame_Play(
     agentA = a,
     agentB = b,
-    showEndGame = True,
+    showEndGame = False,
     showDisplay = True,
     numGames = 1000
   )

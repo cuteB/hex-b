@@ -3,16 +3,17 @@
 HexAgent
 -----------------------------------------------
 '''
-
 """
 Save RL agent to keep smart?
 - Store best as a greedy agent
 
 Think about composition and inheritence.
 - Pathfinders seem to fall into categories that they can use.
+- Do a better initialize maybe.
+  - Need to initialize board or get move doesn't work
+  - Maybe just check if the board hasn't been initialized.
+
 """
-
-
 
 import random
 from dataclasses import dataclass
@@ -21,7 +22,6 @@ from typing import Optional
 
 from hexBoy.hex.HexBoard import Board
 from hexBoy.hex.HexNode import HexNode
-
 
 @dataclass
 class HexAgent(ABC):
@@ -50,7 +50,7 @@ class HexAgent(ABC):
   '''
   @abstractmethod
   def getAgentMove(self) -> tuple:
-    '''Get the next move for the agent'''
+    """Get the next move for the agent"""
 
   # Score game and get good. Also reset I guess
   def scoreGame(self):
@@ -60,7 +60,6 @@ class HexAgent(ABC):
   def setGameBoardAndPlayer(self, gameBoard, player):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
-
 
   '''
   -----------------------------------------------

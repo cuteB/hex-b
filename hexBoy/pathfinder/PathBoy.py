@@ -253,5 +253,4 @@ class PathBoy:
       i, num = numPaths.popItem()
       ez.append(num)
       total += num
-    print(total, ez)
     return total
