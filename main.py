@@ -1,7 +1,16 @@
 from hexBoy.hex.HexGame import HexGame_Play
 from hexBoy.AI.GetAgent import GetAgent
 
-def main():
+"""
+I'll put ideas here
+- Tests, do them. I wanna tryout the TTD
+- Command line args to make easy to play games
+- Push to GitHub more to learn make the history pretty.
+"""
+
+
+def main() -> None:
+  """ Main Function """
   a = GetAgent(1)
   b = GetAgent(3)
 

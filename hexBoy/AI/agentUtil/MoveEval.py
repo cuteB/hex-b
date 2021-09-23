@@ -1,5 +1,6 @@
-def evaluateMove( move, gameBoard, winPath, opponentPath):
+""" I think this is just for strong, can move"""
 
+def evaluateMove( move, gameBoard, winPath, opponentPath):
   value = 1
   if (isStrongMove(move, gameBoard)):
     value += 5

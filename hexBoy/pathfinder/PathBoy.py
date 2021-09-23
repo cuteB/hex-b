@@ -2,6 +2,11 @@ import copy
 
 from hexBoy.hex.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
+"""
+Pathboy more like Slow bois ,amirite
+- for real though. need to find a way to save the current seach values
+- should be able to keep a hexboard for the boy to remember
+"""
 
 
 '''
@@ -38,7 +43,7 @@ class PathBoy:
     return self.pathFunc(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
 
   def getNumBestPaths(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
-    self.NumBestPaths(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
+    return self.NumBestPaths(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
 
   '''
   ------------------
@@ -96,7 +101,11 @@ class PathBoy:
     pathPos = nodes[endPos].parent
     path=[]
     while pathPos != None:
-      path.append(pathPos)
+      if not ( # don't include start, end edges
+        pathPos[0] == -1 or pathPos[1] == -1
+        or pathPos[0] == 11 or pathPos[1] == 11 # TODO change to boardSize
+      ):
+        path.append(pathPos)
       pathPos = nodes[pathPos].parent
 
     return path
@@ -108,6 +117,9 @@ class PathBoy:
   ------------------
   '''
   def ScorePath(self, nodes, path, getCellCost):
+    if (len(path) == 0):
+      return 10000
+
     cost = 0
     stepNode = None
     for step in path:
@@ -136,7 +148,6 @@ class PathBoy:
 
     winPath = self.AStar(nodes, startPos, endPos, checkIfBarrier, getCellCost)
     bestCost = self.ScorePath(nodes, winPath, getCellCost)
-
 
     openNodes = SortedDict(getSortValue = self.getSortValue)
     closedNodes = SortedDict()

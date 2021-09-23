@@ -3,6 +3,8 @@ from hexBoy.AI.agents.AgentRand import AgentRand
 from hexBoy.AI.agents.AgentStrong import AgentStrong
 from hexBoy.AI.agents.AgentRL import AgentRL
 
+# TODO Change this into plugin architecture.
+# - Looks cool 
 
 # Easy way to get an agent
 def GetAgent(agentDifficulty=0):

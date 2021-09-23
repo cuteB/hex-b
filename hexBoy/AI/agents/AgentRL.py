@@ -1,4 +1,5 @@
 import random
+from dataclasses import dataclass
 
 from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.HexBoard import Board
@@ -13,20 +14,21 @@ from hexBoy.models.SortedDict import SortedDict
 Reinforcement Learning Agent
 -----------------------------------------------
 '''
+@dataclass
 class AgentRL(HexAgent):
 
-  # TODO make this into an object so its not ugly
-  # board states: [
+  #
+  # board states: (
   #   Dp: playerDistToWin,
   #   Do: opponentDistToWin,
   #   Np: playerNumPaths,
   #   No: opponentNumPaths,
-  # ]
+  # )
   stateBeforeLastMove = None
   stateAfterLastMove = None
   transitionDict = None
 
-  initialTransitionValue = 10 # value to set on first visit to transition
+  initialTransitionValue: int # value to set on first visit to transition
 
   ALPHA = 0.3 # learning rate
   LAMBDA = 0.1
@@ -35,6 +37,7 @@ class AgentRL(HexAgent):
     HexAgent.__init__(self)
     self.name = "Agent_RL"
     self.transitionDict = SortedDict()
+    self.initialTransitionValue = 10
 
   def getAgentMove(self):
     currentState = self._getStateFromBoard(self.gameBoard)
@@ -117,6 +120,7 @@ class AgentRL(HexAgent):
     #   Np: playerNumPaths,
     #   No: opponentNumPaths,
     # ]
+
     pf = self.pathfinder
 
     playerBestPath = pf.findPath(
@@ -150,6 +154,7 @@ class AgentRL(HexAgent):
     #   self.checkIfBarrier,
     #   HexNode.getCellValueForNextMove
     # )
+
     # No = pf.NumBestPaths(
     #   board.getNodeDict(),
     #   self.opponentStart, self.opponentEnd,

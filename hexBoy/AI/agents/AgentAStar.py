@@ -18,7 +18,6 @@ class AgentAStar(HexAgent):
     HexAgent.__init__(self)
     self.name = "Agent_A*"
 
-
   '''
   -----------------------------------------------
   Agent Functions (Overides)
@@ -52,8 +51,12 @@ class AgentAStar(HexAgent):
   def setGameBoardAndPlayer(self, gameBoard, player):
     HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
+    def sortFunc(item):
+      return item[1].pathCost
+
     # AStar Pathfinder
     self.pathfinder = PathBoy(
       self.getAdjacentSpaces,
-      1 #AStar
+      1, #AStar
+      sortFunc
     )

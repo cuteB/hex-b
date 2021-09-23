@@ -1,3 +1,5 @@
+"""Dict actually working well. Maybe a bit of love to make it more readable"""
+
 '''
 -----------------------------------------------
 Hexagon shape for board
@@ -73,8 +75,9 @@ class SortedDict(dict):
 
   # Combine external dict into self, update sorted items
   def _appendDict(self, dict):
-    for key, value in items.iteritems():
-      self._addItem(key, value)
+    for key in dict:
+      print(key)
+      self._addItem(key, dict[key])
 
     self._sortItems()
 
@@ -103,3 +106,6 @@ class SortedDict(dict):
 
   def hasKey(self, key):
     return (key in self)
+
+  def getDict(self):
+    return self._dictionary

@@ -2,6 +2,19 @@
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
+
+"""
+Play the game as just a path finder
+- Click to select barriers, and place pieces
+- graphic shows the path and costs
+
+Tweak now that I understand how the flow should go
+  - Change up the game to do only pathfinding
+
+Pygame Separation
+- Try to separate Pygame so testing is easier
+"""
+
 import pygame
 import random
 import sys
@@ -150,6 +163,7 @@ class HexGame:
         HexNode.checkIfBlueBarrier,
         HexNode.getCellValueForWinningPath
       )
+
 
       # found a winning path for blue
       if (len(winPath) != 0):

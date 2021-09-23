@@ -2,6 +2,23 @@ import copy
 
 from hexBoy.hex.HexNode import HexNode
 
+"""
+  Changes
+  - Need to modify the board to help out the pathfinder
+    - Each agent needs to modify values of the nodes to save time
+    - Need to get available moves and future states quick without breaking the
+      board for the other player
+  - IDEA commit the current board to mem. then make moves to find future states
+    - then reset board to last commit or commit the next move
+
+  Needs to be faster for pathfinder
+  - Need to look deeper faster
+
+  IDEA: make a board for pathfinders to modify values for their nodes
+
+"""
+
+
 '''
 -----------------------------------------------
 Game Board
@@ -123,6 +140,7 @@ class Board:
 
     return adjacentSpaces
 
+  # XXX Don't really like this anymore. Remove it probably
   def get2AwaySpaces(self, cell):
     # return nodes within 2 spaces of the cell
     x = cell[0]
@@ -160,10 +178,15 @@ class Board:
   Functions for moves
   ------------------
   '''
+  # TODO this is wrong for hexes,
   def getDistanceToCenter(self, move):
     (x,y) = move
-    return abs(x-5) + abs(y-5)
+    center = int(self.boardSize // 2)
 
+
+    return abs(x-center) + abs(y-center)
+
+  # COMBAK not sure if this is how I want to deal with this
   def getPlayerMoves(self, playerId=None):
     playerMoves = []
     if (playerId != None):
@@ -182,6 +205,7 @@ class Board:
   Functions for board
   ------------------
   '''
+  # FIXME these two functions are ugly and bad
   # return a copy of the current board
   def getBoardFromMove(self, move, player):
     boardCopy = Board(self.boardSize)
