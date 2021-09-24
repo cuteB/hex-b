@@ -17,12 +17,10 @@ RED   = (255,   0,   0)
 BLUE  = (  0,   0, 255)
 DARK_RED = (150, 0, 0)
 DARK_BLUE = (0,0,150)
-'''
------------------------------------------------
-All Graphics drawing hexagons on a board
------------------------------------------------
-'''
 # ty https://github.com/ThomasRush/py_a_star for the Hexagon rendering ideas
+'''----------------------------------
+Hex Graphics
+-----------------------------------'''
 class Graphics:
   def __init__(self, boardSize, hexSize):
     self.hexSize = hexSize        # Hexagon size in pixels

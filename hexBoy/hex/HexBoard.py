@@ -19,11 +19,10 @@ from hexBoy.hex.HexNode import HexNode
 """
 
 
-'''
------------------------------------------------
-Game Board
------------------------------------------------
-'''
+'''----------------------------------
+Hex Board
+-----------------------------------'''
+# TODO change name to hexboard
 class Board:
   boardDict       = None  # dict<HexNode>, Cells on the board and their values
   boardSize       = None  # int, size of the board

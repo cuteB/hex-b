@@ -1,10 +1,8 @@
 """Dict actually working well. Maybe a bit of love to make it more readable"""
 
-'''
------------------------------------------------
-Hexagon shape for board
------------------------------------------------
-'''
+'''----------------------------------
+Sorted Dict
+-----------------------------------'''
 class SortedDict(dict):
   _dictionary   = None  # the dict
   _sortedItems  = None  # sorted list of the items based on the given value

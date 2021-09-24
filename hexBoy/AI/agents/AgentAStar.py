@@ -7,22 +7,15 @@ from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 
-'''
------------------------------------------------
-Reinforcement Learning Agent
------------------------------------------------
-'''
+'''----------------------------------
+AStar Search Agent
+-----------------------------------'''
 class AgentAStar(HexAgent):
 
   def __init__(self):
     HexAgent.__init__(self)
     self.name = "Agent_A*"
 
-  '''
-  -----------------------------------------------
-  Agent Functions (Overides)
-  -----------------------------------------------
-  '''
   def getAgentMove(self):
     gameBoard = self.gameBoard
 

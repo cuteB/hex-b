@@ -7,11 +7,9 @@ from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 
-'''
------------------------------------------------
-Reinforcement Learning Agent
------------------------------------------------
-'''
+'''----------------------------------
+Strong move Agent
+-----------------------------------'''
 class AgentStrong(HexAgent):
 
   def __init__(self):

@@ -29,11 +29,9 @@ from hexBoy.hex.HexBoard import Board
 
 # Custom Events
 DO_MOVE = pygame.USEREVENT + 1
-'''
------------------------------------------------
+'''----------------------------------
 Main hex game class
------------------------------------------------
-'''
+-----------------------------------'''
 class HexGame:
   hexSize     = None  # Int, Size of the hexagons in pixels
   boardSize   = None  # Int, Size of the playing board (default is 11)

@@ -9,11 +9,9 @@ Pathboy more like Slow bois ,amirite
 """
 
 
-'''
------------------------------------------------
-The PathFinder
------------------------------------------------
-'''
+'''----------------------------------
+Path Finder
+-----------------------------------'''
 class PathBoy:
   pathFunc            = None  # The type of pathfinding algorithm to use
   getAdjacentSpaces   = None  # funciton, get adjacent spaces of cell

@@ -9,11 +9,9 @@ from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 from hexBoy.models.SortedDict import SortedDict
 
-'''
------------------------------------------------
+'''----------------------------------
 Reinforcement Learning Agent
------------------------------------------------
-'''
+-----------------------------------'''
 @dataclass
 class AgentRL(HexAgent):
 

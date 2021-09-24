@@ -1,8 +1,3 @@
-'''
------------------------------------------------
-HexAgent
------------------------------------------------
-'''
 """
 Save RL agent to keep smart?
 - Store best as a greedy agent
@@ -23,6 +18,9 @@ from typing import Optional
 from hexBoy.hex.HexBoard import Board
 from hexBoy.hex.HexNode import HexNode
 
+'''----------------------------------
+Hex Agent
+-----------------------------------'''
 @dataclass
 class HexAgent(ABC):
   name: str
@@ -43,11 +41,6 @@ class HexAgent(ABC):
   def __init__(self):
     pass # nothing for now
 
-  '''
-  -----------------------------------------------
-  Public (Override these)
-  -----------------------------------------------
-  '''
   @abstractmethod
   def getAgentMove(self) -> tuple:
     """Get the next move for the agent"""
@@ -61,11 +54,6 @@ class HexAgent(ABC):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
 
-  '''
-  -----------------------------------------------
-  Private
-  -----------------------------------------------
-  '''
   '''
   ------------------
   Agent Setup
