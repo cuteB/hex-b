@@ -1,20 +1,6 @@
 # I don't like the pygame startup message. Needs to be before pygame import
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-
-
-"""
-Play the game as just a path finder
-- Click to select barriers, and place pieces
-- graphic shows the path and costs
-
-Tweak now that I understand how the flow should go
-  - Change up the game to do only pathfinding
-
-Pygame Separation
-- Try to separate Pygame so testing is easier
-"""
-
 import pygame
 import random
 import sys
@@ -84,7 +70,6 @@ class HexGame:
     if (computer2 != None):
       self.redAgent = computer2
       self.redAgent.setGameBoardAndPlayer(self.board, 2)
-
 
   '''
   ------------------
