@@ -9,14 +9,14 @@ I'll put ideas here
 - Push to GitHub more to learn make the history pretty.
 """
 
-
 """ Main Function """
 def main() -> None:
-  agentA = None
-  agentB = None
-  showEndGame = True
-  showDisplay = True
-  numGames = None
+  agentA = GetAgent(1)
+  agentB = GetAgent(1)
+  showEndGame = False
+  showDisplay = False
+  numGames = 1
+  showPrint = True
 
   opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
   args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
@@ -24,18 +24,30 @@ def main() -> None:
   argNum = 0 # what opt the org is for
   for i in range(len(opts)):
     if (opts[i] == "-b"):
-      agentA = GetAgent(int(args[argNum]))
+      if (args[argNum].isnumeric()):
+        agentA = GetAgent(int(args[argNum]))
+      else:
+        agentA = None
+        showDisplay = True
+
       argNum += 1
     elif (opts[i] == "-r"):
-      agentB = GetAgent(int(args[argNum]))
+      if (args[argNum].isnumeric()):
+        agentB = GetAgent(int(args[argNum]))
+      else:
+        agentA = None
+        showDisplay = True
+
       argNum += 1
     elif (opts[i] == "-d"):
-      showDisplay = False
+      showDisplay = True
     elif (opts[i] == "-e"):
       showEndGame = False
     elif (opts[i] == "-n"):
       numGames = int(args[argNum])
       argNum += 1
+    elif (opts[i] == "-p"):
+      showPrint = False
 
   a = GetAgent(1)
   b = GetAgent(3)
@@ -45,7 +57,8 @@ def main() -> None:
     agentB,
     showEndGame,
     showDisplay,
-    numGames
+    numGames,
+    showPrint,
   )
 
 #-------------------------------------------

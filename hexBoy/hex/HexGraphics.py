@@ -9,7 +9,6 @@ Improvements
     Modify to show paths from the pathfinder board
 """
 
-
 # COLOURS  R    G    B
 WHITE = (255, 255, 255)
 BLACK = (  0,   0,   0)
@@ -22,7 +21,7 @@ DARK_BLUE = (0,0,150)
 Hex Graphics
 -----------------------------------'''
 class Graphics:
-  def __init__(self, boardSize, hexSize):
+  def __init__(self, boardSize, hexSize = 40):
     self.hexSize = hexSize        # Hexagon size in pixels
     self.boardSize = boardSize         # Board size in Hexagons
     self.caption = "Hex Game"
@@ -130,6 +129,51 @@ class Graphics:
     pygame.display.flip()
 
     self.clock.tick(self.fps)
+
+  def findHexagonCoordsForMousePos(self, mousePos):
+    """Return the Hex coords for a mouse click"""
+    # Just going to half ass this on click for now. Want it to work before
+    # getting the perfect hex click function. (Half ass algorithm works well)
+    #
+    # Right now I'll basically create a grid to get a rough estimate
+    # of what cell was clicked. Will work fine when the user clicks in the middle
+    #
+    # Using Rectangles to estimate the hexagon
+    # - Height = Hexagon Size
+    # - Width = Hexagon Size * 3/4 (Need to account for interlock)
+    '''
+     __
+    |  |__
+    |__|  |__
+    |  |__|  |
+    |__|  |__|
+    |  |__|  |
+    |__|  |__|
+       |__|  |
+          |__|
+    '''
+
+    (xMouse, yMouse) = mousePos
+    hexSize = self.hexSize
+
+    # Extra space between screen border and hexagons
+    borderOffset = (hexSize / 2) + (hexSize / 8)
+    rectWidth = hexSize * (3/4) # using rectangles to estimate the hexagons
+    rectHeight = hexSize
+
+    # adjust for left border and divide by the rectangle width to get x value
+    xMouseAdjusted = xMouse - borderOffset
+    xRow = xMouseAdjusted // rectWidth
+
+    # adjust for top border
+    # account for offset y coords of columns as rows increase
+    # divide by rectangle height to get y value
+    yMouseAdjusted = (yMouse - borderOffset)
+    yMouseAdjusted -= (xRow * rectHeight / 2)
+    yRow = yMouseAdjusted // rectHeight
+
+    # make sure type int
+    return (int(xRow), int(yRow))
 
 '''
 -----------------------------------------------
