@@ -144,7 +144,7 @@ class HexGame:
     """Trigger Game Event End Turn"""
     pygame.event.post(pygame.event.Event(AFTER_TURN))
 
-e  def handleMouseClick(self, mousePos):
+  def handleMouseClick(self, mousePos):
     """Handle a click on the Game Board"""
     if (self.showDisplay):
       move = self.graphics.findHexagonCoordsForMousePos(mousePos)
