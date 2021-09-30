@@ -39,7 +39,8 @@ class HexGame:
 
   graphics: Graphics # Graphics, render the game board
   board: Board  # Board, Hex Board Object
-  pathfinder: PathBoy  # Pathfinder, Algorithms to find paths
+  bluePathFinder: PathBoy  # Pathfinder, Algorithms to find paths
+  redPathfinder: PathBoy
 
   gameNumber: int
   blueAgent: HexAgent# AIs for player, None = human
@@ -75,7 +76,19 @@ class HexGame:
     if (self.showDisplay):
       self.graphics = Graphics(self.boardSize, self.hexSize)
     self.board = Board(self.boardSize)
-    self.pathfinder = PathBoy(self.board.getAdjacentSpaces, 0)
+
+    self.bluePathFinder = PathBoy(
+      self.board,
+      self.board.getAdjacentSpaces,
+      HexNode.checkIfBlueBarrier,
+      HexNode.getCellValueForWinningPath,
+    )
+    self.redPathFinder = PathBoy(
+      self.board,
+      self.board.getAdjacentSpaces,
+      HexNode.checkIfRedBarrier,
+      HexNode.getCellValueForWinningPath,
+    )
 
     self.gameNumber = 1
     self.blueWins = 0
@@ -174,22 +187,16 @@ class HexGame:
     """Check the board for a winner or switch turns"""
     if (self.player == 1):
       # blue just went, Look for a completed blue path
-      winPath = self.pathfinder.findPath(
-        self.board.getNodeDict(),
+      winPath = self.bluePathFinder.findPath(
         self.board.blueStartSpace,
         self.board.blueEndSpace,
-        HexNode.checkIfBlueBarrier,
-        HexNode.getCellValueForWinningPath
       )
 
     else:
       # red just went, Look for a completed red path
-      winPath = self.pathfinder.findPath(
-        self.board.getNodeDict(),
+      winPath = self.redPathFinder.findPath(
         self.board.redStartSpace,
         self.board.redEndSpace,
-        HexNode.checkIfRedBarrier,
-        HexNode.getCellValueForWinningPath
       )
 
     # Is the game over?
@@ -237,13 +244,13 @@ class HexGame:
     """Play a game"""
     #Pre Game
     self._setup()
-
     # Game
     while (self.gameInProgress):
-      self.gameEventLoop()
       self.updateGame()
+      self.gameEventLoop()
 
     # Post Game
+    self.updateGame()
     if (self.player == 1):
       self.blueWins += 1
     else:
@@ -290,19 +297,13 @@ class HexGame:
   def main(self, numGames = 1):
     """Play a number of hex games"""
     self._printGameSummary()
-    if (self.blueAgent != None):
-      blueName = self.blueAgent.name
 
-    if (self.redAgent != None):
-      redName = self.redAgent.name
-
-
-      for i in range(numGames):
-        if (not self.forceQuit):
-          self.player = (i % 2) + 1 # altertate turns
-          self.playGame()
-          self.gameNumber += 1
-          self._printGameSummary()
+    for i in range(numGames):
+      if (not self.forceQuit):
+        self.player = (i % 2) + 1 # altertate turns
+        self.playGame()
+        self.gameNumber += 1
+        self._printGameSummary()
 
     # Post summary
     self._printPostGameSummary()

@@ -14,8 +14,6 @@ Reinforcement Learning Agent
 -----------------------------------'''
 @dataclass
 class AgentRL(HexAgent):
-
-  #
   # board states: (
   #   Dp: playerDistToWin,
   #   Do: opponentDistToWin,
@@ -76,8 +74,18 @@ class AgentRL(HexAgent):
       return item[1].g
 
     self.pathfinder = PathBoy(
+      self.gameBoard,
       self.getAdjacentSpaces,
-      1, #AStar
+      self.checkIfBarrier,
+      HexNode.getCellValueForNextMove,
+      sortFunc
+    )
+
+    self.oppPathFinder = PathBoy(
+      self.gameBoard,
+      self.getAdjacentSpaces,
+      self.checkIfOpponentBarrier,
+      HexNode.getCellValueForNextMove,
       sortFunc
     )
 
@@ -119,28 +127,23 @@ class AgentRL(HexAgent):
     #   No: opponentNumPaths,
     # ]
 
-    pf = self.pathfinder
+    ppf = self.pathfinder
+    opf = self.oppPathFinder
 
-    playerBestPath = pf.findPath(
-      board.getNodeDict(),
+    playerBestPath = ppf.findPath(
       self.startPos,
       self.endPos,
-      self.checkIfBarrier,
-      HexNode.getCellValueForNextMove
     )
-    Dp = pf.ScorePath(
+    Dp = ppf.ScorePath(
       board.getNodeDict(),
       playerBestPath,
       HexNode.getCellValueForNextMove
     )
-    opponentBestPath = pf.findPath(
-      board.getNodeDict(),
+    opponentBestPath = opf.findPath(
       self.opponentStart,
       self.opponentEnd,
-      self.checkIfOpponentBarrier,
-      HexNode.getCellValueForNextMove
     )
-    Do = pf.ScorePath(
+    Do = opf.ScorePath(
       board.getNodeDict(),
       opponentBestPath,
       HexNode.getCellValueForNextMove

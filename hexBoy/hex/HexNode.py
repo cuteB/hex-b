@@ -9,7 +9,6 @@ Probs gotta refactor this Kinda sloppy with how everyone uses it
 - Count Free spaces properly
 """
 
-
 class HexNode:
   class Space:
     EMPTY       = 0
@@ -33,10 +32,16 @@ class HexNode:
   bestPathCost = None # Used to store the best
   extraPathsToThisNode = None
 
+  # old
   # Gonna use these for the heuristic later
   g = None  # Current Score
   h = None  # Heuristic of this node
   f = None  # Combined g + h
+
+  # newer values
+  path: int
+  dist: int
+  cost: int
 
   def __init__(self, space, pos):
     self.nodeValue = space

@@ -16,11 +16,6 @@ class AgentStrong(HexAgent):
     HexAgent.__init__(self)
     self.name = "Agent_Strong"
 
-    # Pathfinder
-    self.pathfinder = PathBoy(
-      self.getAdjacentSpaces,
-      1 #AStar
-    )
   '''
   -----------------------------------------------
   Agent Functions
@@ -31,31 +26,24 @@ class AgentStrong(HexAgent):
     gameBoard = self.gameBoard
 
     winPath = self.pathfinder.findPath(
-      gameBoard.getNodeDict(),
       self.startPos,
       self.endPos,
-      self.checkIfBarrier,
-      HexNode.getCellValueForNextMove
     )
 
 
-    opponentPath = self.pathfinder.findPath(
-      gameBoard.getNodeDict(),
+    opponentPath = self.oppPathFinder.findPath(
       self.opponentStart,
       self.opponentEnd,
-      self.checkIfOpponentBarrier,
-      HexNode.getCellValueForNextMove
     )
 
-
     move = self._randomMove()
-    moveVal = evaluateMove(move, gameBoard, winPath, opponentPath)
+    moveVal = evaluateMove(move, gameBoard, winPath, opponentPath, self.player)
 
     for x in range(gameBoard.boardSize):
       for y in range(gameBoard.boardSize):
         nextMove = (x,y)
         if (gameBoard.validateMove(nextMove)):
-          nextVal = evaluateMove(nextMove, gameBoard, winPath, opponentPath)
+          nextVal = evaluateMove(nextMove, gameBoard, winPath, opponentPath, self.player)
           if (nextVal > moveVal):
             moveVal = nextVal
             move = nextMove
@@ -66,8 +54,16 @@ class AgentStrong(HexAgent):
   def setGameBoardAndPlayer(self, gameBoard, player):
     HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
-    # AStar Pathfinder
     self.pathfinder = PathBoy(
+      self.gameBoard,
       self.getAdjacentSpaces,
-      1 #AStar
+      self.checkIfBarrier,
+      HexNode.getCellValueForNextMove,
+    )
+
+    self.oppPathFinder = PathBoy(
+      self.gameBoard,
+      self.getAdjacentSpaces,
+      self.checkIfOpponentBarrier,
+      HexNode.getCellValueForNextMove,
     )

@@ -1,4 +1,6 @@
 import copy
+from dataclasses import dataclass
+from typing import Callable
 
 from hexBoy.hex.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
@@ -8,46 +10,47 @@ Pathboy more like Slow bois ,amirite
 - should be able to keep a hexboard for the boy to remember
 """
 
-
 '''----------------------------------
 Path Finder
 -----------------------------------'''
+@dataclass
 class PathBoy:
-  pathFunc            = None  # The type of pathfinding algorithm to use
-  getAdjacentSpaces   = None  # funciton, get adjacent spaces of cell
-  getSortValue        = None  # function to get the value to use for sorting
+  getAdjacentSpaces: Callable[[],any]  # funciton, get adjacent spaces of cell
+  getSortValue: Callable  # function to get the value to use for sorting
+  checkIfBarrier: Callable
+  getCellCost: Callable
+  savedNodes: SortedDict
 
-  def __init__(self, getAdjacentSpaces, algorithmId = 0, sortFunc = None):
+  def __init__(self,
+    gameBoard,
+    getAdjacentSpaces,
+    barrierCheck,
+    getCellCost,
+    getSortValue = None,
+  ):
+    self.gameBoard = gameBoard
     self.getAdjacentSpaces = getAdjacentSpaces
+    self.getCellCost = getCellCost
+    self.checkIfBarrier = barrierCheck
 
-    # A*
-    if (algorithmId == 0):
-      self.pathFunc = self.AStar
-
-    # default is A*
+    if (getSortValue == None):
+      self.getSortValue = self._defaultGetSortValue
     else:
-      self.pathFunc = self.AStar
-
-    def getSortValue(item):
-      return item[1].f
-
-    if (sortFunc == None):
       self.getSortValue = getSortValue
-    else:
-      self.getSortValue = sortFunc
 
   # Get the path using the defined pathfinding algorithm
-  def findPath(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
-    return self.pathFunc(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
+  def findPath(self, startNode, endNode):
+    return self.AStar(self.gameBoard.getNodeDict(), startNode, endNode, self.checkIfBarrier, self.getCellCost)
 
-  def getNumBestPaths(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
-    return self.NumBestPaths(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
+  def getNumBestPaths(self, startNode, endNode):
+    return self.NumBestPaths(self.gameBoard.getNodeDict(), startNode, endNode, self.checkIfBarrier, self.getCellCost)
 
-  '''
-  ------------------
+  def _defaultGetSortValue(self, item):
+    return item[1].f
+
+  '''---
   AStar
-  ------------------
-  '''
+  ---'''
   def AStar(self, nodes, startPos, endPos, checkIfBarrier, getCellCost):
     # Init open and close SortedDictionaries
     # Open: add newly found nodes to this and pop off to get the next node to
@@ -109,12 +112,12 @@ class PathBoy:
     return path
 
 
-  '''
-  ------------------
+  '''---
   score path
-  ------------------
-  '''
-  def ScorePath(self, nodes, path, getCellCost):
+  ---'''
+  def ScorePath(self, path):
+    nodes = self.gameBoard.getNodeDict()
+
     if (len(path) == 0):
       return 10000
 
@@ -122,7 +125,7 @@ class PathBoy:
     stepNode = None
     for step in path:
       stepNode = nodes[step]
-      cost += getCellCost(stepNode)
+      cost += self.getCellCost(stepNode)
 
     return cost
 
@@ -135,17 +138,15 @@ class PathBoy:
 
       return path
 
-  '''
-  ------------------
+  '''---
   Best paths
-  ------------------
-  '''
+  ---'''
   def NumBestPaths(self, nodes, startPos, endPos, checkIfBarrier, getCellCost):
     spaces = HexNode.Space
     numPaths = SortedDict()
 
     winPath = self.AStar(nodes, startPos, endPos, checkIfBarrier, getCellCost)
-    bestCost = self.ScorePath(nodes, winPath, getCellCost)
+    bestCost = self.ScorePath(winPath)
 
     openNodes = SortedDict(getSortValue = self.getSortValue)
     closedNodes = SortedDict()
@@ -198,9 +199,7 @@ class PathBoy:
         and nextNode.g == bestCost
       ):
         if (currentNode.extraPathsToThisNode != 0):
-
           numPaths[currentPos] = currentNode.extraPathsToThisNode
-
 
       # moving from start edge to playable board
       elif ((nextNode.nodeValue != spaces.BLUE_EDGE or nextNode.nodeValue != spaces.RED_EDGE)

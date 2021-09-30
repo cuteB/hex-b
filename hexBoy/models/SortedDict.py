@@ -107,3 +107,10 @@ class SortedDict(dict):
 
   def getDict(self):
     return self._dictionary
+
+'''
+Time Complexity
+  get O(1)
+  del O(n)
+  set O(n)
+'''

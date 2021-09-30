@@ -35,14 +35,14 @@ def main() -> None:
       if (args[argNum].isnumeric()):
         agentB = GetAgent(int(args[argNum]))
       else:
-        agentA = None
+        agentB = None
         showDisplay = True
 
       argNum += 1
     elif (opts[i] == "-d"):
       showDisplay = True
     elif (opts[i] == "-e"):
-      showEndGame = False
+      showEndGame = True
     elif (opts[i] == "-n"):
       numGames = int(args[argNum])
       argNum += 1

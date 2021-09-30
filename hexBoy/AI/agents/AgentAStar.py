@@ -19,18 +19,10 @@ class AgentAStar(HexAgent):
   def getAgentMove(self):
     gameBoard = self.gameBoard
 
-    # get value to use for sorting
-    def getSortValue(cell):
-      node = gameBoard.getNodeDict()[cell]
-      return HexNode.getCellValueForNextMove(node)
-
     # Find best path to win
     potentialMoves = self.pathfinder.findPath(
-      gameBoard.getNodeDict(),
       self.startPos,
       self.endPos,
-      self.checkIfBarrier,
-      HexNode.getCellValueForNextMove
     )
 
     # make a move on the best path
@@ -39,7 +31,7 @@ class AgentAStar(HexAgent):
       if (gameBoard.validateMove(move)):
         return move
 
-    return self.randomMove(gameBoard)
+    return self._randomMove()
 
   def setGameBoardAndPlayer(self, gameBoard, player):
     HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
@@ -49,7 +41,9 @@ class AgentAStar(HexAgent):
 
     # AStar Pathfinder
     self.pathfinder = PathBoy(
+      self.gameBoard,
       self.getAdjacentSpaces,
-      1, #AStar
+      self.checkIfBarrier,
+      HexNode.getCellValueForNextMove,
       sortFunc
     )
