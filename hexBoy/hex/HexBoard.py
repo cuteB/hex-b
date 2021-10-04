@@ -21,7 +21,7 @@ from hexBoy.hex.HexNode import HexNode
 
 '''----------------------------------
 Hex Board
------------------------------------'''
+----------------------------------'''
 # TODO change name to hexboard
 @dataclass
 class Board:

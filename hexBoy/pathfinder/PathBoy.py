@@ -12,10 +12,10 @@ Pathboy more like Slow bois ,amirite
 
 '''----------------------------------
 Path Finder
------------------------------------'''
+----------------------------------'''
 @dataclass
 class PathBoy:
-  getAdjacentSpaces: Callable[[],any]  # funciton, get adjacent spaces of cell
+  getAdjacentSpaces: Callable[[],any]  # function, get adjacent spaces of cell
   getSortValue: Callable  # function to get the value to use for sorting
   checkIfBarrier: Callable
   getCellCost: Callable

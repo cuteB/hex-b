@@ -2,7 +2,7 @@
 
 '''----------------------------------
 Sorted Dict
------------------------------------'''
+----------------------------------'''
 class SortedDict(dict):
   _dictionary   = None  # the dict
   _sortedItems  = None  # sorted list of the items based on the given value
@@ -29,11 +29,9 @@ class SortedDict(dict):
       self._appendDict(dict)
       self._sortItems()
 
-  '''
-  ------------------
+  '''---
   Overide dict functions
-  ------------------
-  '''
+  ---'''
   # dict[key] = value
   def __setitem__(self, key, value):
     self._addItem(key, value)
@@ -49,11 +47,9 @@ class SortedDict(dict):
         del(self._sortedItems[ind])
         break
 
-  '''
-  ------------------
+  '''---
   Private functions
-  ------------------
-  '''
+  ---'''
   # Add item to dict, update sorted items
   def _addItem(self, key, value):
     if (key in self):
@@ -87,11 +83,9 @@ class SortedDict(dict):
   def _defaultGetSortValue(self, item):
     return item[0] # Just use the key if no other getValue is provided
 
-  '''
-  ------------------
+  '''---
   Public functions
-  ------------------
-  '''
+  ---'''
   # pop off the lowest item (first item in sortedItems)
   def popItem(self):
     if (len(self) == 0):

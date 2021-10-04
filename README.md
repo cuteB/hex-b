@@ -25,3 +25,5 @@ with too extra edges
             \___/4,4\
                 \___/
 ```
+
+Just run `python main.py` for now

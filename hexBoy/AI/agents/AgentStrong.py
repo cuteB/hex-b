@@ -9,18 +9,16 @@ from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 
 '''----------------------------------
 Strong move Agent
------------------------------------'''
+----------------------------------'''
 class AgentStrong(HexAgent):
 
   def __init__(self):
     HexAgent.__init__(self)
     self.name = "Agent_Strong"
 
-  '''
-  -----------------------------------------------
+  '''---
   Agent Functions
-  -----------------------------------------------
-  '''
+  ---'''
   # Override
   def getAgentMove(self):
     gameBoard = self.gameBoard

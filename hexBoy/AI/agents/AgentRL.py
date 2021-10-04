@@ -11,7 +11,7 @@ from hexBoy.models.SortedDict import SortedDict
 
 '''----------------------------------
 Reinforcement Learning Agent
------------------------------------'''
+----------------------------------'''
 @dataclass
 class AgentRL(HexAgent):
   # board states: (
@@ -94,11 +94,9 @@ class AgentRL(HexAgent):
     self.stateBeforeLastMove = None
     self.stateAfterLastMove = None
 
-  '''
-  -----------------------------------------------
+  '''---
   Private
-  -----------------------------------------------
-  '''
+  ---'''
   def _rewardStateTransition(self, transition):
 
     gamma = 0.1

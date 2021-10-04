@@ -8,7 +8,7 @@ from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 
 '''----------------------------------
 Random Agent
------------------------------------'''
+----------------------------------'''
 class AgentRand(HexAgent):
   # Agent RandRandom moves. Rarely the best
   def __init__(self):

@@ -22,7 +22,7 @@ AFTER_TURN = pygame.USEREVENT + 3
 
 '''----------------------------------
 Main hex game class
------------------------------------'''
+----------------------------------'''
 @dataclass
 class HexGame:
   boardSize: int
@@ -310,7 +310,7 @@ class HexGame:
 
 '''----------------------------------
 Main
------------------------------------'''
+----------------------------------'''
 def HexGame_Play(
   agentA = None,
   agentB = None,

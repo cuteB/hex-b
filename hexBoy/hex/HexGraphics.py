@@ -19,7 +19,7 @@ DARK_BLUE = (0,0,150)
 # ty https://github.com/ThomasRush/py_a_star for the Hexagon rendering ideas
 '''----------------------------------
 Hex Graphics
------------------------------------'''
+----------------------------------'''
 class Graphics:
   def __init__(self, boardSize, hexSize = 40):
     self.hexSize = hexSize        # Hexagon size in pixels
@@ -175,11 +175,9 @@ class Graphics:
     # make sure type int
     return (int(xRow), int(yRow))
 
-'''
------------------------------------------------
+'''----------------------------------
 Hexagon shape for board
------------------------------------------------
-'''
+----------------------------------'''
 class Hexagon:
   def __init__(self, colour, size, drawEdges):
     self.colour = colour

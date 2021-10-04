@@ -20,7 +20,7 @@ from hexBoy.hex.HexNode import HexNode
 
 '''----------------------------------
 Hex Agent
------------------------------------'''
+----------------------------------'''
 @dataclass
 class HexAgent(ABC):
   name: str
@@ -54,11 +54,9 @@ class HexAgent(ABC):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
 
-  '''
-  ------------------
+  '''---
   Agent Setup
-  ------------------
-  '''
+  ---'''
   def _initGameBoard(self, gameBoard):
     self.gameBoard = gameBoard
     self.getAdjacentSpaces = gameBoard.getAdjacentSpaces
@@ -85,11 +83,9 @@ class HexAgent(ABC):
       self.checkIfBarrier = HexNode.checkIfRedBarrierForAI
       self.checkIfOpponentBarrier = HexNode.checkIfBlueBarrierForAI
 
-  '''
-  ------------------
+  '''---
   Random Move
-  ------------------
-  '''
+  ----'''
   def _randomMove(self):
     gameBoard = self.gameBoard
     x = random.randint(0, gameBoard.boardSize - 1)

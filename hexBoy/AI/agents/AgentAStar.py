@@ -9,7 +9,7 @@ from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 
 '''----------------------------------
 AStar Search Agent
------------------------------------'''
+----------------------------------'''
 class AgentAStar(HexAgent):
 
   def __init__(self):

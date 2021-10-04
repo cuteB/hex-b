@@ -1,6 +1,6 @@
 '''----------------------------------
 Hex Node
------------------------------------'''
+----------------------------------'''
 
 """
 Probs gotta refactor this Kinda sloppy with how everyone uses it
