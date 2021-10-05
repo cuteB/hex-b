@@ -98,9 +98,9 @@ class Graphics:
         xPos -= x * (hexSize / 4)
 
         # Render the hex based on board position
-        if board[cell].getValue() == 1:
+        if board[cell].type == 1:
           self.screen.blit(self.hexBlue.getHexagon(), (xPos, yPos))
-        elif board[cell].getValue() == 2:
+        elif board[cell].type == 2:
           self.screen.blit(self.hexRed.getHexagon(), (xPos, yPos))
         else:
           self.screen.blit(self.hexWhite.getHexagon(), (xPos, yPos))
@@ -119,11 +119,11 @@ class Graphics:
         # offset xPos. Each row is quarter more to the left
         xPos -= pos[0] * (hexSize / 4)
 
-        if board[cell].getValue() == 1:
+        if board[cell].type == 1:
           self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
-        elif board[cell].getValue() == 2:
+        elif board[cell].type == 2:
           self.screen.blit(self.hexRedWin.getHexagon(), (xPos, yPos))
-        elif not (board[cell].getValue() == 3 or board[cell].getValue() == 4):
+        elif not (board[cell].type == 3 or board[cell].type == 4):
           self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
 
     pygame.display.flip()

@@ -81,13 +81,11 @@ class HexGame:
       self.board,
       self.board.getAdjacentSpaces,
       HexNode.checkIfBlueBarrier,
-      HexNode.getCellValueForWinningPath,
     )
     self.redPathFinder = PathBoy(
       self.board,
       self.board.getAdjacentSpaces,
       HexNode.checkIfRedBarrier,
-      HexNode.getCellValueForWinningPath,
     )
 
     self.gameNumber = 1
@@ -178,6 +176,7 @@ class HexGame:
     """Handle the next move"""
     if (self.board.validateMove(move)):
       self.board.makeMove(move, player)
+      self._updateAgentBoards()
       self._eventAfterTurn()
 
   '''---
@@ -234,6 +233,13 @@ class HexGame:
     """Update Graphics"""
     if self.showDisplay:
       self.graphics.updateWindow(self.board, self.winPath)
+
+  def _updateAgentBoards(self):
+    """Update Agents Boards because it changed"""
+    if (self.blueAgent != None):
+      self.blueAgent.updateBoard()
+    if (self.redAgent != None):
+      self.redAgent.updateBoard()
 
   def terminateGame(self):
     """Force Quit game"""

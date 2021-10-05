@@ -5,7 +5,7 @@ from hexBoy.hex.HexNode import HexNode
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
   """Reset the board and pathfinder before each test"""
-  tmpdir.node = HexNode(HexNode.Space.EMPTY, (0,0))
+  tmpdir.node = HexNode(HexNode.SpaceTypes.EMPTY, (0,0))
   tmpdir.end = (11,0)
 
   # ^^^ before ^^^
@@ -14,19 +14,19 @@ def before_and_after_test(tmpdir):
 
 def test_NodeValues(tmpdir):
   """Check default values for node"""
-  assert tmpdir.node.nodePos == (0,0)
-  assert tmpdir.node.nodeValue == HexNode.Space.EMPTY
-  assert tmpdir.node.f == 0
+  assert tmpdir.node.pos == (0,0)
+  assert tmpdir.node.type == HexNode.SpaceTypes.EMPTY
+  assert tmpdir.node.hest == 0
 
 def test_ScoreNode(tmpdir):
   """Score node and check that it's cost and parent are set"""
   dad = (1,0)
-
   dadCost = 10
-  cost = 1
-  tmpdir.node.scoreNode(cost, dad, dadCost, tmpdir.end)
+  tmpdir.node.scoreHeuristic(dad, dadCost, tmpdir.end)
 
-  assert tmpdir.node.g == (dadCost + cost)
+  assert tmpdir.node.path == dadCost
+  assert tmpdir.node.cost == 1
+  assert tmpdir.node.getPC() == (dadCost + 1)
   assert tmpdir.node.parent == dad
 
 def test_EmptyNodeBarrier(tmpdir):
@@ -41,17 +41,16 @@ def test_EmptyNodeBarrierForAI(tmpdir):
 
 def test_CheckIfEnd(tmpdir):
   """Check if the node is an end node for empty and end node"""
-  endNode = HexNode(HexNode.Space.RED_END, (5,5))
+  endNode = HexNode(HexNode.SpaceTypes.RED_END, (5,5))
   assert not tmpdir.node.checkIfEnd()
   assert endNode.checkIfEnd()
 
 def test_NodeColour(tmpdir):
   """Check the nodes colour for blue or not blue"""
-  blue = HexNode(HexNode.Space.BLUE, (0,0))
-  blueEnd = HexNode(HexNode.Space.BLUE_END, (0,0))
-  blueEdge = HexNode(HexNode.Space.BLUE_EDGE, (0,0))
-
-  red = HexNode(HexNode.Space.RED, (0,0))
+  blue = HexNode(HexNode.SpaceTypes.BLUE, (0,0))
+  blueEnd = HexNode(HexNode.SpaceTypes.BLUE_END, (0,0))
+  blueEdge = HexNode(HexNode.SpaceTypes.BLUE_EDGE, (0,0))
+  red = HexNode(HexNode.SpaceTypes.RED, (0,0))
 
   assert blue.checkIfBlue()
   assert blueEnd.checkIfBlue()

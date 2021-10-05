@@ -40,7 +40,7 @@ class Board:
 
   def __init__(self, boardSize):
     self.boardSize = boardSize
-    self.hexTypes = HexNode.Space
+    self.hexTypes = HexNode.SpaceTypes
     self.moveHistory = []
 
     self.redStartSpace = (-1, 5)
@@ -80,13 +80,13 @@ class Board:
 
   # Check if the given cell is a valid move. (hex is empty)
   def validateMove(self, cell):
-    return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].getValue() == self.hexTypes.EMPTY
+    return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].type == self.hexTypes.EMPTY
 
   # Make the move on the board dict, add to move history
   def makeMove(self, cell, player):
     """Make a move on the board and save it in history"""
     self.moveHistory.append((cell, player))
-    self.boardDict[cell].setValue(player)
+    self.boardDict[cell].setSpaceType(player)
 
   # Check if the move is within the board or edges
   def isSpaceWithinBounds(self, cell):

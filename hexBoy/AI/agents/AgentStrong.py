@@ -56,12 +56,10 @@ class AgentStrong(HexAgent):
       self.gameBoard,
       self.getAdjacentSpaces,
       self.checkIfBarrier,
-      HexNode.getCellValueForNextMove,
     )
 
     self.oppPathFinder = PathBoy(
       self.gameBoard,
       self.getAdjacentSpaces,
       self.checkIfOpponentBarrier,
-      HexNode.getCellValueForNextMove,
     )

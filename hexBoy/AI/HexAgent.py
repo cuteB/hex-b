@@ -45,8 +45,12 @@ class HexAgent(ABC):
   def getAgentMove(self) -> tuple:
     """Get the next move for the agent"""
 
-  # Score game and get good. Also reset I guess
   def scoreGame(self):
+    """Score game and get good. Also reset I guess"""
+    return
+
+  def updateBoard(self):
+    """Board was updated, Agent should handle the new moves"""
     return
 
   # Init board and player

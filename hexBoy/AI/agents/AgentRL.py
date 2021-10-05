@@ -77,7 +77,6 @@ class AgentRL(HexAgent):
       self.gameBoard,
       self.getAdjacentSpaces,
       self.checkIfBarrier,
-      HexNode.getCellValueForNextMove,
       sortFunc
     )
 
@@ -85,9 +84,11 @@ class AgentRL(HexAgent):
       self.gameBoard,
       self.getAdjacentSpaces,
       self.checkIfOpponentBarrier,
-      HexNode.getCellValueForNextMove,
       sortFunc
     )
+
+  def updateBoard(self):
+    pass
 
   def scoreGame(self):
     # reset states
@@ -135,7 +136,6 @@ class AgentRL(HexAgent):
     Dp = ppf.ScorePath(
       board.getNodeDict(),
       playerBestPath,
-      HexNode.getCellValueForNextMove
     )
     opponentBestPath = opf.findPath(
       self.opponentStart,
@@ -144,21 +144,18 @@ class AgentRL(HexAgent):
     Do = opf.ScorePath(
       board.getNodeDict(),
       opponentBestPath,
-      HexNode.getCellValueForNextMove
     )
 
     # Np = pf.NumBestPaths(
     #   board.getNodeDict(),
     #   self.startPos, self.endPos,
     #   self.checkIfBarrier,
-    #   HexNode.getCellValueForNextMove
     # )
 
     # No = pf.NumBestPaths(
     #   board.getNodeDict(),
     #   self.opponentStart, self.opponentEnd,
     #   self.checkIfOpponentBarrier,
-    #   HexNode.getCellValueForNextMove
     # )
 
     return (Dp, Do)

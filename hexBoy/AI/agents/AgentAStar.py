@@ -1,5 +1,4 @@
 import random
-
 from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.HexBoard import Board
 from hexBoy.hex.HexNode import HexNode
@@ -37,13 +36,12 @@ class AgentAStar(HexAgent):
     HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
     def sortFunc(item):
-      return item[1].pathCost
+      return item[1].path
 
     # AStar Pathfinder
     self.pathfinder = PathBoy(
       self.gameBoard,
       self.getAdjacentSpaces,
       self.checkIfBarrier,
-      HexNode.getCellValueForNextMove,
       sortFunc
     )

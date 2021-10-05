@@ -7,14 +7,13 @@ from hexBoy.hex.HexNode import HexNode
 def before_and_after_test(tmpdir):
   """Reset the board and pathfinder before each test"""
   def sortFunc(item):
-    return item[1].g
+    return item[1].getPC()
 
   tmpdir.board = Board(11)
   tmpdir.pf = PathBoy(
     tmpdir.board,
     tmpdir.board.getAdjacentSpaces,
     HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove,
     sortFunc
   )
   # ^^^ before ^^^
