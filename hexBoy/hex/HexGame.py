@@ -225,6 +225,11 @@ class HexGame:
       self.graphics.setupWindow()
 
     self.board.resetGame()
+    if (self.blueAgent != None):
+      self.blueAgent.startGame()
+    if (self.redAgent != None):
+      self.redAgent.startGame()
+
     self.winPath = None
     self._eventStartTurn()
 
@@ -325,7 +330,7 @@ def HexGame_Play(
   numGames = None,
   showPrint = True,
 ):
-  """Main HexGame FUnction to play games given config"""
+  """Main HexGame Function to play games given config"""
   game = HexGame(
     computer1=agentA,
     computer2=agentB,

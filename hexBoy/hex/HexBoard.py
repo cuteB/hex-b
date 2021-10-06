@@ -16,7 +16,6 @@ from hexBoy.hex.HexNode import HexNode
   - Need to look deeper faster
 
   IDEA: make a board for pathfinders to modify values for their nodes
-
 """
 
 '''----------------------------------
@@ -200,3 +199,15 @@ class Board:
           possibleMoves.append((x,y))
 
     return possibleMoves
+
+  def syncBoard(self, parentBoard, moveCallback = None):
+    """Sync the current board to the parent board based on move history"""
+    parentMoveLen = len(parentBoard.moveHistory)
+    selfMoveLen = len(self.moveHistory)
+
+    for i in range(selfMoveLen, parentMoveLen):
+      move = parentBoard.moveHistory[i]
+      self.makeMove(move[0], move[1])
+
+      if (moveCallback != None):
+        moveCallback(move)

@@ -68,3 +68,63 @@ def test_GetPlayerMoves(tmpdir):
 
   assert tmpdir.board.getPlayerMoves(1) == bMoves
   assert tmpdir.board.getPlayerMoves(2) == rMoves
+
+def test_SyncBoardBasic(tmpdir):
+  """Test Syncing a board to it's parent with one move"""
+  myBoard = Board(tmpdir.size)
+
+  move1 = (0,0)
+  tmpdir.board.makeMove(move1, 1)
+
+  assert myBoard.validateMove(move1)
+  myBoard.syncBoard(tmpdir.board)
+  assert not myBoard.validateMove(move1)
+
+def test_SyncBoardMultiple(tmpdir):
+  """Test Syncing a board with multiple moves"""
+  myBoard = Board(tmpdir.size)
+  moves = [(0,0), (0,1), (0,2)]
+  for m in moves:
+    tmpdir.board.makeMove(m,1)
+
+  assert myBoard.getPlayerMoves(1) == []
+  myBoard.syncBoard(tmpdir.board)
+  assert myBoard.getPlayerMoves(1) == moves
+
+def test_SyncBoardCallback(tmpdir):
+  """Test Syncing board with a callback for moves"""
+  myBoard = Board(tmpdir.size)
+  moves = [(0,0), (0,1), (0,2)]
+  for m in moves:
+    tmpdir.board.makeMove(m,1)
+
+  callbackMoves = []
+  def moveCallback(move):
+    callbackMoves.append(move[0])
+    assert move[1] == 1
+
+  myBoard.syncBoard(tmpdir.board, moveCallback)
+  assert callbackMoves == moves
+
+def test_SynceMultipleTimes(tmpdir):
+  """Test that syncing a board multiple times doesn't make move moves"""
+  myBoard = Board(tmpdir.size)
+  moves = [(0,0), (0,1), (0,2)]
+  for m in moves:
+    tmpdir.board.makeMove(m,1)
+
+  callbackMoves = []
+  def moveCallback(move):
+    callbackMoves.append(move[0])
+    assert move[1] == 1
+
+  myBoard.syncBoard(tmpdir.board, moveCallback)
+  assert callbackMoves == moves
+  myBoard.syncBoard(tmpdir.board, moveCallback)
+  assert callbackMoves == moves
+
+  tmpdir.board.makeMove((1,1), 1)
+  moves.append((1,1))
+
+  myBoard.syncBoard(tmpdir.board, moveCallback)
+  assert callbackMoves == moves

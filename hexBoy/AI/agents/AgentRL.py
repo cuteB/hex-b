@@ -71,7 +71,7 @@ class AgentRL(HexAgent):
 
     # AStar Pathfinder
     def sortFunc(item):
-      return item[1].g
+      return item[1].getPC()
 
     self.pathfinder = PathBoy(
       self.gameBoard,
@@ -110,7 +110,7 @@ class AgentRL(HexAgent):
       # gamma * (
       #   (stateB[2] - stateA[2])
       #   - (stateB[3] - stateB[3])
-      # ) -
+      # )
       100 -
       theta * (
         (stateB[0] - stateA[0])
@@ -134,7 +134,6 @@ class AgentRL(HexAgent):
       self.endPos,
     )
     Dp = ppf.ScorePath(
-      board.getNodeDict(),
       playerBestPath,
     )
     opponentBestPath = opf.findPath(
@@ -142,7 +141,6 @@ class AgentRL(HexAgent):
       self.opponentEnd,
     )
     Do = opf.ScorePath(
-      board.getNodeDict(),
       opponentBestPath,
     )
 

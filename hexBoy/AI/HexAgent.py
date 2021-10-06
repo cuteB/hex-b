@@ -28,6 +28,7 @@ class HexAgent(ABC):
 
   # Board
   gameBoard: Board
+  agentBoard: Board
   getAdjacentSpaces       = None
 
   # pathfinder: player positions and barrier checks
@@ -37,6 +38,7 @@ class HexAgent(ABC):
   opponentEnd             = None
   checkIfBarrier          = None  # player barriers
   checkIfOpponentBarrier  = None  # opponent barriers
+  moveCallback = None
 
   def __init__(self):
     pass # nothing for now
@@ -46,12 +48,16 @@ class HexAgent(ABC):
     """Get the next move for the agent"""
 
   def scoreGame(self):
-    """Score game and get good. Also reset I guess"""
+    """Score game and get good."""
     return
 
   def updateBoard(self):
     """Board was updated, Agent should handle the new moves"""
-    return
+    self.agentBoard.syncBoard(self.gameBoard, self.moveCallback)
+
+  def startGame(self):
+    """Start the game and reset the board and other stuff"""
+    self.agentBoard.resetGame()
 
   # Init board and player
   def setGameBoardAndPlayer(self, gameBoard, player):
@@ -62,6 +68,7 @@ class HexAgent(ABC):
   Agent Setup
   ---'''
   def _initGameBoard(self, gameBoard):
+    self.agentBoard = Board(gameBoard.boardSize)
     self.gameBoard = gameBoard
     self.getAdjacentSpaces = gameBoard.getAdjacentSpaces
 

@@ -113,7 +113,6 @@ class PathBoy:
 
     return path
 
-
   '''---
   score path
   ---'''
