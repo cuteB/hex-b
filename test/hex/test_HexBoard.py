@@ -57,3 +57,14 @@ def test_DistanceToCenter(tmpdir):
 
   move = (0,10)
   assert tmpdir.board.getDistanceToCenter(move) == 10
+
+def test_GetPlayerMoves(tmpdir):
+  """Get each player's moves"""
+  bMoves = [(0,0), (0,1), (0,2)]
+  rMoves = [(1,0), (1,1), (1,2)]
+  for i in range(len(bMoves)):
+    tmpdir.board.makeMove(bMoves[i], 1)
+    tmpdir.board.makeMove(rMoves[i], 2)
+
+  assert tmpdir.board.getPlayerMoves(1) == bMoves
+  assert tmpdir.board.getPlayerMoves(2) == rMoves

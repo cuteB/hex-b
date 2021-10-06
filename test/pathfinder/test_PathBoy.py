@@ -7,12 +7,13 @@ from hexBoy.hex.HexNode import HexNode
 def before_and_after_test(tmpdir):
   """Reset the board and pathfinder before each test"""
   def sortFunc(item):
-    return item[1].g
+    return item[1].getPC()
 
   tmpdir.board = Board(11)
   tmpdir.pf = PathBoy(
+    tmpdir.board,
     tmpdir.board.getAdjacentSpaces,
-    1, #AStar
+    HexNode.checkIfBlueBarrierForAI,
     sortFunc
   )
   # ^^^ before ^^^
@@ -23,18 +24,11 @@ def test_EmptyBoardPath(tmpdir):
   """Test Empty Board Path Cost"""
   board = tmpdir.board
   bestPath = tmpdir.pf.findPath(
-    board.getNodeDict(),
     board.blueStartSpace,
     board.blueEndSpace,
-    HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove,
   )
 
-  pathCost = tmpdir.pf.ScorePath(
-    board.getNodeDict(),
-    bestPath,
-    HexNode.getCellValueForNextMove,
-  )
+  pathCost = tmpdir.pf.ScorePath(bestPath)
 
   assert pathCost == 11
 
@@ -44,18 +38,11 @@ def test_OnePlayerNodePath(tmpdir):
   board.makeMove((1,1), 1)
 
   bestPath = tmpdir.pf.findPath(
-    board.getNodeDict(),
     board.blueStartSpace,
     board.blueEndSpace,
-    HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove,
   )
 
-  pathCost = tmpdir.pf.ScorePath(
-    board.getNodeDict(),
-    bestPath,
-    HexNode.getCellValueForNextMove,
-  )
+  pathCost = tmpdir.pf.ScorePath(bestPath)
 
   assert pathCost == 10
 
@@ -67,18 +54,11 @@ def test_PlayerPath(tmpdir):
     board.makeMove((0,i), 1)
 
   bestPath = tmpdir.pf.findPath(
-    board.getNodeDict(),
     board.blueStartSpace,
     board.blueEndSpace,
-    HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove,
   )
 
-  pathCost = tmpdir.pf.ScorePath(
-    board.getNodeDict(),
-    bestPath,
-    HexNode.getCellValueForNextMove,
-  )
+  pathCost = tmpdir.pf.ScorePath(bestPath)
 
   assert pathCost == 0
 
@@ -90,18 +70,11 @@ def test_OpponentPath(tmpdir):
     board.makeMove((i,0), 2)
 
   bestPath = tmpdir.pf.findPath(
-    board.getNodeDict(),
     board.blueStartSpace,
     board.blueEndSpace,
-    HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove,
   )
 
-  pathCost = tmpdir.pf.ScorePath(
-    board.getNodeDict(),
-    bestPath,
-    HexNode.getCellValueForNextMove,
-  )
+  pathCost = tmpdir.pf.ScorePath(bestPath)
 
   assert pathCost == 10000
 
@@ -110,11 +83,8 @@ def test_NumPathsEmptyBoard(tmpdir):
   board = tmpdir.board
 
   numPaths = tmpdir.pf.getNumBestPaths(
-    board.getNodeDict(),
     board.blueStartSpace,
     board.blueEndSpace,
-    HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove
   )
 
   assert numPaths == 6144
@@ -127,11 +97,8 @@ def test_WinPathFound(tmpdir):
     board.makeMove((5,i), 1)
 
   bestPath = tmpdir.pf.findPath(
-    board.getNodeDict(),
     board.blueStartSpace,
     board.blueEndSpace,
-    HexNode.checkIfBlueBarrierForAI,
-    HexNode.getCellValueForNextMove,
   )
 
   assert bestPath == [

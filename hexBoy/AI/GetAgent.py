@@ -4,13 +4,15 @@ from hexBoy.AI.agents.AgentStrong import AgentStrong
 from hexBoy.AI.agents.AgentRL import AgentRL
 
 # TODO Change this into plugin architecture.
-# - Looks cool 
+# - Looks cool
 
 # Easy way to get an agent
 def GetAgent(agentDifficulty=0):
-
+  # Random (default)
+  if (agentDifficulty == 0):
+    return AgentRand()
   # AStar
-  if (agentDifficulty == 1):
+  elif (agentDifficulty == 1):
     return AgentAStar()
 
   # Strong
@@ -21,6 +23,6 @@ def GetAgent(agentDifficulty=0):
   elif (agentDifficulty == 3):
     return AgentRL()
 
-  # Random (default)
+  # just put in human
   else:
-    return AgentRand()
+    return None

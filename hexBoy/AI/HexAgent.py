@@ -1,8 +1,3 @@
-'''
------------------------------------------------
-HexAgent
------------------------------------------------
-'''
 """
 Save RL agent to keep smart?
 - Store best as a greedy agent
@@ -23,6 +18,9 @@ from typing import Optional
 from hexBoy.hex.HexBoard import Board
 from hexBoy.hex.HexNode import HexNode
 
+'''----------------------------------
+Hex Agent
+----------------------------------'''
 @dataclass
 class HexAgent(ABC):
   name: str
@@ -43,17 +41,16 @@ class HexAgent(ABC):
   def __init__(self):
     pass # nothing for now
 
-  '''
-  -----------------------------------------------
-  Public (Override these)
-  -----------------------------------------------
-  '''
   @abstractmethod
   def getAgentMove(self) -> tuple:
     """Get the next move for the agent"""
 
-  # Score game and get good. Also reset I guess
   def scoreGame(self):
+    """Score game and get good. Also reset I guess"""
+    return
+
+  def updateBoard(self):
+    """Board was updated, Agent should handle the new moves"""
     return
 
   # Init board and player
@@ -61,16 +58,9 @@ class HexAgent(ABC):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
 
-  '''
-  -----------------------------------------------
-  Private
-  -----------------------------------------------
-  '''
-  '''
-  ------------------
+  '''---
   Agent Setup
-  ------------------
-  '''
+  ---'''
   def _initGameBoard(self, gameBoard):
     self.gameBoard = gameBoard
     self.getAdjacentSpaces = gameBoard.getAdjacentSpaces
@@ -97,11 +87,9 @@ class HexAgent(ABC):
       self.checkIfBarrier = HexNode.checkIfRedBarrierForAI
       self.checkIfOpponentBarrier = HexNode.checkIfBlueBarrierForAI
 
-  '''
-  ------------------
+  '''---
   Random Move
-  ------------------
-  '''
+  ----'''
   def _randomMove(self):
     gameBoard = self.gameBoard
     x = random.randint(0, gameBoard.boardSize - 1)
