@@ -11,15 +11,15 @@ I'll put ideas here
 
 def main() -> None:
   """ Main Function """
-  a = GetAgent(1)
-  b = GetAgent(3)
+  a = GetAgent(4)
+  b = GetAgent(1)
 
   HexGame_Play(
     agentA = a,
     agentB = b,
     showEndGame = False,
     showDisplay = True,
-    numGames = 1000
+    numGames = 10
   )
 
 #-------------------------------------------

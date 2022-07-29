@@ -7,7 +7,7 @@ HexAgent
 Save RL agent to keep smart?
 - Store best as a greedy agent
 
-Think about composition and inheritence.
+Think about composition and inheritance.
 - Pathfinders seem to fall into categories that they can use.
 - Do a better initialize maybe.
   - Need to initialize board or get move doesn't work

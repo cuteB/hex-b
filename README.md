@@ -1,7 +1,7 @@
 # Hex-b
-Hex, the game.
 
+> The only reason I'm here
 
-Pls work image
+Hex, The game
 
-![Random Hex Game](/public/images/RandomHexBoard.png)
+![Random Hex Game](/wiki/images/RandomHexBoard.png)
