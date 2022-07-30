@@ -28,7 +28,7 @@ Given a board state, get all strong moves for a player. For now just identify wh
 
 #### Strong Move Example Notes
 
-![Strong Move Evaluation](/wiki/images/resize.png)]
+![Strong Move Evaluation](/wiki/images/resize.png)
 
 - Need to count based off of a single hex. Hexes with 2 (D) or 3 (C) from different hexes aren't that strong because they can be easily blocked.
 - Hexes with 4 (E) are very strong if they create 2 sets of strong moves. Need to change up evaluation based on previous point.
@@ -46,6 +46,7 @@ Given a board state the function should return all of the moves that are strong.
 
 Simple cases
 
+- empty board
 - Single hex, simple
 - Multiple single hexes
 - one group of hexes
@@ -60,6 +61,10 @@ Simple cases
 ### Adjacent Hex
 
 A hex that is beside one of the players existing hexes. Could also be an Opponent's Adjacent Hex if its a hex beside one of their hexes, or perhaps a conflict Adjacent hex if it is between one of your and your opponent's hexes.
+
+#### Satellite Hex
+
+An empty hex that is adjacent to a player's Adjacent Hexes
 
 ### Middle Move
 
