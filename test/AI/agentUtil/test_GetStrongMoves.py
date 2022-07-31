@@ -71,3 +71,34 @@ def test_TwoMovesClose(tmpdir):
     expected = [(0,3), (0,5), (1,1), (1,6), (3,0), (3,5), (4,1), (4,3)]
     actual = GetStrongMoves(tmpdir.board, 1)
     assert sorted(actual) == sorted(expected)
+
+def test_OneBigConnection(tmpdir):
+    """Board with many moves from one player connected to each other """
+    moves = [
+        (4,4),
+        (5,4), (5,5), (5,9),
+        (6,5), (6,6), (6,7), (6,8)
+    ]
+    for m in moves:
+        tmpdir.board.makeMove(m, 1)
+
+    expected = [
+        (2,5),
+        (3,3), (3,6), (3,10),
+        (4,7), (4,8), 
+        (5,2),
+        (6,2), (6,10),
+        (7,3), (7,9),
+        (8,4), (8,5), (8,6), (8,7)
+    ]
+    actual = GetStrongMoves(tmpdir.board, 1)
+    assert sorted(actual) == sorted(expected)
+
+def test_FiveNineEdgeCase(tmpdir):
+    """(5,9) because I feel like the prev test is wrong, (i'm dumb)"""
+    tmpdir.board.makeMove((5,9), 1)
+
+    expected = [(3,10), (4,8), (6,7), (6,10), (7,8)]
+    actual = GetStrongMoves(tmpdir.board, 1)
+    assert sorted(actual) == sorted(expected)
+

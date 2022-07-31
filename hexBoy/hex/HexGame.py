@@ -346,7 +346,7 @@ class HexGame:
 
       for i in range(numGames):
         if (not self.quitGame):
-          self.turn = (i % 2) + 1 # altertate turns
+          self.turn = (i % 2) + 1 # alternate turns
           self.playGame()
 
           if (self.turn == 1):
