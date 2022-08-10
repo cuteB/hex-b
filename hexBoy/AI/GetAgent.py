@@ -32,5 +32,4 @@ def GetAgent(agentDifficulty=0):
 
     # just put in human
     else:
- 
         return None

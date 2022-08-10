@@ -1,7 +1,7 @@
 import pytest
 
 from hexBoy.hex.HexBoard import Board
-from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
+from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetWeakConnections
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
@@ -13,24 +13,24 @@ def before_and_after_test(tmpdir):
     yield # run the rest
     # vvv after vvv
 
-def test_EmptyBoard(tmpdir):
+def test_EmptyBoardNoConnections(tmpdir):
     """Empty Board"""
     expected = []
-    actual = GetConnections(tmpdir.board, 1)
+    actual = GetWeakConnections(tmpdir.board, 1)
     assert actual == expected
 
-def test_OneWeak(tmpdir):
+def test_OneWeakConnection(tmpdir):
     """Two Hexes One connection"""
     
     tmpdir.board.makeMove((5,5), 1)
     tmpdir.board.makeMove((5,7), 1)
     
-    expected = [((5,6), 1)]
-    actual = GetConnections(tmpdir.board, 1)
+    expected = [(5,6)]
+    actual = GetWeakConnections(tmpdir.board, 1)
     assert actual == expected
 
 
-def test_TwoWeak(tmpdir):
+def test_TwoWeakConnections(tmpdir):
     """Three Hexes Two connection"""
     
     tmpdir.board.makeMove((5,3), 1)
@@ -38,26 +38,35 @@ def test_TwoWeak(tmpdir):
     tmpdir.board.makeMove((5,7), 1)
     
     expected = [
-        ((5,6), 1), 
-        ((5,4), 1)
+        (5,6), 
+        (5,4)
     ]
-    actual = GetConnections(tmpdir.board, 1)
+    actual = GetWeakConnections(tmpdir.board, 1)
     assert actual == expected
 
-def test_BlockingMove(tmpdir):
+def test_BlockingConnectionMove(tmpdir):
+    """One opp move blocking connection"""
     
+    tmpdir.board.makeMove((5,5), 1)
+    tmpdir.board.makeMove((5,7), 1)
+    tmpdir.board.makeMove((5,6), 2)
 
-def test_StrongMove(tmpdir):
+    
+    expected = []
+    actual = GetWeakConnections(tmpdir.board, 1)
+    assert actual == expected
+
+def test_OneStrongConnection(tmpdir):
     """One Strong move"""
 
     tmpdir.board.makeMove((5,5), 1)
     tmpdir.board.makeMove((6,7), 1)
     
     expected = [
-        ((5,6), 2),
-        ((6,5), 2),
+        (5,6),
+        (6,5)
     ]
-    actual = GetConnections(tmpdir.board, 1)
+    actual = GetWeakConnections(tmpdir.board, 1)
     assert actual == expected
 
 

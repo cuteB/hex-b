@@ -1,7 +1,7 @@
+from typing import List
 from hexBoy.models.SortedDict import SortedDict
 
-def GetConnections(board, player):
-    """Get the list of strong and weak connections between a player's moves"""
-
+def GetWeakConnections(board, player) -> List[int]:
+    """Get the list of weak connections for a player"""
 
     return []

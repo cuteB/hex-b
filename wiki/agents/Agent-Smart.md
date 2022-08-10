@@ -65,7 +65,11 @@ Mid game is the only important part for agent smart. Early game hardly exists, l
     - At this point we are still in mid game but we have a list of strong moves which is a list of moves that we shouldn't make.
 1. Get all of the strong moves.
     - Need to favour moves that lower the overall cost of the best path.
-    - Moves that don't improve the cost should get checked again. These should at least be able to be used to keep the same cost. With nature of strong moves, these moves improve board control add additional options for strong moves that do improve board state. This check will filter out the strong moves in the middle of the connected spaces. In many cases these moves are still viable if the opponent blocks off the agent's initial best path. 
+    - Moves that don't improve the cost should get checked again. These should at least be able to be used to keep the same cost. With nature of strong moves, these moves improve board control add additional options for strong moves that do improve board state. This check will filter out the strong moves in the middle of the connected spaces. In many cases these moves are still viable if the opponent blocks off the agent's initial best path.
+
+### Get Connections
+
+Get weak connections and get strong connections. I only care about one at a time. If there is a weak connection then make it. Compare the best path's empty hexes with the strong connections. If they are all present in the list then make one of them. 
 
 ## Glossary
 
