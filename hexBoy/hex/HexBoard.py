@@ -203,8 +203,8 @@ class Board:
   def getPlayerMoves(self, player): 
     playerMoves = []
     for move in self.moveHistory:
-      if self.boardDict[move].nodeValue == player:
-        playerMoves.append(move)
+      if self.boardDict[move[0]].type == player: # FIXME Key Error
+        playerMoves.append(move[0])
 
     return playerMoves
 
