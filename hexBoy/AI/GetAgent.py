@@ -7,27 +7,30 @@ from hexBoy.AI.agents.AgentSmart import AgentSmart
 # TODO Change this into plugin architecture.
 # - Looks cool
 
+# TODO add None agent so player can have name
+
 # Easy way to get an agent
 def GetAgent(agentDifficulty=0):
-  # Random (default)
-  if (agentDifficulty == 0):
-    return AgentRand()
-  # AStar
-  elif (agentDifficulty == 1):
-    return AgentAStar()
+    # Random (default)
+    if agentDifficulty == 0:
+        return AgentRand()
+    # AStar
+    elif agentDifficulty == 1:
+        return AgentAStar()
 
-  # Strong
-  elif (agentDifficulty == 2):
-    return AgentStrong()
+    # Strong
+    elif agentDifficulty == 2:
+        return AgentStrong()
 
-  # RL
-  elif (agentDifficulty == 3):
-    return AgentRL()
+    # RL
+    elif agentDifficulty == 3:
+        return AgentRL()
 
-  # Smart
-  elif (agentDifficulty == 4):
-    return AgentSmart()
+    # Smart
+    elif agentDifficulty == 4:
+        return AgentSmart()
 
-  # just put in human
-  else:
-    return None
+    # just put in human
+    else:
+ 
+        return None

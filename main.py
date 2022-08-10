@@ -1,5 +1,5 @@
 import sys
-from hexBoy.hex.HexGame import HexGame_Play
+from hexBoy.hex.HexGame import Hex_Play
 from hexBoy.AI.GetAgent import GetAgent
 
 """
@@ -11,54 +11,68 @@ I'll put ideas here
 
 """ Main Function """
 def main() -> None:
-  agentA = GetAgent(1)
-  agentB = GetAgent(1)
-  showEndGame = False
-  showDisplay = False
-  numGames = 1
-  showPrint = True
+    agentA = GetAgent(1)
+    agentB = GetAgent(1)
+    showEndGame = False
+    showDisplay = False
+    numGames = 1
+    showPrint = True
 
-  opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
-  args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
+    opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
+    args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
 
-  argNum = 0 # what opt the arg is for
-  for i in range(len(opts)):
-    if (opts[i] == "-b"):
-      if (args[argNum].isnumeric()):
-        agentA = GetAgent(int(args[argNum]))
-      else:
-        agentA = None
-        showDisplay = True
+    if (len(opts) == 1 and opts[0] == "--help"): 
+        printHelp()
+        return
 
-      argNum += 1
-    elif (opts[i] == "-r"):
-      if (args[argNum].isnumeric()):
-        agentB = GetAgent(int(args[argNum]))
-      else:
-        agentB = None
-        showDisplay = True
+    argNum = 0 # what opt the arg is for
+    for i in range(len(opts)):
 
-      argNum += 1
-    elif (opts[i] == "-d"):
-      showDisplay = True
-    elif (opts[i] == "-e"):
-      showEndGame = True
-    elif (opts[i] == "-n"):
-      numGames = int(args[argNum])
-      argNum += 1
-    elif (opts[i] == "-p"):
-      showPrint = False
+        # -b <agent>, put something for a player
+        if (opts[i] == "-b"):
+            if (args[argNum].isnumeric()):
+                agentA = GetAgent(int(args[argNum]))
+            else:
+                agentA = None
+                showDisplay = True
+            argNum += 1
 
+        # -r <agent>
+        elif (opts[i] == "-r"):
+            if (args[argNum].isnumeric()):
+                agentB = GetAgent(int(args[argNum]))
+            else:
+                agentB = None
+                showDisplay = True
+            argNum += 1
 
+        # -d, for a display (auto on for players)
+        elif (opts[i] == "-d"):
+            showDisplay = True
+        # -e, keep board on after game
+        elif (opts[i] == "-e"):
+            showEndGame = True
+        # -n, number of games
+        elif (opts[i] == "-n"):
+            numGames = int(args[argNum])
+            argNum += 1
+        # -p, disable print
+        elif (opts[i] == "-p"):
+            showPrint = False
 
-  HexGame_Play(
-    agentA,
-    agentB,
-    showEndGame,
-    showDisplay,
-    numGames,
-    showPrint,
-  )
+    Hex_Play(
+        agentA,
+        agentB,
+        showEndGame,
+        showDisplay,
+        numGames,
+        showPrint,
+    )
+
+def printHelp() -> None:
+    print("So you want help.")
+    print("Maybe Later")
+    print("TODO") # TODO
 
 #-------------------------------------------
 #   start
