@@ -15,7 +15,7 @@ def main() -> None:
   b = GetAgent(1)
 
   HexGame_Play(
-    agentA = a,
+    #agentA = a,
     agentB = b,
     showEndGame = False,
     showDisplay = True,
