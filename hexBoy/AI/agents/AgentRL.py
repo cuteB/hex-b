@@ -9,15 +9,11 @@ from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 from hexBoy.models.SortedDict import SortedDict
 
-'''
------------------------------------------------
+'''----------------------------------
 Reinforcement Learning Agent
------------------------------------------------
-'''
+----------------------------------'''
 @dataclass
 class AgentRL(HexAgent):
-
-  #
   # board states: (
   #   Dp: playerDistToWin,
   #   Do: opponentDistToWin,
@@ -75,24 +71,33 @@ class AgentRL(HexAgent):
 
     # AStar Pathfinder
     def sortFunc(item):
-      return item[1].g
+      return item[1].getPC()
 
     self.pathfinder = PathBoy(
+      self.gameBoard,
       self.getAdjacentSpaces,
-      1, #AStar
+      self.checkIfBarrier,
       sortFunc
     )
+
+    self.oppPathFinder = PathBoy(
+      self.gameBoard,
+      self.getAdjacentSpaces,
+      self.checkIfOpponentBarrier,
+      sortFunc
+    )
+
+  def updateBoard(self):
+    pass
 
   def scoreGame(self):
     # reset states
     self.stateBeforeLastMove = None
     self.stateAfterLastMove = None
 
-  '''
-  -----------------------------------------------
+  '''---
   Private
-  -----------------------------------------------
-  '''
+  ---'''
   def _rewardStateTransition(self, transition):
 
     gamma = 0.1
@@ -105,7 +110,7 @@ class AgentRL(HexAgent):
       # gamma * (
       #   (stateB[2] - stateA[2])
       #   - (stateB[3] - stateB[3])
-      # ) -
+      # )
       100 -
       theta * (
         (stateB[0] - stateA[0])
@@ -121,45 +126,34 @@ class AgentRL(HexAgent):
     #   No: opponentNumPaths,
     # ]
 
-    pf = self.pathfinder
+    ppf = self.pathfinder
+    opf = self.oppPathFinder
 
-    playerBestPath = pf.findPath(
-      board.getNodeDict(),
+    playerBestPath = ppf.findPath(
       self.startPos,
       self.endPos,
-      self.checkIfBarrier,
-      HexNode.getCellValueForNextMove
     )
-    Dp = pf.ScorePath(
-      board.getNodeDict(),
+    Dp = ppf.ScorePath(
       playerBestPath,
-      HexNode.getCellValueForNextMove
     )
-    opponentBestPath = pf.findPath(
-      board.getNodeDict(),
+    opponentBestPath = opf.findPath(
       self.opponentStart,
       self.opponentEnd,
-      self.checkIfOpponentBarrier,
-      HexNode.getCellValueForNextMove
     )
-    Do = pf.ScorePath(
-      board.getNodeDict(),
+    Do = opf.ScorePath(
       opponentBestPath,
-      HexNode.getCellValueForNextMove
     )
 
     # Np = pf.NumBestPaths(
     #   board.getNodeDict(),
     #   self.startPos, self.endPos,
     #   self.checkIfBarrier,
-    #   HexNode.getCellValueForNextMove
     # )
 
     # No = pf.NumBestPaths(
     #   board.getNodeDict(),
     #   self.opponentStart, self.opponentEnd,
     #   self.checkIfOpponentBarrier,
-    #   HexNode.getCellValueForNextMove
     # )
 
     return (Dp, Do)

@@ -1,5 +1,6 @@
 import copy
-
+from typing import List
+from dataclasses import dataclass
 from hexBoy.hex.HexNode import HexNode
 
 """
@@ -15,32 +16,30 @@ from hexBoy.hex.HexNode import HexNode
   - Need to look deeper faster
 
   IDEA: make a board for pathfinders to modify values for their nodes
-
 """
 
-
-'''
------------------------------------------------
-Game Board
------------------------------------------------
-'''
+'''----------------------------------
+Hex Board
+----------------------------------'''
+# TODO change name to hexboard
+@dataclass
 class Board:
-  boardDict       = None  # dict<HexNode>, Cells on the board and their values
-  boardSize       = None  # int, size of the board
-  moveHistory        = None # List of moves in order
+  boardDict: dict # dict<HexNode>, Cells on the board and their values
+  boardSize: int  # int, size of the board
+  moveHistory: List[tuple] #((x,y), player)[]
 
   # HexNode.Space, object of the different types of hex spaces.
-  hexTypes        = None
+  hexTypes: any
 
   # tuples of the (x,y) coordinates of the red/blue start/end spaces
-  redStartSpace   = None
-  redEndSpace     = None
-  blueStartSpace  = None
-  blueEndSpace    = None
+  redStartSpace: tuple
+  redEndSpace: tuple
+  blueStartSpace: tuple
+  blueEndSpace: tuple
 
   def __init__(self, boardSize):
     self.boardSize = boardSize
-    self.hexTypes = HexNode.Space
+    self.hexTypes = HexNode.SpaceTypes
     self.moveHistory = []
 
     self.redStartSpace = (-1, 5)
@@ -54,8 +53,8 @@ class Board:
   def getNodeDict(self):
     return self.boardDict
 
-  # Initialize the starting game board.
   def initGameBoard(self):
+    """Initialize the starting game board"""
     dict = {}
 
     #initialize playing spaces
@@ -80,12 +79,13 @@ class Board:
 
   # Check if the given cell is a valid move. (hex is empty)
   def validateMove(self, cell):
-    return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].getValue() == self.hexTypes.EMPTY
+    return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].type == self.hexTypes.EMPTY
 
   # Make the move on the board dict, add to move history
   def makeMove(self, cell, player):
-    self.moveHistory.append(cell)
-    self.boardDict[cell].setValue(player)
+    """Make a move on the board and save it in history"""
+    self.moveHistory.append((cell, player))
+    self.boardDict[cell].setSpaceType(player)
 
   # Check if the move is within the board or edges
   def isSpaceWithinBounds(self, cell):
@@ -124,7 +124,7 @@ class Board:
 
   # XXX Don't really like this anymore. Remove it probably
   def get2AwaySpaces(self, cell):
-    # return nodes within 2 spaces of the cell
+    """Return spaces that are 2 away from the cell"""
     x = cell[0]
     y = cell[1]
 
@@ -152,41 +152,32 @@ class Board:
     return adjacentSpaces
 
   def resetGame(self):
+    """Reset the board and move history"""
     self.boardDict = self.initGameBoard()
     self.moveHistory = []
 
-  '''
-  ------------------
+  '''---
   Functions for moves
-  ------------------
-  '''
+  ---'''
   # TODO this is wrong for hexes,
   def getDistanceToCenter(self, move):
     (x,y) = move
     center = int(self.boardSize // 2)
 
-
     return abs(x-center) + abs(y-center)
 
-  # COMBAK not sure if this is how I want to deal with this
-  def getPlayerMoves(self, playerId=None):
+  def getPlayerMoves(self, playerId):
+    """Look at the move history and return a player's moves"""
     playerMoves = []
-    if (playerId != None):
-      player = playerId - 1
-    else :
-      player = (len(self.moveHistory) % 2)
-
     for i in range(len(self.moveHistory)):
-      if (i % 2 == player):
-        playerMoves.append(self.moveHistory[i])
+      if (self.moveHistory[i][1] == playerId):
+        playerMoves.append(self.moveHistory[i][0])
 
     return playerMoves
 
-  '''
-  ------------------
+  '''---
   Functions for board
-  ------------------
-  '''
+  ---'''
   # FIXME these two functions are ugly and bad
   # return a copy of the current board
   def getBoardFromMove(self, move, player):
@@ -216,3 +207,15 @@ class Board:
         playerMoves.append(move)
 
     return playerMoves
+
+  def syncBoard(self, parentBoard, moveCallback = None):
+    """Sync the current board to the parent board based on move history"""
+    parentMoveLen = len(parentBoard.moveHistory)
+    selfMoveLen = len(self.moveHistory)
+
+    for i in range(selfMoveLen, parentMoveLen):
+      move = parentBoard.moveHistory[i]
+      self.makeMove(move[0], move[1])
+
+      if (moveCallback != None):
+        moveCallback(move)

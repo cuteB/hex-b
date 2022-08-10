@@ -1,8 +1,3 @@
-'''
------------------------------------------------
-HexAgent
------------------------------------------------
-'''
 """
 Save RL agent to keep smart?
 - Store best as a greedy agent
@@ -23,6 +18,9 @@ from typing import Optional
 from hexBoy.hex.HexBoard import Board
 from hexBoy.hex.HexNode import HexNode
 
+'''----------------------------------
+Hex Agent
+----------------------------------'''
 @dataclass
 class HexAgent(ABC):
   name: str
@@ -30,6 +28,7 @@ class HexAgent(ABC):
 
   # Board
   gameBoard: Board
+  agentBoard: Board
   getAdjacentSpaces       = None
 
   # pathfinder: player positions and barrier checks
@@ -39,39 +38,37 @@ class HexAgent(ABC):
   opponentEnd             = None
   checkIfBarrier          = None  # player barriers
   checkIfOpponentBarrier  = None  # opponent barriers
+  moveCallback = None
 
   def __init__(self):
     pass # nothing for now
 
-  '''
-  -----------------------------------------------
-  Public (Override these)
-  -----------------------------------------------
-  '''
   @abstractmethod
   def getAgentMove(self) -> tuple:
     """Get the next move for the agent"""
 
-  # Score game and get good. Also reset I guess
   def scoreGame(self):
+    """Score game and get good."""
     return
+
+  def updateBoard(self):
+    """Board was updated, Agent should handle the new moves"""
+    self.agentBoard.syncBoard(self.gameBoard, self.moveCallback)
+
+  def startGame(self):
+    """Start the game and reset the board and other stuff"""
+    self.agentBoard.resetGame()
 
   # Init board and player
   def setGameBoardAndPlayer(self, gameBoard, player):
     self._initGameBoard(gameBoard)
     self._initPlayerBoard(player)
 
-  '''
-  -----------------------------------------------
-  Private
-  -----------------------------------------------
-  '''
-  '''
-  ------------------
+  '''---
   Agent Setup
-  ------------------
-  '''
+  ---'''
   def _initGameBoard(self, gameBoard):
+    self.agentBoard = Board(gameBoard.boardSize)
     self.gameBoard = gameBoard
     self.getAdjacentSpaces = gameBoard.getAdjacentSpaces
 
@@ -97,11 +94,9 @@ class HexAgent(ABC):
       self.checkIfBarrier = HexNode.checkIfRedBarrierForAI
       self.checkIfOpponentBarrier = HexNode.checkIfBlueBarrierForAI
 
-  '''
-  ------------------
+  '''---
   Random Move
-  ------------------
-  '''
+  ----'''
   def _randomMove(self):
     gameBoard = self.gameBoard
     x = random.randint(0, gameBoard.boardSize - 1)

@@ -1,8 +1,8 @@
 """ I think this is just for strong, can move"""
 
-def evaluateMove( move, gameBoard, winPath, opponentPath):
+def evaluateMove( move, gameBoard, winPath, opponentPath, player):
   value = 1
-  if (isStrongMove(move, gameBoard)):
+  if (isStrongMove(move, gameBoard, player)):
     value += 5
 
   if (move in winPath):
@@ -15,8 +15,8 @@ def evaluateMove( move, gameBoard, winPath, opponentPath):
 
   return value
 
-def isStrongMove( move, gameBoard):
-  playerMoves = gameBoard.getPlayerMoves()
+def isStrongMove( move, gameBoard, player):
+  playerMoves = gameBoard.getPlayerMoves(player)
   (x,y) = move
   strongMoves = [
     (x-2, y+1),

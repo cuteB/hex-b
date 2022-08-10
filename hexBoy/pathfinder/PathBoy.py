@@ -1,5 +1,6 @@
 import copy
-
+from dataclasses import dataclass
+from typing import Callable
 from hexBoy.hex.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
 """
@@ -8,49 +9,49 @@ Pathboy more like Slow bois ,amirite
 - should be able to keep a hexboard for the boy to remember
 """
 
-
-'''
------------------------------------------------
-The PathFinder
------------------------------------------------
-'''
+'''----------------------------------
+Path Finder
+----------------------------------'''
+@dataclass
 class PathBoy:
-  pathFunc            = None  # The type of pathfinding algorithm to use
-  getAdjacentSpaces   = None  # funciton, get adjacent spaces of cell
-  getSortValue        = None  # function to get the value to use for sorting
+  getAdjacentSpaces: Callable[[],any]  # function, get adjacent spaces of cell
+  getSortValue: Callable  # function to get the value to use for sorting
+  checkIfBarrier: Callable
+  savedNodes: SortedDict
 
-  def __init__(self, getAdjacentSpaces, algorithmId = 0, sortFunc = None):
+  def __init__(self,
+    gameBoard,
+    getAdjacentSpaces,
+    barrierCheck,
+    getSortValue = None,
+  ):
+    self.gameBoard = gameBoard
     self.getAdjacentSpaces = getAdjacentSpaces
+    self.checkIfBarrier = barrierCheck
 
-    # A*
-    if (algorithmId == 0):
-      self.pathFunc = self.AStar
+    self.initializedSavedNodes = None
+    self.savedNodes = self._getInitializedSavedNodes()
+    self.initializedSavedNodes = self._getInitializedSavedNodes()
 
-    # default is A*
+    if (getSortValue == None):
+      self.getSortValue = self._defaultGetSortValue
     else:
-      self.pathFunc = self.AStar
-
-    def getSortValue(item):
-      return item[1].f
-
-    if (sortFunc == None):
       self.getSortValue = getSortValue
-    else:
-      self.getSortValue = sortFunc
 
   # Get the path using the defined pathfinding algorithm
-  def findPath(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
-    return self.pathFunc(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
+  def findPath(self, startNode, endNode):
+    return self.AStar(self.gameBoard.getNodeDict(), startNode, endNode, self.checkIfBarrier)
 
-  def getNumBestPaths(self, nodeDict, startNode, endNode, checkIfBarrier, getCellCost):
-    return self.NumBestPaths(nodeDict, startNode, endNode, checkIfBarrier, getCellCost)
+  def getNumBestPaths(self, startNode, endNode):
+    return self.NumBestPaths(self.gameBoard.getNodeDict(), startNode, endNode, self.checkIfBarrier)
 
-  '''
-  ------------------
+  def _defaultGetSortValue(self, item):
+    return item[1].hest
+
+  '''---
   AStar
-  ------------------
-  '''
-  def AStar(self, nodes, startPos, endPos, checkIfBarrier, getCellCost):
+  ---'''
+  def AStar(self, nodes, startPos, endPos, checkIfBarrier):
     # Init open and close SortedDictionaries
     # Open: add newly found nodes to this and pop off to get the next node to
     # look at
@@ -86,14 +87,18 @@ class PathBoy:
             # Already in open,
             # Check if the current value of the node is more than the
             # cost from the current node would be.
-            if (nextNode.g > (currentNode.g + getCellCost(nextNode))):
-              nextNode.scoreNode(getCellCost(nextNode), currentPos, currentNode.g, endPos)
+            if (nextNode.getPC() > (currentNode.getPC() + nextNode.cost)):
+              nextNode.scoreHeuristic(currentPos, currentNode.getPC(), endPos)
               nodes[nextPos] = nextNode
               openNodes[nextPos] = nextNode
 
           else:
             # Not in open, Score and add to open
-            nextNode.scoreNode(getCellCost(nextNode), currentPos, currentNode.g, endPos)
+            nextNode.scoreHeuristic(
+              currentPos,
+              currentNode.getPC(),
+              endPos
+            )
             nodes[nextPos] = nextNode
             openNodes[nextPos] = nextNode
 
@@ -111,12 +116,10 @@ class PathBoy:
     return path
 
 
-  '''
-  ------------------
-  score path
-  ------------------
-  '''
-  def ScorePath(self, nodes, path, getCellCost):
+  def ScorePath(self, path):
+    """Score path based on the node's cost"""
+    nodes = self.gameBoard.getNodeDict()
+
     if (len(path) == 0):
       return 10000
 
@@ -124,30 +127,25 @@ class PathBoy:
     stepNode = None
     for step in path:
       stepNode = nodes[step]
-      cost += getCellCost(stepNode)
+      cost += stepNode.cost
 
     return cost
 
-  def getParentPath(self, nodes, endPos):
-      pathPos = nodes[endPos].parent
-      path=[]
-      while pathPos != None:
-        path.append(pathPos)
-        pathPos = nodes[pathPos].parent
+  def _getInitializedSavedNodes(self):
+    """Get the First state of the board at the start, save it to save cost"""
+    if (self.initializedSavedNodes == None):
+      self.initializedSavedNodes = self.scoreBoard()
+    return self.initializedSavedNodes
 
-      return path
-
-  '''
-  ------------------
+  '''---
   Best paths
-  ------------------
-  '''
-  def NumBestPaths(self, nodes, startPos, endPos, checkIfBarrier, getCellCost):
-    spaces = HexNode.Space
+  ---'''
+  def NumBestPaths(self, nodes, startPos, endPos, checkIfBarrier):
+    spaces = HexNode.SpaceTypes
     numPaths = SortedDict()
 
-    winPath = self.AStar(nodes, startPos, endPos, checkIfBarrier, getCellCost)
-    bestCost = self.ScorePath(nodes, winPath, getCellCost)
+    winPath = self.AStar(nodes, startPos, endPos, checkIfBarrier)
+    bestCost = self.ScorePath(winPath)
 
     openNodes = SortedDict(getSortValue = self.getSortValue)
     closedNodes = SortedDict()
@@ -165,23 +163,24 @@ class PathBoy:
 
     # helper functions
     def setNodeInOpenNodes(pos):
-      nextNode.scoreNode(getCellCost(nextNode), currentPos, currentNode.g, endPos)
+      nextNode.scoreHeuristic(currentPos, currentNode.getPC(), endPos)
       nonlocal numPaths
 
       # check if this pos is on the winning edge and moving from a non edge
       # to an end edge
-      if ((nextNode.nodeValue == spaces.BLUE_EDGE or nextNode.nodeValue == spaces.RED_EDGE)
-        and (currentNode.nodeValue != spaces.BLUE_EDGE or currentNode.nodeValue != spaces.RED_EDGE)
-        and nextNode.g == bestCost
+      if ((nextNode.type == spaces.BLUE_EDGE or nextNode.type == spaces.RED_EDGE)
+        and (currentNode.type != spaces.BLUE_EDGE or currentNode.type != spaces.RED_EDGE)
+        and nextNode.getPC() == bestCost
       ):
+
         # node is an edge and has the best cost -> is a winning path
         # add paths to the total paths
         if (currentNode.extraPathsToThisNode != 0):
           numPaths[currentPos] = currentNode.extraPathsToThisNode
 
       # moving from start edge to playable board
-      elif ((nextNode.nodeValue != spaces.BLUE_EDGE or nextNode.nodeValue != spaces.RED_EDGE)
-        and (currentNode.nodeValue == spaces.BLUE_EDGE or currentNode.nodeValue == spaces.RED_EDGE)
+      elif ((nextNode.type != spaces.BLUE_EDGE or nextNode.type != spaces.RED_EDGE)
+        and (currentNode.type == spaces.BLUE_EDGE or currentNode.type == spaces.RED_EDGE)
       ):
         nextNode.setExtraPathsToNode(1)
 
@@ -195,18 +194,16 @@ class PathBoy:
       nonlocal numPaths
 
       # check if it is a
-      if ((nextNode.nodeValue == spaces.BLUE_EDGE or nextNode.nodeValue == spaces.RED_EDGE)
-        and (currentNode.nodeValue != spaces.BLUE_EDGE or currentNode.nodeValue != spaces.RED_EDGE)
-        and nextNode.g == bestCost
+      if ((nextNode.type == spaces.BLUE_EDGE or nextNode.type == spaces.RED_EDGE)
+        and (currentNode.type != spaces.BLUE_EDGE or currentNode.type != spaces.RED_EDGE)
+        and nextNode.getPC() == bestCost
       ):
         if (currentNode.extraPathsToThisNode != 0):
-
           numPaths[currentPos] = currentNode.extraPathsToThisNode
 
-
       # moving from start edge to playable board
-      elif ((nextNode.nodeValue != spaces.BLUE_EDGE or nextNode.nodeValue != spaces.RED_EDGE)
-        and (currentNode.nodeValue == spaces.BLUE_EDGE or currentNode.nodeValue == spaces.RED_EDGE)
+      elif ((nextNode.type != spaces.BLUE_EDGE or nextNode.type != spaces.RED_EDGE)
+        and (currentNode.type == spaces.BLUE_EDGE or currentNode.type == spaces.RED_EDGE)
       ):
         nextNode.setExtraPathsToNode(1)
 
@@ -223,7 +220,7 @@ class PathBoy:
         nextNode = nodes[nextPos]
 
         if (not checkIfBarrier(nextNode) and not closedNodes.hasKey(nextPos)):
-          if ((currentNode.pathCost + getCellCost(nextNode)) > bestCost):
+          if ((currentNode.getPC() + nextNode.cost) > bestCost):
             # Too expensive
             pass
 
@@ -233,11 +230,11 @@ class PathBoy:
 
           elif (openNodes.hasKey(nextPos)):
             # In open nodes. check cost compared to this path
-            if (nextNode.g > currentNode.g + getCellCost(nextNode)):
+            if (nextNode.getPC() > currentNode.getPC() + nextNode.cost):
               # new path better. Overwrite and set path
               setNodeInOpenNodes(nextPos)
 
-            elif (nextNode.g == currentNode.g + getCellCost(nextNode)):
+            elif (nextNode.getPC() == currentNode.getPC() + nextNode.cost):
               # same path same cost. add paths to node
               updateNodeInOpenNodes(nextPos)
 
@@ -246,7 +243,6 @@ class PathBoy:
             setNodeInOpenNodes(nextPos)
 
     # return paths
-    #
     total = 0
     ez = []
     while(len(numPaths) > 0):
@@ -254,3 +250,12 @@ class PathBoy:
       ez.append(num)
       total += num
     return total
+
+  '''---
+  Store Path values
+  ---'''
+  def scoreBoard(self):
+    return SortedDict()
+
+  def scoreMove(self, move, player):
+    pass
