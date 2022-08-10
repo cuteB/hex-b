@@ -1,7 +1,6 @@
 import copy
 from dataclasses import dataclass
 from typing import Callable
-
 from hexBoy.hex.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
 """
@@ -29,7 +28,10 @@ class PathBoy:
     self.gameBoard = gameBoard
     self.getAdjacentSpaces = getAdjacentSpaces
     self.checkIfBarrier = barrierCheck
-    self.savedNodes = SortedDict()
+
+    self.initializedSavedNodes = None
+    self.savedNodes = self._getInitializedSavedNodes()
+    self.initializedSavedNodes = self._getInitializedSavedNodes()
 
     if (getSortValue == None):
       self.getSortValue = self._defaultGetSortValue
@@ -113,10 +115,9 @@ class PathBoy:
 
     return path
 
-  '''---
-  score path
-  ---'''
+
   def ScorePath(self, path):
+    """Score path based on the node's cost"""
     nodes = self.gameBoard.getNodeDict()
 
     if (len(path) == 0):
@@ -130,14 +131,11 @@ class PathBoy:
 
     return cost
 
-  def getParentPath(self, nodes, endPos):
-      pathPos = nodes[endPos].parent
-      path=[]
-      while pathPos != None:
-        path.append(pathPos)
-        pathPos = nodes[pathPos].parent
-
-      return path
+  def _getInitializedSavedNodes(self):
+    """Get the First state of the board at the start, save it to save cost"""
+    if (self.initializedSavedNodes == None):
+      self.initializedSavedNodes = self.scoreBoard()
+    return self.initializedSavedNodes
 
   '''---
   Best paths
@@ -245,7 +243,6 @@ class PathBoy:
             setNodeInOpenNodes(nextPos)
 
     # return paths
-    #
     total = 0
     ez = []
     while(len(numPaths) > 0):
@@ -257,3 +254,8 @@ class PathBoy:
   '''---
   Store Path values
   ---'''
+  def scoreBoard(self):
+    return SortedDict()
+
+  def scoreMove(self, move, player):
+    pass

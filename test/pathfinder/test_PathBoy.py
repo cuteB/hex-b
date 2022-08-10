@@ -114,3 +114,16 @@ def test_WinPathFound(tmpdir):
     (5,1),
     (5,0)
   ]
+
+def test_InitializedSavedNodes(tmpdir):
+  """The pathboy initialized the saved node dict"""
+  node = tmpdir.pf.savedNodes[(0,0)]
+  assert node.cost == 1
+  assert node.best == 11
+
+def test_ScoreMovedUpdate(tmpdir):
+  move = (0,0)
+  tmpdir.pf.scoreMove(move, 1)
+  node = tmpdir.pf.savedNodes[(0,0)]
+  assert node.cost == 0
+  assert node.best == 10
