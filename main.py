@@ -54,6 +54,7 @@ def main() -> None:
             showEndGame = True
         # -n, number of games
         elif (opts[i] == "-n"):
+            # TODO check if its an int first
             numGames = int(args[argNum])
             argNum += 1
         # -p, disable print
@@ -70,9 +71,22 @@ def main() -> None:
     )
 
 def printHelp() -> None:
-    print("So you want help.")
-    print("Maybe Later")
-    print("TODO") # TODO
+    print()
+    print("Command Line Arguments")
+    print("----------------------")
+    print("\tCan be used in any order. Flags that are expecting an argument need its argument directly after the flag")
+    print()
+    print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
+    print("\tEnter Blue agent: \t`-b <arg>`")
+    print("\tEnter Red agent: \t`-r <arg>`")
+    print()
+    print("Game Config")
+    print("\tNumber of games \t`-n <arg>` \t(Default: 1)")
+    print()
+    print("Basic Config Flags")
+    print("\tShow Display \t`-d` \t(Default: hide display)")
+    print("\tShow Endgame \t`-e` \t(Default: Skip Endgame)")
+    print("\tHide Prints \t`-p` \t(Default: Show print summaries)")
 
 #-------------------------------------------
 #   start
