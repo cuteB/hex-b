@@ -77,8 +77,8 @@ class Board:
   def setBoardDict(self, dict):
     self.boardDict = dict
 
-  # Check if the given cell is a valid move. (hex is empty)
-  def validateMove(self, cell):
+  def validateMove(self, cell) -> List[tuple]:
+    """Check if the given cell is a valid move. (hex is empty)"""
     return cell != None and self.isSpaceWithinBounds(cell) and self.boardDict[cell].type == self.hexTypes.EMPTY
 
   # Make the move on the board dict, add to move history
@@ -98,9 +98,9 @@ class Board:
       # Don't include (-1,-1), (-1, len), (len, -1), (len, len)
       and not ((x == -1 or x == boardSize) and (y == -1 or y == boardSize)))
 
-  # Get adjacent spaces
   def getAdjacentSpaces(self, cell):
-    """"Checkout /wiki/hex/board for the board with coordinates"""
+    """Get the Hexes touching the gives Cell"""
+    # Checkout /wiki/hex/board for the board with coordinates
     x = cell[0]
     y = cell[1]
 

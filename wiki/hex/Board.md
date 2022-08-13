@@ -38,8 +38,6 @@
                                         \___/            
 ```
 
-The hexes with x or y values of 10 are just "a" because it looks prettier.
+The hexes with x or y values of 10 are just "a" because it looks prettier. These are only the playable hexes and there is a boarder around for the end zone. For the sake of the game these will be left out of the board.
 
 > Its Hex Duh. If you're doing coordinates the wrong way get out your note pad.
-
-

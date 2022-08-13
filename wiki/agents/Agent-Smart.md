@@ -69,7 +69,9 @@ Mid game is the only important part for agent smart. Early game hardly exists, l
 
 ### Get Connections
 
-Get weak connections and get strong connections. I only care about one at a time. If there is a weak connection then make it. Compare the best path's empty hexes with the strong connections. If they are all present in the list then make one of them. 
+Get weak connections and get strong connections. I only care about one at a time. If there is a weak connection then make it. Compare the best path's empty hexes with the strong connections. If they are all present in the list then make one of them.
+
+Need a way to incorporate the best path into the connections because I don't think that only the connections will give the agent enough information to make a move. When weak/strong connections happen to be on the best path, my initial idea of this function works great. But most of the strong moves are not making the best path any better. Usually strong moves are for getting board control and indirectly being able to move two spaces at once. I might be thinking of efficiency too soon. Agent Smart can be dumb for a bit. Getting the weak moves is good because there should only be one weak connection at a time if the agent/player is good. That can be done first. Getting the strong connections may not give the intended results but it is a list of moves that should not be made for any reason due to not advancing your position. I will need to come back to this for actually making strong moves. Connections can be different though. An agent must be able to understand the moves they need to make (fill weak connections) and the moves they shouldn't make (fill strong connections). I think what will happen is the agent will reach end game and not know how to close out a game until the opponent starts to fill in our strong connections.
 
 ## Glossary
 
