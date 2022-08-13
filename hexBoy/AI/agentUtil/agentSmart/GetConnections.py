@@ -15,7 +15,8 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
     hexToCluster: SortedDict = SortedDict() # tuple -> int
 
     # Sort By lowest length 
-    def sortFunc(item): return len(item[1])
+    def sortFunc(item): 
+        return len(item[1])
     connectionHexes = SortedDict(getSortValue = sortFunc, reverse = True)
 
     # Group connected hexes into clusters
@@ -75,12 +76,12 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         for X in connectionHexes:
             # compare the connected clusters between hexes. if they connect the same ones then they are strong. 
             if (
-                X not in visitedHexes 
+                (X not in visitedHexes or ())
                 and (set(connectionHexes[cX]).issubset(set(connectionHexes[X])))
             ):
                 isStrongConnection = True
                 strongConnections.append(X)
-                visitedHexes.append(X)
+                #visitedHexes.append(X)
         
         if (isStrongConnection):
             strongConnections.append(cX)

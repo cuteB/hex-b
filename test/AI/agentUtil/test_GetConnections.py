@@ -112,6 +112,23 @@ def test_OneStrongConnection(tmpdir):
     actual = connections[1]
     assert set(actual) == set(expected)
 
+def test_TriangleConnection(tmpdir):
+    """Three moves in a triangle connection"""
+
+    tmpdir.board.makeMove((4,7), 1)
+    tmpdir.board.makeMove((5,5), 1)
+    tmpdir.board.makeMove((6,6), 1)
+    
+    expected = [
+        (4,6),
+        (5,6), (5,7),
+        (6,5)
+    ]
+    connections = GetConnections(tmpdir.board, 1)
+    actual = connections[1]
+    assert set(actual) == set(expected)
+
 '''---
 Strong and Weak Connections
 ---'''
+
