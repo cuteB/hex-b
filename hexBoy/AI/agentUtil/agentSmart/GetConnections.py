@@ -21,7 +21,6 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
 
     # Group connected hexes into clusters
     visitedHexes: List[Tuple(int,int)] = []
-
     for pm in playerMoves:
         if (pm in visitedHexes): 
             continue
@@ -30,15 +29,24 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         clusters[clusterId] = [pm]
         hexToCluster[pm] = clusterId
 
-        adjacentHexes = board.getAdjacentSpaces(pm)
-        for aX in adjacentHexes:
-            if (aX in playerMoves):
-                # add hex to cluster
-                clusters[clusterId].append(aX)
-                hexToCluster[aX] = clusterId
-                visitedHexes.append(aX)
+        lookThroughHexes = SortedDict()
+        lookThroughHexes[pm] = 0
+        while (len(lookThroughHexes) > 0):
+            X = lookThroughHexes.popItem()[0]
+
+            print(X)
+            adjacentHexes = board.getAdjacentSpaces(X)
+            for aX in adjacentHexes:
+                if (aX in playerMoves and aX not in visitedHexes):
+                    # add hex to cluster
+                    clusters[clusterId].append(aX)
+                    hexToCluster[aX] = clusterId
+                    visitedHexes.append(aX)
+                    lookThroughHexes[aX] = 0
 
         clusterId += 1
+
+    print(clusters)
 
     # Get adjacent Hexes per cluster and store what clusters they connect in a dict
     for C in clusters.getKeys():

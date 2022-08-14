@@ -102,7 +102,7 @@ def test_FiveNineEdgeCase(tmpdir):
     actual = GetStrongMoves(tmpdir.board, 1)
     assert set(actual) == set(expected)
 
-def test_BigCluster(tmpdir):
+def test_BigClusterStrongMoves(tmpdir):
     """Board with many moves from one player connected to each other """
     moves = [
         (4,5), (4,6),

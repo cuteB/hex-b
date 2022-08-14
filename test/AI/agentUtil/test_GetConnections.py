@@ -6,6 +6,7 @@ from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
+
     tmpdir.size = 11
     tmpdir.board = Board(tmpdir.size)
 
@@ -13,15 +14,19 @@ def before_and_after_test(tmpdir):
     yield # run the rest
     # vvv after vvv
 
-'''---
-Weak Connections
----'''
-
 def test_EmptyBoardNoWeakConnections(tmpdir):
     """Empty Board"""
+    
     connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
     expected = []
     actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
+    expected = []
+    actual = connections[1]
     assert set(actual) == set(expected)
 
 def test_OneWeakConnection(tmpdir):
@@ -31,8 +36,15 @@ def test_OneWeakConnection(tmpdir):
     tmpdir.board.makeMove((5,7), 1)
     
     connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
     expected = [(5,6)]
     actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
+    expected = []
+    actual = connections[1]
     assert set(actual) == set(expected)
 
 def test_TwoWeakConnections(tmpdir):
@@ -50,6 +62,11 @@ def test_TwoWeakConnections(tmpdir):
     actual = connections[0]
     assert set(actual) == set(expected)
 
+    # Check strong connections
+    expected = []
+    actual = connections[1]
+    assert set(actual) == set(expected)
+
 def test_TwoHexesNoConnections(tmpdir):
     """Two Hexes no connection"""
     
@@ -57,8 +74,15 @@ def test_TwoHexesNoConnections(tmpdir):
     tmpdir.board.makeMove((2,2), 1)
     
     connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
     expected = []
     actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
+    expected = []
+    actual = connections[1]
     assert set(actual) == set(expected)
 
 def test_BlockingConnectionMove(tmpdir):
@@ -69,8 +93,15 @@ def test_BlockingConnectionMove(tmpdir):
     tmpdir.board.makeMove((5,7), 1)
     
     connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
     expected = []
     actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
+    expected = []
+    actual = connections[1]
     assert set(actual) == set(expected)
 
 def test_LongLineOfWeakConnections(tmpdir):
@@ -85,6 +116,8 @@ def test_LongLineOfWeakConnections(tmpdir):
         tmpdir.board.makeMove(m, 1)
     
     connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
     expected = [
         (2,9),
         (4,8), 
@@ -93,9 +126,32 @@ def test_LongLineOfWeakConnections(tmpdir):
     actual = connections[0]
     assert set(actual) == set(expected)
 
-'''---
-Strong Connections
----'''
+    # Check strong connections
+    expected = []
+    actual = connections[1]
+    assert set(actual) == set(expected)
+
+def test_BigClusterConnections(tmpdir):
+    """Board with many moves from one player connected to each other """
+    moves = [
+        (4,5), (4,6),
+        (5,4), (5,5), (5,6),
+        (6,4), (6,5)
+    ]
+    for m in moves:
+        tmpdir.board.makeMove(m, 1)
+
+    connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
+    expected = []
+    actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
+    expected = []
+    actual = connections[1]
+    assert set(actual) == set(expected)
 
 def test_OneStrongConnection(tmpdir):
     """One Strong move"""
@@ -103,11 +159,18 @@ def test_OneStrongConnection(tmpdir):
     tmpdir.board.makeMove((5,5), 1)
     tmpdir.board.makeMove((6,6), 1)
     
+    connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
+    expected = []
+    actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
     expected = [
         (5,6),
         (6,5)
     ]
-    connections = GetConnections(tmpdir.board, 1)
     actual = connections[1]
     assert set(actual) == set(expected)
 
@@ -119,6 +182,8 @@ def test_TriangleConnection(tmpdir):
     tmpdir.board.makeMove((6,6), 1)
     
     connections = GetConnections(tmpdir.board, 1)
+    
+    # Check strong connections
     expected = [
         (4,6),
         (5,6), (5,7),
@@ -126,10 +191,6 @@ def test_TriangleConnection(tmpdir):
     ]
     actual = connections[1]
     assert set(actual) == set(expected)
-
-'''---
-Strong and Weak Connections
----'''
 
 def test_ComplexConnections(tmpdir):
     """A bunch of moves with strong and weak connections"""

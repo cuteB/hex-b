@@ -20,7 +20,7 @@ class AgentSmart(HexAgent):
     def getAgentMove(self) -> tuple[int,int]:
         # get best path.
         agentMoves = self.gameBoard.getPlayerMoves(self.player)
-        
+
         # Early Move (first move)
         if (len(agentMoves) == 0):
             if (self.gameBoard.validateMove((5,5))):
@@ -44,7 +44,8 @@ class AgentSmart(HexAgent):
                 if (self.gameBoard.validateMove(m)):
                     return m
 
-        strongMoveValues = SortedDict()
+        def sortFunc(val): return val[1]
+        strongMoveValues = SortedDict(getSortValue=sortFunc)
         strongMoves = GetStrongMoves(self.gameBoard, self.player)
         # make a move that is closest to the edge of the board
         for sm in strongMoves:
@@ -52,7 +53,7 @@ class AgentSmart(HexAgent):
 
         for sm in strongMoveValues.getKeys():
             if self.gameBoard.validateMove(sm):
-                return sm``
+                return sm
 
         # default random move
         return self._randomMove()
