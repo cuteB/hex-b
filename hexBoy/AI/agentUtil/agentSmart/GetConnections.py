@@ -10,18 +10,19 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
     weakConnections: List[Tuple(int,int)] = []
     strongConnections: List[Tuple(int,int)] = []
     playerMoves: List[Tuple(int,int)] = board.getPlayerMoves(playerId)
+    playerEndZone: List[Tuple(int,int)] = board.getPlayerEndZone(playerId)
     clusterId: int = 0
     clusters: SortedDict = SortedDict() # int -> tuple
     hexToCluster: SortedDict = SortedDict() # tuple -> int
 
     # Sort By lowest length 
-    def sortFunc(item): 
-        return len(item[1])
+    def sortFunc(item): return len(item[1])
     connectionHexes = SortedDict(getSortValue = sortFunc)
 
-    # Group connected hexes into clusters
+    # Group connected hexes into clusters (include player end zone)
     visitedHexes: List[Tuple(int,int)] = []
-    for pm in playerMoves:
+    allPlayerMoves = [*playerMoves, *playerEndZone]
+    for pm in allPlayerMoves:
         if (pm in visitedHexes): 
             continue
 
@@ -34,10 +35,12 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         while (len(lookThroughHexes) > 0):
             X = lookThroughHexes.popItem()[0]
 
-            print(X)
             adjacentHexes = board.getAdjacentSpaces(X)
             for aX in adjacentHexes:
-                if (aX in playerMoves and aX not in visitedHexes):
+                if (
+                    (aX in allPlayerMoves)
+                    and aX not in visitedHexes
+                ):
                     # add hex to cluster
                     clusters[clusterId].append(aX)
                     hexToCluster[aX] = clusterId
@@ -58,6 +61,9 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
                 if (aX not in clusterAdjacentHexes and board.validateMove(aX)):
                     clusterAdjacentHexes.append(aX)
 
+        print()
+        print(clusterAdjacentHexes)
+
         # Go through adjacent hexes and get possible connections to other clusters
         for aX in clusterAdjacentHexes:
             if (aX in connectionHexes): 
@@ -66,7 +72,7 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
             connectedClusters = []
             satHexes = board.getAdjacentSpaces(aX)
             for sX in satHexes:
-                if (sX in playerMoves):
+                if (sX in allPlayerMoves):
                     connectedClusters.append(hexToCluster[sX])
 
             # len 1 means no connections
