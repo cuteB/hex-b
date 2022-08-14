@@ -4,7 +4,7 @@
 
 Hex, The game
 
-![Random Hex Game](/public/images/RandomHexBoard.png)
+![Random Hex Game](/wiki/images/RandomHexBoard.png)
 
 Here is what the hex space looks like. just treat them like squares
 with too extra edges
