@@ -396,3 +396,21 @@ def test_ComplexConnectionsWithEdgeAndOpponentMove(tmpdir):
     ]
     actual = connections[1]
     assert set(actual) == set(expected)
+
+def test_OneEdgeMoveWeakConnection(tmpdir):
+    """A weak connection with the edge"""
+    
+    tmpdir.board.makeMove((5,1), 1)
+    tmpdir.board.makeMove((5,0), 2)
+
+    connections = GetConnections(tmpdir.board, 1)
+
+    # Check weak connections
+    expected = [(6,0)]
+    actual = connections[0]
+    assert set(actual) == set(expected)
+
+    # Check strong connections
+    expected = []
+    actual = connections[1]
+    assert set(actual) == set(expected)

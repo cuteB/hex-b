@@ -9,6 +9,8 @@ from hexBoy.models.SortedDict import SortedDict
 Agent Smart
 ----------------------------------'''
 class AgentSmart(HexAgent):
+    hexValues: SortedDict = None
+
     # AgentSmart thinks two moves ahead
     def __init__(self):
         HexAgent.__init__(self)
@@ -45,11 +47,11 @@ class AgentSmart(HexAgent):
                     return m
 
         def sortFunc(val): return val[1]
-        strongMoveValues = SortedDict(getSortValue=sortFunc)
+        strongMoveValues = SortedDict(getSortValue=sortFunc, reverse=True)
         strongMoves = GetStrongMoves(self.gameBoard, self.player)
         # make a move that is closest to the edge of the board
         for sm in strongMoves:
-            strongMoveValues[sm] = self.getDistanceToClosestEdge(sm)
+            strongMoveValues[sm] = self.hexValues[sm]
 
         for sm in strongMoveValues.getKeys():
             if self.gameBoard.validateMove(sm):
@@ -61,6 +63,7 @@ class AgentSmart(HexAgent):
     # Override
     def setGameBoardAndPlayer(self, gameBoard, player):
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
+        self._initHexValueDict()
 
         self.pathfinder = PathBoy(
             self.gameBoard,
@@ -68,13 +71,31 @@ class AgentSmart(HexAgent):
             self.checkIfBarrier,
         )
 
-    def getDistanceToClosestEdge(self, hex):
-        if (self.player == 1): # blue
-            val = hex[1]
-        else:
-            val = hex[0]
+    def _initHexValueDict(self):
+        def _getDistanceToClosestPlayerEdge(hex):
+            if (self.player == 1): # blue
+                val = hex[1]
+            else:
+                val = hex[0]
 
-        if (val <= 5):
-            return val
-        else: 
-            return 10 - val
+            if (val <= 5):
+                return val
+            else: 
+                return 10 - val
+
+        self.hexValues = SortedDict()
+
+        # value multipliers for each distance
+        lambdaCenter =  0.8
+        lambdaEdge = 0.5
+        boardSize = self.gameBoard.boardSize
+
+        for x in range(boardSize):
+            for y in range(boardSize):
+                X = (x,y)
+                distToCenter = self.gameBoard.getDistanceToCenter(X)
+                distToEdge = _getDistanceToClosestPlayerEdge(X)
+
+                val = (lambdaCenter * (boardSize - distToCenter)) + (lambdaEdge * (boardSize - distToEdge))
+
+                self.hexValues[X] = val
