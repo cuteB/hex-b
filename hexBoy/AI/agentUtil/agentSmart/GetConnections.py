@@ -17,13 +17,14 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
     # Sort By lowest length 
     def sortFunc(item): 
         return len(item[1])
-    connectionHexes = SortedDict(getSortValue = sortFunc, reverse = True)
+    connectionHexes = SortedDict(getSortValue = sortFunc)
 
     # Group connected hexes into clusters
     visitedHexes: List[Tuple(int,int)] = []
+
     for pm in playerMoves:
         if (pm in visitedHexes): 
-            break
+            continue
 
         visitedHexes.append(pm)
         clusters[clusterId] = [pm]
@@ -38,9 +39,9 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
                 visitedHexes.append(aX)
 
         clusterId += 1
-        
+
     # Get adjacent Hexes per cluster and store what clusters they connect in a dict
-    for C in clusters:
+    for C in clusters.getKeys():
         clusterAdjacentHexes = []
         # Go through each move in the cluster and get all valid adjacent hexes
         for pm in clusters[C]: 
@@ -52,7 +53,7 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         # Go through adjacent hexes and get possible connections to other clusters
         for aX in clusterAdjacentHexes:
             if (aX in connectionHexes): 
-                break
+                continue
 
             connectedClusters = []
             satHexes = board.getAdjacentSpaces(aX)
@@ -61,28 +62,25 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
                     connectedClusters.append(hexToCluster[sX])
 
             # len 1 means no connections
-            if (len(connectedClusters) > 1):
-                connectionHexes[aX] = connectedClusters
-
+            if (len(set(connectedClusters)) > 1):
+                connectionHexes[aX] = list(set(connectedClusters))
+    
     # Go through the connections
-    visitedHexes = []
-    for cX in connectionHexes:
+    for cX in connectionHexes.getKeys():
         isStrongConnection = False
-        if (cX in visitedHexes):
-            break
-
-        visitedHexes.append(cX)
 
         for X in connectionHexes:
-            # compare the connected clusters between hexes. if they connect the same ones then they are strong. 
+            # Compare the connected clusters between hexes. If they connect the same ones then they are strong. 
             if (
-                (X not in visitedHexes or ())
-                and (set(connectionHexes[cX]).issubset(set(connectionHexes[X])))
+                (
+                    X != cX 
+                    and (set(connectionHexes[cX]).issubset(set(connectionHexes[X])))
+                )
+                or len(connectionHexes[cX]) == 3 # All connections with 3 clusters are strong
             ):
                 isStrongConnection = True
-                strongConnections.append(X)
-                #visitedHexes.append(X)
-        
+                continue
+
         if (isStrongConnection):
             strongConnections.append(cX)
         else:

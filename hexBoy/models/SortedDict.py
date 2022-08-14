@@ -77,7 +77,6 @@ class SortedDict(dict):
     # Combine external dict into self, update sorted items
     def _appendDict(self, dict):
         for key in dict:
-            print(key)
             self._addItem(key, dict[key])
 
         self._sortItems()
