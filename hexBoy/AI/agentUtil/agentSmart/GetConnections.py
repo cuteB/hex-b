@@ -86,4 +86,4 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         else:
             weakConnections.append(cX)
 
-    return [weakConnections, strongConnections]
+    return (weakConnections, strongConnections)

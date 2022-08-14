@@ -2,7 +2,6 @@ import pytest
 
 from hexBoy.hex.HexBoard import Board
 from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
-from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
