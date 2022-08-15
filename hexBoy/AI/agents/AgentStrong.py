@@ -28,7 +28,6 @@ class AgentStrong(HexAgent):
       self.endPos,
     )
 
-
     opponentPath = self.oppPathFinder.findPath(
       self.opponentStart,
       self.opponentEnd,

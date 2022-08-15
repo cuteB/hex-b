@@ -49,8 +49,6 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
 
         clusterId += 1
 
-    print(clusters)
-
     # Get adjacent Hexes per cluster and store what clusters they connect in a dict
     for C in clusters.getKeys():
         clusterAdjacentHexes = []
@@ -60,9 +58,6 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
             for aX in adjXs:
                 if (aX not in clusterAdjacentHexes and board.validateMove(aX)):
                     clusterAdjacentHexes.append(aX)
-
-        print()
-        print(clusterAdjacentHexes)
 
         # Go through adjacent hexes and get possible connections to other clusters
         for aX in clusterAdjacentHexes:
@@ -78,7 +73,7 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
             # len 1 means no connections
             if (len(set(connectedClusters)) > 1):
                 connectionHexes[aX] = list(set(connectedClusters))
-    
+
     # Go through the connections
     for cX in connectionHexes.getKeys():
         isStrongConnection = False
