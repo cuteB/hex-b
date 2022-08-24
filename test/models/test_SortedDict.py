@@ -148,3 +148,4 @@ def test_GetSortedKeysSameValue(tmpdir):
     expected = [0,1,2]
     actual = tmpdir.dict.getKeys()
     assert actual == expected
+

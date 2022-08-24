@@ -3,7 +3,7 @@ from hexBoy.models.SortedDict import SortedDict
 from hexBoy.hex.HexBoard import Board
 
 def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
-    """Get the list of weak and strong connections for a player"""
+    """Get the tuple of (weak, strong) connections for a player"""
 
     #TODO create type for hex coord instead of Tuple(int,int)
 
