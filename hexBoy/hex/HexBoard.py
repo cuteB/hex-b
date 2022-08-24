@@ -163,7 +163,6 @@ class Board:
 
         return adjacentSpaces
 
-
     def resetGame(self):
         """Reset the board and move history"""
         self.boardDict = self.initGameBoard()
@@ -179,7 +178,7 @@ class Board:
 
         return abs(x - center) + abs(y - center)
 
-    def getPlayerMoves(self, playerId):
+    def getPlayerMoves(self, playerId: int):
         """Look at the move history and return a player's moves"""
         playerMoves = []
         for i in range(len(self.moveHistory)):
