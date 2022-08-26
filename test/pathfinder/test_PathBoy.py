@@ -62,6 +62,21 @@ def test_PlayerPath(tmpdir):
 
   assert pathCost == 0
 
+def test_DifferentStartEndPath(tmpdir):
+  """Path with different start and end points"""
+  board = tmpdir.board
+
+  for i in range(11):
+    board.makeMove((0,i), 1)
+
+  bestPath = tmpdir.pf.findPath(
+    (4,6),
+    (7,3),
+  )
+
+
+  assert bestPath == [(4,6),(5,5),(6,4),(7,3)]
+
 def test_OpponentPath(tmpdir):
   """Test Cost When Opponent Wins"""
   board = tmpdir.board
@@ -102,17 +117,17 @@ def test_WinPathFound(tmpdir):
   )
 
   assert bestPath == [
-    (5,10),
-    (5,9),
-    (5,8),
-    (5,7),
-    (5,6),
-    (5,5),
-    (5,4),
-    (5,3),
-    (5,2),
+    (5,0),
     (5,1),
-    (5,0)
+    (5,2),
+    (5,3),
+    (5,4),
+    (5,5),
+    (5,6),
+    (5,7),
+    (5,8),
+    (5,9),
+    (5,10)
   ]
 
 # def test_InitializedSavedNodes(tmpdir):

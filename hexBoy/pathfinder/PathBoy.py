@@ -103,7 +103,7 @@ class PathBoy:
             openNodes[nextPos] = nextNode
 
     # after loop
-    pathPos = nodes[endPos].parent
+    pathPos = nodes[endPos].pos
     path=[]
     while pathPos != None:
       if not ( # don't include start, end edges
@@ -113,7 +113,10 @@ class PathBoy:
         path.append(pathPos)
       pathPos = nodes[pathPos].parent
 
-    return path
+    # TODO I would like to include one edge each 
+
+    # reverse list 
+    return list(reversed(path))
 
   # TODO why this start with capital when findPath doesn't
   def ScorePath(self, path):
