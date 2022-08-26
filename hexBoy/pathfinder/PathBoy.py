@@ -115,7 +115,7 @@ class PathBoy:
 
     return path
 
-
+  # TODO why this start with capital when findPath doesn't
   def ScorePath(self, path):
     """Score path based on the node's cost"""
     nodes = self.gameBoard.getNodeDict()

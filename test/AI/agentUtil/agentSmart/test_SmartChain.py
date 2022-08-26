@@ -123,7 +123,7 @@ def test_SingleOpponentHexChain(tmpdir):
     expected = []
     assert set(actual) == set(expected)
 
-def test_TwoWeakHexChain(tmpdir):
+def test_TwoHexChain(tmpdir):
     """Board with two hexes touching"""
 
     tmpdir.board.makeMove((5,5), 1)
@@ -149,6 +149,34 @@ def test_TwoWeakHexChain(tmpdir):
     # connections
     actual = chain.connections
     expected = []
+    assert set(actual) == set(expected)
+
+def test_TwoHexWeakChain(tmpdir):
+    """Board with two hexes connected by a weak connection"""
+
+    tmpdir.board.makeMove((5,5), 1)
+    tmpdir.board.makeMove((5,7), 1)
+
+    chain = SmartChain(1, tmpdir.board)
+
+    # start
+    actual = chain.startPos
+    expected = (5,5)
+    assert actual == expected
+
+    # end
+    actual = chain.endPos
+    expected = (5,7)
+    assert actual == expected
+
+    # length
+    actual = chain.length
+    expected = 3
+    assert actual == expected
+
+    # connections
+    actual = chain.connections
+    expected = [(5,6)]
     assert set(actual) == set(expected)
 
 def test_TwoStrongHexChain(tmpdir):
@@ -177,6 +205,33 @@ def test_TwoStrongHexChain(tmpdir):
     # connections
     actual = chain.connections
     expected = [(4,6), (5,6)]
+    assert set(actual) == set(expected)
+
+def test_ChainTouchingEndzone(tmpdir):
+    """Board with two hexes touching"""
+
+    tmpdir.board.makeMove((5,1), 1)
+
+    chain = SmartChain(1, tmpdir.board)
+
+    # start
+    actual = chain.startPos
+    expected = (5,1)
+    assert actual == expected
+
+    # end
+    actual = chain.endPos
+    expected = (5,1)
+    assert actual == expected
+
+    # length
+    actual = chain.length
+    expected = 2
+    assert actual == expected
+
+    # connections
+    actual = chain.connections
+    expected = [(5,0), (6,0)]
     assert set(actual) == set(expected)
 
 def test_CompletedChain(tmpdir):
