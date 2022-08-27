@@ -83,6 +83,7 @@ class SmartChain():
 
         playerMoves = self.board.getPlayerMoves(self.player)
         nMoves = len(playerMoves)
+        self.connections = []
         # No moves
         if (nMoves == 0):
             return
@@ -138,19 +139,16 @@ class SmartChain():
         self.length = length
 
 
-    def getStartPotentialMoves(self, X) -> list:
+    def getStartPotentialMoves(self) -> list:
         """Get Potential moves for the start pos (not validated)"""
-        (x,y) = X
+        (x,y) = self.startPos
         strongMoves = GetStrongMoves(self.board, self.player)
 
         pMoves = []
         pStrongMoves = []
         if (self.player == 1):
             # blue
-            pMoves = [   
-                (x,   y-1),
-                (x+1, y-1), 
-            ]
+            pMoves = self.board.getAdjacentSpaces(self.startPos)
             pStrongMoves = [
                 (x-1, y-1),
                 (x+2, y-1),
@@ -159,10 +157,7 @@ class SmartChain():
         
         else:
             # red
-            pMoves = [   
-                (x-1, y),
-                (x-1, y+1), 
-            ]
+            pMoves = self.board.getAdjacentSpaces(self.startPos)
             pStrongMoves = [   
                 (x-1, y-1),
                 (x-1, y+2),
@@ -180,18 +175,15 @@ class SmartChain():
                 
         return potentialMoves
 
-    def getEndPotentialMoves(self, X) -> list:
+    def getEndPotentialMoves(self) -> list:
         """Get Potential moves for the end pos"""
-        (x,y) = X
+        (x,y) = self.endPos
         strongMoves = GetStrongMoves(self.board, self.player)
 
         pMoves = []
         if (self.player == 1):
             # blue
-            pMoves = [   
-                (x-1, y+1),
-                (x,   y+1), 
-            ]
+            pMoves = self.board.getAdjacentSpaces(self.startPos)
             pStrongMoves = [   
                 (x-2, y+1),
                 (x+1, y+1),
@@ -200,10 +192,7 @@ class SmartChain():
         
         else:
             # red
-            pMoves = [   
-                (x+1, y-1),
-                (x+1, y), 
-            ]
+            pMoves = self.board.getAdjacentSpaces(self.startPos)
             pStrongMoves = [   
                 (x+1, y-2),
                 (x+1, y+1),
@@ -229,9 +218,9 @@ class SmartChain():
         startMoves = []
         endMoves = []
         if (self.startPos and self.startDist > 1):
-            startMoves = self.getStartPotentialMoves(self.startPos)
+            startMoves = self.getStartPotentialMoves()
 
         if (self.endPos and self.endDist > 1):
-            endMoves = self.getEndPotentialMoves(self.endPos)
+            endMoves = self.getEndPotentialMoves()
 
         return [*startMoves, *endMoves]
