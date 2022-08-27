@@ -48,6 +48,11 @@ def test_EmptyBoardChain(tmpdir):
     expected = None
     assert actual == expected
 
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = []
+    assert actual == expected
+
 def test_EmptyBoardChainWithOppMove(tmpdir):
     """Empty Board but with opp move"""
     
@@ -84,6 +89,11 @@ def test_EmptyBoardChainWithOppMove(tmpdir):
     actual = chain.endDist
     expected = None
     assert actual == expected
+    
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = []
+    assert set(actual) == set(expected)
 
 def test_SingleHexChain(tmpdir):
     """Single hex in the chain"""
@@ -122,6 +132,16 @@ def test_SingleHexChain(tmpdir):
     actual = chain.endDist
     expected = 5
     assert actual == expected
+    
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (4,4), (5,4), (6,4), (7,4),
+        (6,3),
+        (3,6), (4,6), (5,6), (6,6),
+        (4,7)
+    ]
+    assert set(actual) == set(expected)
 
 def test_SingleHexChainUpdate(tmpdir):
     """Single hex move after init, test update"""
@@ -162,6 +182,16 @@ def test_SingleHexChainUpdate(tmpdir):
     expected = 5
     assert actual == expected
 
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (4,4), (5,4), (6,4), (7,4),
+        (6,3),
+        (3,6), (4,6), (5,6), (6,6),
+        (4,7)
+    ]
+    assert set(actual) == set(expected)
+
 def test_SingleOpponentHexChain(tmpdir):
     """Single Opponent Hex"""
     
@@ -198,6 +228,11 @@ def test_SingleOpponentHexChain(tmpdir):
     actual = chain.endDist
     expected = None
     assert actual == expected
+
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = []
+    assert set(actual) == set(expected)
 
 def test_TwoHexChain(tmpdir):
     """Board with two hexes touching"""
@@ -237,6 +272,16 @@ def test_TwoHexChain(tmpdir):
     expected = 4
     assert actual == expected
 
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (4,4), (5,4), (6,4), (7,4),
+        (6,3),
+        (3,7), (4,7), (5,7), (6,7),
+        (4,8)
+    ]
+    assert set(actual) == set(expected)
+
 def test_TwoHexWeakChain(tmpdir):
     """Board with two hexes connected by a weak connection"""
 
@@ -274,6 +319,16 @@ def test_TwoHexWeakChain(tmpdir):
     actual = chain.endDist
     expected = 3
     assert actual == expected
+
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (4,4), (5,4), (6,4), (7,4),
+        (6,3),
+        (3,8), (4,8), (5,8), (6,8),
+        (4,9)
+    ]
+    assert set(actual) == set(expected)
 
 def test_TwoStrongHexChain(tmpdir):
     """Board with two hexes in a strong connection"""
@@ -313,6 +368,16 @@ def test_TwoStrongHexChain(tmpdir):
     expected = 3
     assert actual == expected
 
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (4,4), (5,4), (6,4), (7,4),
+        (6,3),
+        (2,8), (3,8), (4,8), (5,8),
+        (3,9)
+    ]
+    assert set(actual) == set(expected)
+
 def test_ChainTouchingEndZone(tmpdir):
     """Board with one move that has a strong connection to the end zone"""
 
@@ -349,6 +414,15 @@ def test_ChainTouchingEndZone(tmpdir):
     actual = chain.endDist
     expected = 9
     assert actual == expected
+
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (3,2), (4,2), (5,2), (6,2),
+        (4,3),
+ 
+    ]
+    assert set(actual) == set(expected)
 
 def test_CompletedChain(tmpdir):
     """Board with a completed path"""
@@ -387,6 +461,11 @@ def test_CompletedChain(tmpdir):
     actual = chain.endDist
     expected = 0
     assert actual == expected
+
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = []
+    assert set(actual) == set(expected)
 
 def test_ThreeStrongHexChain(tmpdir):
     """Board with three hexes with strong connections"""
@@ -427,6 +506,16 @@ def test_ThreeStrongHexChain(tmpdir):
     expected = 2
     assert actual == expected
 
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (4,3), (5,3), (6,3), (7,3),
+        (6,2),
+        (1,9), (2,9), (3,9), (4,9),
+        (2,10)
+    ]
+    assert set(actual) == set(expected)
+
 def test_FullStrongChain(tmpdir):
     """Board with a full chain of strongly connected dexes touching both player ends"""
 
@@ -466,7 +555,12 @@ def test_FullStrongChain(tmpdir):
     expected = 1
     assert actual == expected
 
-def test_FullStrongChainOpp(tmpdir):
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = []
+    assert set(actual) == set(expected)
+
+def test_RedFullStrongChain(tmpdir):
     """Red Board with a full chain of strongly connected dexes touching both player ends"""
 
     moves = [(5,5), (3,6), (7,4), (1,7), (9,3)]
@@ -505,7 +599,12 @@ def test_FullStrongChainOpp(tmpdir):
     expected = 1
     assert actual == expected
 
-def test_OppTwoStrongHexChain(tmpdir):
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = []
+    assert set(actual) == set(expected)
+
+def test_RedTwoStrongHexChain(tmpdir):
     """Red Board with two hexes in a strong connection"""
 
     tmpdir.board.makeMove((5,5), 2)
@@ -542,4 +641,14 @@ def test_OppTwoStrongHexChain(tmpdir):
     actual = chain.endDist
     expected = 5
     assert actual == expected
+
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (2,5), (2,6), (2,7), (2,8),
+        (1,7),
+        (6,3), (6,4), (6,5), (6,6),
+        (7,4)
+    ]
+    assert set(actual) == set(expected)
     

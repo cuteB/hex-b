@@ -4,6 +4,7 @@ from hexBoy.models.SortedDict import SortedDict
 from hexBoy.hex.HexNode import HexNode
 from hexBoy.hex.HexBoard import Board
 from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
+from hexBoy.AI.agentUtil.agentSmart.GetStrongMoves import GetStrongMoves
 from hexBoy.pathfinder.PathBoy import PathBoy
 
 '''----------------------------------
@@ -58,7 +59,7 @@ class SmartChain():
         # update chain based on board
         self.updateChain()
 
-    def getDistToEndZone(self, X):
+    def getDistToEndZone(self, X) -> int:
         """"Get distance to closest player endZone (i think this exists somewhere)"""
 
         if (self.player == 1):
@@ -77,7 +78,7 @@ class SmartChain():
     '''---
     Public
     ---'''
-    def updateChain(self):
+    def updateChain(self) -> None:
         """Look at the board and get the chain"""
 
         playerMoves = self.board.getPlayerMoves(self.player)
@@ -135,3 +136,102 @@ class SmartChain():
 
         # finish up
         self.length = length
+
+
+    def getStartPotentialMoves(self, X) -> list:
+        """Get Potential moves for the start pos (not validated)"""
+        (x,y) = X
+        strongMoves = GetStrongMoves(self.board, self.player)
+
+        pMoves = []
+        pStrongMoves = []
+        if (self.player == 1):
+            # blue
+            pMoves = [   
+                (x,   y-1),
+                (x+1, y-1), 
+            ]
+            pStrongMoves = [
+                (x-1, y-1),
+                (x+2, y-1),
+                (x+1, y-2)
+            ]
+        
+        else:
+            # red
+            pMoves = [   
+                (x-1, y),
+                (x-1, y+1), 
+            ]
+            pStrongMoves = [   
+                (x-1, y-1),
+                (x-1, y+2),
+                (x-2, y+1)
+            ]
+
+        potentialMoves = []
+        for m in pMoves:
+            if self.board.validateMove(m):
+                potentialMoves.append(m)
+
+        for m in pStrongMoves:
+            if m in strongMoves:
+                potentialMoves.append(m)
+                
+        return potentialMoves
+
+    def getEndPotentialMoves(self, X) -> list:
+        """Get Potential moves for the end pos"""
+        (x,y) = X
+        strongMoves = GetStrongMoves(self.board, self.player)
+
+        pMoves = []
+        if (self.player == 1):
+            # blue
+            pMoves = [   
+                (x-1, y+1),
+                (x,   y+1), 
+            ]
+            pStrongMoves = [   
+                (x-2, y+1),
+                (x+1, y+1),
+                (x-1, y+2),
+            ]
+        
+        else:
+            # red
+            pMoves = [   
+                (x+1, y-1),
+                (x+1, y), 
+            ]
+            pStrongMoves = [   
+                (x+1, y-2),
+                (x+1, y+1),
+                (x+2, y-1),
+            ]
+
+        potentialMoves = []
+        for m in pMoves:
+            if self.board.validateMove(m):
+                potentialMoves.append(m)
+
+        for m in pStrongMoves:
+            if m in strongMoves:
+                potentialMoves.append(m)
+                
+        return potentialMoves
+
+    def getPotentialMoves(self) -> list:
+        """Get Moves that will extend the chain to the end"""
+
+        # For now just going to return the three strong moves closer to the closest edge and the two short moves. (for both start and end)
+
+        startMoves = []
+        endMoves = []
+        if (self.startPos and self.startDist > 1):
+            startMoves = self.getStartPotentialMoves(self.startPos)
+
+        if (self.endPos and self.endDist > 1):
+            endMoves = self.getEndPotentialMoves(self.endPos)
+
+        return [*startMoves, *endMoves]
