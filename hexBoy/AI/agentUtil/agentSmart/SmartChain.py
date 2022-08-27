@@ -166,11 +166,11 @@ class SmartChain():
 
         potentialMoves = []
         for m in pMoves:
-            if self.board.validateMove(m):
+            if (self.board.validateMove(m) and m not in self.connections):
                 potentialMoves.append(m)
 
         for m in pStrongMoves:
-            if m in strongMoves:
+            if (m in strongMoves and m not in self.connections):
                 potentialMoves.append(m)
                 
         return potentialMoves
@@ -180,10 +180,11 @@ class SmartChain():
         (x,y) = self.endPos
         strongMoves = GetStrongMoves(self.board, self.player)
 
+
         pMoves = []
         if (self.player == 1):
             # blue
-            pMoves = self.board.getAdjacentSpaces(self.startPos)
+            pMoves = self.board.getAdjacentSpaces(self.endPos)
             pStrongMoves = [   
                 (x-2, y+1),
                 (x+1, y+1),
@@ -192,7 +193,7 @@ class SmartChain():
         
         else:
             # red
-            pMoves = self.board.getAdjacentSpaces(self.startPos)
+            pMoves = self.board.getAdjacentSpaces(self.endPos)
             pStrongMoves = [   
                 (x+1, y-2),
                 (x+1, y+1),
@@ -201,11 +202,11 @@ class SmartChain():
 
         potentialMoves = []
         for m in pMoves:
-            if self.board.validateMove(m):
+            if (self.board.validateMove(m) and m not in self.connections):
                 potentialMoves.append(m)
 
         for m in pStrongMoves:
-            if m in strongMoves:
+            if (m in strongMoves and m not in self.connections):
                 potentialMoves.append(m)
                 
         return potentialMoves

@@ -90,7 +90,9 @@ The [Smart Chain](./Agent-Smart/Smart-Chain.md) is a way for the agent to view i
 
 ---
 
-Agent Smart works how I wanted it to. When uninterrupted the agent does exactly what is expected: It makes strong moves to each edge and when the chain reaches both end zones it fills in the bridge moves. Lots of useful algorithms produced with this agent and a big refactor might be needed. 
+Agent Smart works how I wanted it to. When uninterrupted the agent does exactly what is expected: It makes strong moves to each edge and when the chain reaches both end zones it fills in the bridge moves. Lots of useful algorithms produced with this agent and a big refactor might be needed.
+
+It looks like the agent loses the chain as the board gets more complex. The first iteration of the chain assumed that the agent would be able to extend the chain with no intervention. Next iteration will need to be able to reroute the chain as the best path moves around. Chain will also need to go through the whole chain even when the best path may not go through the chain due to there being multiple best paths.
 
 ### Win percents
 
