@@ -25,4 +25,3 @@ Need this to be its own object. Going to be a simple linked list, defined start 
 First thing that I need to test is a simple get function that takes in a board and returns a link. Will probably need to find the multiple chains but for now I will assume the agent is only working with a single chain. I want to have the chain as its own object but be able to initialize it with a board and a player. Probably an initialize for the player and then a function that takes in a board and builds the chain with the board.
 
 The initialization should also include the board because I'll need the functions to grab the adjacent hexes and such.
-

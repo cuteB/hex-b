@@ -1,3 +1,4 @@
+from re import L
 from typing import List
 from hexBoy.models.SortedDict import SortedDict
 from hexBoy.hex.HexNode import HexNode
@@ -32,31 +33,26 @@ class SmartChain():
         self.board = _board
         self.player = _player
 
+        # TODO I do this stuff too often
         if (self.player == 1):
             # blue
             self.playerStart = self.board.blueStartSpace
             self.playerEnd = self.board.blueEndSpace
             self.checkIfBarrier = HexNode.checkIfBlueBarrierForAI
-            self.checkIfOpponentBarrier = HexNode.checkIfRedBarrierForAI
         else:
             # red
             self.playerStart = self.board.redStartSpace
             self.playerEnd = self.board.redEndSpace
             self.checkIfBarrier = HexNode.checkIfRedBarrierForAI
-            self.checkIfOpponentBarrier = HexNode.checkIfBlueBarrierForAI
-            
 
         self.connections = []
         self.linkedDict = SortedDict()
         self.length = 0
 
-        def sortFunc(item):
-            return item[1].path
         self.pathfinder = PathBoy(
             self.board,
             self.board.getAdjacentSpaces,
-            self.checkIfBarrier,
-            sortFunc
+            self.checkIfBarrier
         )
 
         # update chain based on board
@@ -83,80 +79,59 @@ class SmartChain():
     ---'''
     def updateChain(self):
         """Look at the board and get the chain"""
-        playerMoves = self.board.getPlayerMoves(self.player)
-        (weakConnections, strongConnections) = GetConnections(self.board, self.player)
-        allConnections = [*weakConnections, *strongConnections]
-        nMoves = len(playerMoves)
 
+        playerMoves = self.board.getPlayerMoves(self.player)
+        nMoves = len(playerMoves)
         # No moves
         if (nMoves == 0):
             return
         
-        # start with the first move and work both directions
-        m = playerMoves[0]
-        self.startPos = m
-        self.endPos = m
-        self.length = 1
-        self.startDist = self.pathfinder.ScorePath(self.pathfinder.findPath(self.playerStart, m))
-        self.endDist = self.pathfinder.ScorePath(self.pathfinder.findPath(self.playerEnd, m))
+        (weakConnections, strongConnections) = GetConnections(self.board, self.player)
+        allConnections = [*weakConnections, *strongConnections]
+        bestPath = self.pathfinder.findPath(self.playerStart, self.playerEnd)
 
-        nodes = [m]
-        visited = []
-        t = 0
-        while (len(nodes) > 0):
-            t += 1
-            if t == 5:
-                return
-
-            m = nodes.pop()
-            visited.append(m)
-            print(m)
-
-            adjacentHexes = self.board.getAdjacentSpaces(m)
-            for aX in adjacentHexes:
-                # adjacent move
-                if (aX in playerMoves and aX not in visited):
-                    nodes.append(aX)
-                    distToStart = len(self.pathfinder.findPath(self.playerStart, aX))
-                    distToEnd = len(self.pathfinder.findPath(self.playerEnd, aX))
-
-                    # if move is closer to start
-                    print(m, distToStart, self.startDist, self.getDistToEndZone(aX), self.getDistToEndZone(self.startPos))
-
-                    if (
-                        (distToStart < self.startDist)
-                        or (distToStart == self.startDist and self.getDistToEndZone(aX) < self.getDistToEndZone(self.startPos))
-                    ):
-                        self.startPos = aX
-                        self.startDist = distToStart
-                        self.length += 1
-
-                    # if move is closer to end\
-                    print(m, distToEnd, self.endDist, self.getDistToEndZone(aX), self.getDistToEndZone(self.endPos))
-                    if (
-                        (distToEnd < self.endDist)
-                        or (distToEnd == self.endDist and self.getDistToEndZone(aX) < self.getDistToEndZone(self.endPos))
-                    ):
-                        self.endPos = aX
-                        self.endDist = distToEnd
-                        self.length += 1
+        lastNode = None
+        lenBestPath = len(bestPath)
+        length = 0
+        iMove = 0 # capture move index
+        i = 0
+        for X in bestPath:
+            # Player Move
+            if (X in playerMoves):
+                iMove += 1
+                length += 1
+                if (iMove == 1): 
+                    # first move
+                    self.startPos = X
+                    self.startDist = i
+                    lastNode = X
                 
-                
-            
+                if (iMove == nMoves):
+                    # last move
+                    self.endPos = X
+                    self.endDist = lenBestPath - i - 1
+                    self.linkedDict[lastNode] = X
 
+                if (iMove != 1 and iMove != nMoves):
+                    # middle move
+                    self.linkedDict[lastNode] = X
+                    lastNode = X
 
+            # Weak Connection
+            elif (X in weakConnections):
+                length += 1
+                self.connections.append(X)
 
-        
+            elif (X in strongConnections):
+                length += 1
+                self.connections.append(X)
 
+                adjacentHexes = self.board.getAdjacentSpaces(X)
+                for aX in adjacentHexes:
+                    if aX in strongConnections:
+                        self.connections.append(aX)
 
+            i += 1
 
-
-
-
-
-
-
-
-
-
-
+        # finish up
+        self.length = length
