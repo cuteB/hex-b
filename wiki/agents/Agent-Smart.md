@@ -98,10 +98,10 @@ It looks like the agent loses the chain as the board gets more complex. The firs
 
 - over 1000 games
 
-Opponent Agent | Agent Smart win% | Opponent win%
---|--|--
-Agent A* | 80% | 20%
-Agent Strong | 50% | 50%
+Opponent Agent | Agent Smart win% | Opponent win% | notes
+--|--|--|---
+Agent A* | 93% | 7% | Simply better. Currently these two algorithms operate the same but agent smart is able to identify strong moves which gives them a massive advantage.
+Agent Strong | 50% | 50% | Agent strong is very good at messing with the opponent at the start. Although basically every round plays out the same so in this case whoever goes first wins. Need the next iteration to identify opponent moves at the start
 
 ### Agent Issues
 
@@ -111,8 +111,16 @@ Agent Strong | 50% | 50%
 
     > probably bugs, poor algorithms, all the same
 
+    The "Forget" part turned out to be a bug in the chain. Fixed it but still need to think about opponent moves.
+
 1. #### Triangle connections
 
     These moves are not good. If the opponent takes the middle hex then all of the other connections become weak connections. The opponent will be able to block the connection and its a waste of a move. I think this is due to the original strong move not being part of the best path (doesn't make the path shorter) so the chain doesn't use it.
 
     ![Triangle connection issue](/wiki/images/AgentSmartTriangleIssue.png)
+
+### Closing thoughts
+
+Need some sort of move evaluation and a bit more thought into early game. Early game might be taken care of when evaluating moves so this will be secondary. Getting all of the potential moves from the chain basically prunes a whole bunch of moves. The agent can then throw a bunch of cpu at evaluating board states of those moves.
+
+> Good report b :* but actually should probably go through this and read this garbage because it looks like a mess

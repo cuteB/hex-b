@@ -92,6 +92,12 @@ class SmartChain():
         allConnections = [*weakConnections, *strongConnections]
         bestPath = self.pathfinder.findPath(self.playerStart, self.playerEnd)
 
+        # count player moves in path
+        nMoves = 0
+        for node in bestPath:
+            if (node in playerMoves):
+                nMoves += 1
+
         lastNode = None
         lenBestPath = len(bestPath)
         length = 0
@@ -113,6 +119,7 @@ class SmartChain():
                     self.endPos = X
                     self.endDist = lenBestPath - i - 1
                     self.linkedDict[lastNode] = X
+                    lastNode = X
 
                 if (iMove != 1 and iMove != nMoves):
                     # middle move
@@ -133,9 +140,13 @@ class SmartChain():
                     if aX in strongConnections:
                         self.connections.append(aX)
 
+
+
             i += 1
 
-        # finish up
+        # finish up 
+        if (lastNode != None):
+            self.linkedDict[lastNode] = None
         self.length = length
 
 
@@ -225,3 +236,14 @@ class SmartChain():
             endMoves = self.getEndPotentialMoves()
 
         return [*startMoves, *endMoves]
+
+    def printChain(self) -> None:
+        chain = []
+        
+        if self.length > 0:
+            X = self.startPos
+            while( X != None):
+                chain.append(X)
+                X = self.linkedDict[X]
+
+        print(chain)

@@ -44,7 +44,6 @@ class AgentSmart(HexAgent):
         bestPath = self.pathfinder.findPath(self.startPos, self.endPos)
         strongMoves = GetStrongMoves(self.gameBoard, self.player)
 
-
         # fill in weak connections (can probs keep like this)
         if (len(weakConnections) > 0):
             for m in weakConnections:
@@ -61,7 +60,7 @@ class AgentSmart(HexAgent):
         closestDist = self.gameBoard.boardSize
         closestPos = None
         if (self.chain.startDist > self.chain.endDist):
-            # make start closer
+            # make start closer 
             pMoves = self.chain.getStartPotentialMoves()
         else: 
             pMoves = self.chain.getEndPotentialMoves()

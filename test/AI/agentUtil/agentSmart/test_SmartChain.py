@@ -666,3 +666,57 @@ def test_RedTwoStrongHexChain(tmpdir):
     ]
     assert set(actual) == set(expected)
     
+def test_BrokenChainBoard(tmpdir):
+    """Ran into this state where the chain doesn't work""" 
+
+    playerMoves = [(5,5), (4,5), (3,6), (5,4)]
+    oppMoves =    [(5,6), (4,6), (9,6), (8,6)]
+
+    for i in range(4):
+        tmpdir.board.makeMove(playerMoves[i], 1)
+        tmpdir.board.makeMove(oppMoves[i], 2)
+
+    chain = SmartChain(1, tmpdir.board)
+
+    # start
+    actual = chain.startPos
+    expected = (5,4)
+    assert actual == expected
+
+    # end
+    actual = chain.endPos
+    expected = (3,6)
+    assert actual == expected
+
+    # length
+    actual = chain.length
+    expected = 3
+    assert actual == expected
+
+    # connections
+    actual = chain.connections
+    expected = []
+    assert set(actual) == set(expected)
+    
+   # start dist
+    actual = chain.startDist
+    expected = 4
+    assert actual == expected
+
+    # end dist
+    actual = chain.endDist
+    expected = 4
+    assert actual == expected
+
+    # potential moves
+    actual = chain.getPotentialMoves()
+    expected = [
+        (6,2),
+        (4,3), (5,3), (6,3), (7,3),
+        (4,4), (6,4),
+        (2,6), (2,7), (3,5),
+        (1,7), (2,7), (3,7),
+        (2,8)
+    ]
+    assert set(actual) == set(expected)
+    
