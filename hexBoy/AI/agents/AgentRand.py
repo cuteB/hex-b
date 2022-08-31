@@ -12,7 +12,7 @@ class AgentRand(HexAgent):
   # Agent RandRandom moves. Rarely the best
   def __init__(self):
     HexAgent.__init__(self)
-    self.name = "Agent_Rand"
+    self.name = "Agent_Rand" 
 
   def getAgentMove(self):
     return self._randomMove()

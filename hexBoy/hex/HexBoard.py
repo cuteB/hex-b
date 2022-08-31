@@ -21,16 +21,28 @@ IDEA: make a board for pathfinders to modify values for their nodes
 '''----------------------------------
 Hex Board
 ----------------------------------'''
-# TODO change name to hexboard
+
 @dataclass
-class Board:
+class Board: 
+    # TODO change name to hexboard
+    # I think I want to turn this board into a basic class. 
+    # - HexagonBoard will have most of the basic functions to move around
+    # - HexBoard will be the the official 11x11 board for the game Hex
+    # - There should be an interface for Board but I don't really care about other types of boards
+
+    # TODO might want to rename this to nodeDict, Dict<Hex -> HexNode>
     boardDict: dict  # dict<HexNode>, Cells on the board and their values
-    boardSize: int  # int, size of the board
+    boardSize: int  # int, size of the board # TODO move to HexBoard, doesn't really matter for regular boards
     moveHistory: List[tuple]  # ((x,y), player)[]
 
     # HexNode.Space, object of the different types of hex spaces.
     hexTypes: any
 
+    # TODO for every function with a player doing something make the player param first
+
+    # TODO make a hex pos type, I don't like having everything as tuple
+
+    # TODO move to HexBoard, I would like the start/end to be some sort of object 
     # tuples of the (x,y) coordinates of the red/blue start/end spaces
     redStartSpace: tuple
     redEndSpace: tuple
@@ -41,7 +53,6 @@ class Board:
         self.boardSize = boardSize
         self.hexTypes = HexNode.SpaceTypes
         self.moveHistory = []
-
         self.redStartSpace = (-1, 5)
         self.redEndSpace = (self.boardSize, 5)
         self.blueStartSpace = (5, -1)
@@ -49,11 +60,11 @@ class Board:
 
         self.boardDict = self.initGameBoard()
 
-    # Return the board node dict
-    def getNodeDict(self):
+    def getNodeDict(self) -> dict:
+        """Return the board node dict"""
         return self.boardDict
 
-    def initGameBoard(self):
+    def initGameBoard(self) -> None: # TODO move to HexBoard
         """Initialize the starting game board"""
         dict = {}
 
@@ -78,10 +89,11 @@ class Board:
 
         return dict
 
-    def setBoardDict(self, dict):
+    def setBoardDict(self, dict) -> None: # TODO rename to setNodeDict, move beside getNodeDict
+        """Set the board dict"""
         self.boardDict = dict
 
-    def validateMove(self, cell) -> List[tuple]:
+    def validateMove(self, cell) -> bool: 
         """Check if the given cell is a valid move. (hex is empty)"""
         return (
             cell != None
@@ -89,14 +101,13 @@ class Board:
             and self.boardDict[cell].type == self.hexTypes.EMPTY
         )
 
-    # Make the move on the board dict, add to move history
-    def makeMove(self, cell, player):
+    def makeMove(self, cell, player) -> None:
         """Make a move on the board and save it in history"""
         self.moveHistory.append((cell, player))
         self.boardDict[cell].setSpaceType(player)
 
-    # Check if the move is within the board or edges
-    def isSpaceWithinBounds(self, cell):
+    def isSpaceWithinBounds(self, cell) -> bool:
+        """"Check if the pos is within the playable space"""
         boardSize = self.boardSize
         (x, y) = cell
 
@@ -110,9 +121,9 @@ class Board:
             and not ((x == -1 or x == boardSize) and (y == -1 or y == boardSize))
         )
 
-    def getAdjacentSpaces(self, cell):
+    def getAdjacentSpaces(self, cell) -> list: # TODO rename to getAdjacentHexes
         """Get the Hexes touching the gives Cell"""
-        # Checkout /wiki/hex/board for the board with coordinates
+        # Checkout /wiki/hex/Board.md for the board with coordinates
         x = cell[0]
         y = cell[1]
 
@@ -135,7 +146,7 @@ class Board:
         return adjacentSpaces
 
     # XXX Don't really like this anymore. Remove it probably
-    def get2AwaySpaces(self, cell):
+    def get2AwaySpaces(self, cell): # TODO delete/ move to agent util
         """Return spaces that are 2 away from the cell"""
         x = cell[0]
         y = cell[1]
@@ -163,7 +174,7 @@ class Board:
 
         return adjacentSpaces
 
-    def resetGame(self):
+    def resetGame(self) -> None: # TODO move to HexBoard, rename resetGameBoard
         """Reset the board and move history"""
         self.boardDict = self.initGameBoard()
         self.moveHistory = []
@@ -172,13 +183,13 @@ class Board:
     Functions for moves
     ---'''
     # TODO this is wrong for hexes,
-    def getDistanceToCenter(self, move):
+    def getDistanceToCenter(self, move): # TODO 
         (x, y) = move
         center = int(self.boardSize // 2)
 
         return abs(x - center) + abs(y - center)
 
-    def getPlayerMoves(self, playerId: int):
+    def getPlayerMoves(self, playerId: int) -> list: # TODO move to HexBoard
         """Look at the move history and return a player's moves"""
         playerMoves = []
         for i in range(len(self.moveHistory)):
@@ -187,9 +198,9 @@ class Board:
 
         return playerMoves
 
-    def getPlayerEndZone(self, player):
+    def getPlayerEndZone(self, player) -> list:
         """Get the end zone hexes of the player"""
-
+        # TODO might want to save these values for quick access
         playerEndZone = []
         if (player == 1): 
             # blue edge
@@ -205,10 +216,11 @@ class Board:
 
         return playerEndZone
 
-
     '''---
     Functions for board
     ---'''
+    # TODO All of these look like garbage. Only used by AgentRL so move to utility/AgentRLUtil. Will need to detach from the board and put a HexBoard instead of self in the signature. 
+
     # FIXME these two functions are ugly and bad
     # return a copy of the current board
     def getBoardFromMove(self, move, player):

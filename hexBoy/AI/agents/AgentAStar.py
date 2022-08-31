@@ -6,42 +6,41 @@ from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 
-'''----------------------------------
+"""----------------------------------
 AStar Search Agent
-----------------------------------'''
+----------------------------------"""
+
 class AgentAStar(HexAgent):
+    # TODO put self.pathfinder up here, also might change to self.pf
+    # TODO descriptions
+    def __init__(self):
+        HexAgent.__init__(self)
+        self.name = "Agent_A*"  # TODO this should be inside the init func instead
 
-  def __init__(self):
-    HexAgent.__init__(self)
-    self.name = "Agent_A*"
+    def getAgentMove(self):
+        gameBoard = self.gameBoard
 
-  def getAgentMove(self):
-    gameBoard = self.gameBoard
+        # Find best path to win
+        potentialMoves = self.pathfinder.findPath(
+            self.startPos,
+            self.endPos,
+        )
 
-    # Find best path to win
-    potentialMoves = self.pathfinder.findPath(
-      self.startPos,
-      self.endPos,
-    )
+        # make a move on the best path
+        random.shuffle(potentialMoves)
+        for move in potentialMoves:
+            if gameBoard.validateMove(move):
+                return move
 
-    # make a move on the best path
-    random.shuffle(potentialMoves)
-    for move in potentialMoves:
-      if (gameBoard.validateMove(move)):
-        return move
+        return self._randomMove()
 
-    return self._randomMove()
+    def setGameBoardAndPlayer(self, gameBoard, player):
+        HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
-  def setGameBoardAndPlayer(self, gameBoard, player):
-    HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
+        def sortFunc(item):
+            return item[1].path
 
-    def sortFunc(item):
-      return item[1].path
-
-    # AStar Pathfinder
-    self.pathfinder = PathBoy(
-      self.gameBoard,
-      self.getAdjacentSpaces,
-      self.checkIfBarrier,
-      sortFunc
-    )
+        # AStar Pathfinder
+        self.pathfinder = PathBoy(
+            self.gameBoard, self.getAdjacentSpaces, self.checkIfBarrier, sortFunc
+        )

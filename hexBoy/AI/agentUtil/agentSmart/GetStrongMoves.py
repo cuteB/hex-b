@@ -8,6 +8,7 @@ def GetStrongMoves(board, player):
     allAdjHexes = SortedDict()
     satelliteHexes = SortedDict()
     strongHexes = SortedDict()
+    # TODO satHexes
 
     # Get all adjacent hexes for the player, Strong moves can't be in this set
     for move in playerMoves: 

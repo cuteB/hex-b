@@ -1,19 +1,20 @@
-"""Dict actually working well. Maybe a bit of love to make it more readable"""
+"""Dict actually working well. Maybe a bit of love to make it more readable""" # TODO delete
 
 """----------------------------------
 Sorted Dict
 ----------------------------------"""
-"""
+'''
 Time Complexity
   get O(1)
   del O(n)
   set O(n)
-"""
+'''
 
 class SortedDict(dict):
-    _dictionary: dict = None  # the dict
-    _sortedItems: list = None  # sorted list of the items based on the given value
-    _reverse: bool  = None  # which way to sort the list
+    # TODO gotta add the descriptions for everything, better types for Lists
+    _dictionary: dict = None  # the dict # TODO is this used or is self the dict that is used everywhere?
+    _sortedItems: list = None  # sorted list of the items based on the given value #TODO this a List[any,any]
+    _reverse: bool  = None  # which way to sort the list # TODO rename to desc. Which way is reverse? Or say in description
     _getSortValue: callable = None  # which value to use to sort the list
 
     def __init__(self, dict=None, getSortValue=None, reverse=False):
@@ -54,9 +55,9 @@ class SortedDict(dict):
                 del self._sortedItems[ind]
                 break
 
-    """---
+    '''---
     Private functions
-    ---"""
+    ---'''
     # Add item to dict, update sorted items
     def _addItem(self, key, value):
         if key in self:
@@ -89,9 +90,10 @@ class SortedDict(dict):
     def _defaultGetSortValue(self, item):
         return item[0]  # Just use the key if no other getValue is provided
 
-    """---
+    '''---
     Public functions
-    ---"""
+    ---'''
+    # TODO I want this to be .pop() instead of .popItem()
     # pop off the lowest item (first item in sortedItems)
     def popItem(self):
         if len(self) == 0:
@@ -102,6 +104,7 @@ class SortedDict(dict):
             del self[key]
             return key, value
 
+    # I think I can just use "in"
     def hasKey(self, key):
         return key in self
 

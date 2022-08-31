@@ -30,8 +30,8 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         clusters[clusterId] = [pm]
         hexToCluster[pm] = clusterId
 
-        lookThroughHexes = SortedDict()
-        lookThroughHexes[pm] = 0
+        lookThroughHexes = SortedDict() # TODO bring variable up to the top but still have this line. Same with all variables, probably
+        lookThroughHexes[pm] = 0 # TODO I think I want to set this to None and not 0 to be clear that I don't care about the value
         while (len(lookThroughHexes) > 0):
             X = lookThroughHexes.popItem()[0]
 
@@ -80,8 +80,7 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
 
         for X in connectionHexes:
             # Compare the connected clusters between hexes. If they connect the same ones then they are strong. 
-            if (
-                (
+            if ((
                     X != cX 
                     and (set(connectionHexes[cX]).issubset(set(connectionHexes[X])))
                 )

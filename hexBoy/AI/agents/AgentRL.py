@@ -9,226 +9,224 @@ from hexBoy.AI.agentUtil.BoardEval import BoardStates
 from hexBoy.AI.agentUtil.MoveEval import evaluateMove
 from hexBoy.models.SortedDict import SortedDict
 
-'''----------------------------------
+# TODO Come back later. I almost want to leave this class for a bit. Not close enough to do good RL.
+"""----------------------------------
 Reinforcement Learning Agent
-----------------------------------'''
+----------------------------------"""
+
 @dataclass
 class AgentRL(HexAgent):
-  # board states: (
-  #   Dp: playerDistToWin,
-  #   Do: opponentDistToWin,
-  #   Np: playerNumPaths,
-  #   No: opponentNumPaths,
-  # )
-  stateBeforeLastMove = None
-  stateAfterLastMove = None
-  transitionDict = None
-
-  initialTransitionValue: int # value to set on first visit to transition
-
-  ALPHA = 0.3 # learning rate
-  LAMBDA = 0.1
-
-  def __init__(self):
-    HexAgent.__init__(self)
-    self.name = "Agent_RL"
-    self.transitionDict = SortedDict()
-    self.initialTransitionValue = 10
-
-  def getAgentMove(self):
-    currentState = self._getStateFromBoard(self.gameBoard)
-
-    # score last move
-    if (self.stateBeforeLastMove):
-      transition = (self.stateBeforeLastMove, self.stateAfterLastMove)
-
-      # update transition
-      self.transitionDict[transition] = self._updateTransition(transition)
-
-    self.stateBeforeLastMove = currentState
-
-    # (B1) get next move.
-    # - get the best transition
-    # - do one of the moves to that transition
-    bestTransition = self._getBestTransitionForDepth(1)
-    movesToConsider = self._getPossibleMovesToState(bestTransition[1])
-
-    if (len(movesToConsider) > 0):
-      self.stateAfterLastMove = bestTransition[1]
-      # randomly pick a move that leads to the best state
-      return random.choice(movesToConsider)
-    else:
-      randomMove = self._randomMove()
-      randomBoard = self.gameBoard.getBoardFromMove(randomMove, self.player)
-      randomState = self._getStateFromBoard(randomBoard)
-      self.stateAfterLastMove = randomState
-
-      # pick a random move if no moves were found
-      return randomMove
-
-  def setGameBoardAndPlayer(self, gameBoard, player):
-    HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
-
-    # AStar Pathfinder
-    def sortFunc(item):
-      return item[1].getPC()
-
-    self.pathfinder = PathBoy(
-      self.gameBoard,
-      self.getAdjacentSpaces,
-      self.checkIfBarrier,
-      sortFunc
-    )
-
-    self.oppPathFinder = PathBoy(
-      self.gameBoard,
-      self.getAdjacentSpaces,
-      self.checkIfOpponentBarrier,
-      sortFunc
-    )
-
-  def updateBoard(self):
-    pass
-
-  def scoreGame(self):
-    # reset states
-    self.stateBeforeLastMove = None
-    self.stateAfterLastMove = None
-
-  '''---
-  Private
-  ---'''
-  def _rewardStateTransition(self, transition):
-
-    gamma = 0.1
-    theta = 1
-
-    stateA = transition[0]
-    stateB = transition[1]
-
-    return (
-      # gamma * (
-      #   (stateB[2] - stateA[2])
-      #   - (stateB[3] - stateB[3])
-      # )
-      100 -
-      theta * (
-        (stateB[0] - stateA[0])
-        - (stateB[1] - stateA[1])
-      )
-    )
-
-  def _getStateFromBoard(self, board):
-    # board states: [
+    # board states: (
     #   Dp: playerDistToWin,
     #   Do: opponentDistToWin,
     #   Np: playerNumPaths,
     #   No: opponentNumPaths,
-    # ]
-
-    ppf = self.pathfinder
-    opf = self.oppPathFinder
-
-    playerBestPath = ppf.findPath(
-      self.startPos,
-      self.endPos,
-    )
-    Dp = ppf.ScorePath(
-      playerBestPath,
-    )
-    opponentBestPath = opf.findPath(
-      self.opponentStart,
-      self.opponentEnd,
-    )
-    Do = opf.ScorePath(
-      opponentBestPath,
-    )
-
-    # Np = pf.NumBestPaths(
-    #   board.getNodeDict(),
-    #   self.startPos, self.endPos,
-    #   self.checkIfBarrier,
     # )
+    stateBeforeLastMove = None
+    stateAfterLastMove = None
+    transitionDict = None
 
-    # No = pf.NumBestPaths(
-    #   board.getNodeDict(),
-    #   self.opponentStart, self.opponentEnd,
-    #   self.checkIfOpponentBarrier,
-    # )
+    initialTransitionValue: int  # value to set on first visit to transition
 
-    return (Dp, Do)
+    ALPHA = 0.3  # learning rate
+    LAMBDA = 0.1
 
-  def _getPossibleMovesToState(self, state):
-    possibleMoves = []
+    def __init__(self):
+        HexAgent.__init__(self)
+        self.name = "Agent_RL"
+        self.transitionDict = SortedDict()
+        self.initialTransitionValue = 10
 
-    allMoves = self.gameBoard.getPossibleMoves()
-    for move in allMoves:
-      nextBoard = self.gameBoard.getBoardFromMove(move, self.player)
-      nextState = self._getStateFromBoard(nextBoard)
-      if (nextState == state):
-        possibleMoves.append(move)
+    # TODO I like the override section
 
-    return possibleMoves
+    def getAgentMove(self):
+        currentState = self._getStateFromBoard(self.gameBoard)
 
-  def _getBestTransitionForDepth(self, depth):
-    # get the best transition from depth
-    # Note: returned transition will have a value in self.transitions
-    def sortFunc(item): # sort by transition score
-      return item[1]
+        # score last move
+        if self.stateBeforeLastMove:
+            transition = (self.stateBeforeLastMove, self.stateAfterLastMove)
 
-    checkedTransitions = SortedDict(getSortValue = sortFunc, reverse = False)
-    initialState = self._getStateFromBoard(self.gameBoard)
+            # update transition
+            self.transitionDict[transition] = self._updateTransition(transition)
 
-    # recursion func to call
-    def _bestTransitionRecursion(depth, board, player):
-      nonlocal checkedTransitions
+        self.stateBeforeLastMove = currentState
 
-      # basecase
-      if (depth == 0):
-        stateAtDepth = self._getStateFromBoard(board)
-        transition = (initialState, stateAtDepth)
-        # Score Transaction
-        if (not checkedTransitions.hasKey(transition)):
-          if (not self.transitionDict.hasKey(transition)):
-            self.transitionDict[transition] = self.initialTransitionValue
-          checkedTransitions[transition] = self.transitionDict[transition]
-        return
+        # (B1) get next move.
+        # - get the best transition
+        # - do one of the moves to that transition
+        bestTransition = self._getBestTransitionForDepth(1)
+        movesToConsider = self._getPossibleMovesToState(bestTransition[1])
 
-      # loop through possible moves from board
-      possibleMoves = board.getPossibleMoves()
-      for move in possibleMoves:
-        nextBoard = board.getBoardFromMove(move, player)
-
-        if (player == 1):
-          nextPlayer = 2
+        if len(movesToConsider) > 0:
+            self.stateAfterLastMove = bestTransition[1]
+            # randomly pick a move that leads to the best state
+            return random.choice(movesToConsider)
         else:
-          nextPlayer = 1
+            randomMove = self._randomMove()
+            randomBoard = self.gameBoard.getBoardFromMove(randomMove, self.player)
+            randomState = self._getStateFromBoard(randomBoard)
+            self.stateAfterLastMove = randomState
 
-        _bestTransitionRecursion(depth - 1, nextBoard, nextPlayer)
-      # end recursion func
+            # pick a random move if no moves were found
+            return randomMove
 
-    _bestTransitionRecursion(depth, self.gameBoard, self.player)
-    bestTransitionTuple = checkedTransitions.popItem() # pop off the best transition
+    def setGameBoardAndPlayer(self, gameBoard, player):
+        HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
-    return bestTransitionTuple[0]
+        # AStar Pathfinder
+        def sortFunc(item):
+            return item[1].getPC()
 
-  def _updateTransition(self, transition):
-    # T(Sn, Sn1) <- T(Sn, Sn1)
-    #   + alpha(
-    #       R(Sn,Sn2)
-    #     + lamba(maxM(T(Sn+2,Sm))
-    #     - T(Sn, Sn1)
-    #   )
+        self.pathfinder = PathBoy(
+            self.gameBoard, self.getAdjacentSpaces, self.checkIfBarrier, sortFunc
+        )
 
-    maxTransition = self._getBestTransitionForDepth(1)
-    maxMVal = self.transitionDict[maxTransition]
-    currentTransitionVal = self.transitionDict[transition]
+        self.oppPathFinder = PathBoy(
+            self.gameBoard,
+            self.getAdjacentSpaces,
+            self.checkIfOpponentBarrier,
+            sortFunc,
+        )
 
-    return (
-      currentTransitionVal
-      + self.ALPHA * (
-        self._rewardStateTransition(transition)
-        + self.LAMBDA * maxMVal
-        - currentTransitionVal
-      )
-    )
+    def updateBoard(self):
+        pass
+
+    def scoreGame(self):
+        # reset states
+        self.stateBeforeLastMove = None
+        self.stateAfterLastMove = None
+
+    '''---
+    Private
+    ---'''
+
+    def _rewardStateTransition(self, transition):
+
+        gamma = 0.1
+        theta = 1
+
+        stateA = transition[0]
+        stateB = transition[1]
+
+        return (
+            # gamma * (
+            #   (stateB[2] - stateA[2])
+            #   - (stateB[3] - stateB[3])
+            # )
+            100
+            - theta * ((stateB[0] - stateA[0]) - (stateB[1] - stateA[1]))
+        )
+
+    def _getStateFromBoard(self, board):
+        # board states: [
+        #   Dp: playerDistToWin,
+        #   Do: opponentDistToWin,
+        #   Np: playerNumPaths,
+        #   No: opponentNumPaths,
+        # ]
+
+        ppf = self.pathfinder
+        opf = self.oppPathFinder
+
+        playerBestPath = ppf.findPath(
+            self.startPos,
+            self.endPos,
+        )
+        Dp = ppf.ScorePath(
+            playerBestPath,
+        )
+        opponentBestPath = opf.findPath(
+            self.opponentStart,
+            self.opponentEnd,
+        )
+        Do = opf.ScorePath(
+            opponentBestPath,
+        )
+
+        # Np = pf.NumBestPaths(
+        #   board.getNodeDict(),
+        #   self.startPos, self.endPos,
+        #   self.checkIfBarrier,
+        # )
+
+        # No = pf.NumBestPaths(
+        #   board.getNodeDict(),
+        #   self.opponentStart, self.opponentEnd,
+        #   self.checkIfOpponentBarrier,
+        # )
+
+        return (Dp, Do)
+
+    def _getPossibleMovesToState(self, state):
+        possibleMoves = []
+
+        allMoves = self.gameBoard.getPossibleMoves()
+        for move in allMoves:
+            nextBoard = self.gameBoard.getBoardFromMove(move, self.player)
+            nextState = self._getStateFromBoard(nextBoard)
+            if nextState == state:
+                possibleMoves.append(move)
+
+        return possibleMoves
+
+    def _getBestTransitionForDepth(self, depth):
+        # get the best transition from depth
+        # Note: returned transition will have a value in self.transitions
+        def sortFunc(item):  # sort by transition score
+            return item[1]
+
+        checkedTransitions = SortedDict(getSortValue=sortFunc, reverse=False)
+        initialState = self._getStateFromBoard(self.gameBoard)
+
+        # recursion func to call
+        def _bestTransitionRecursion(depth, board, player):
+            nonlocal checkedTransitions
+
+            # basecase
+            if depth == 0:
+                stateAtDepth = self._getStateFromBoard(board)
+                transition = (initialState, stateAtDepth)
+                # Score Transaction
+                if not checkedTransitions.hasKey(transition):
+                    if not self.transitionDict.hasKey(transition):
+                        self.transitionDict[transition] = self.initialTransitionValue
+                    checkedTransitions[transition] = self.transitionDict[transition]
+                return
+
+            # loop through possible moves from board
+            possibleMoves = board.getPossibleMoves()
+            for move in possibleMoves:
+                nextBoard = board.getBoardFromMove(move, player)
+
+                if player == 1:
+                    nextPlayer = 2
+                else:
+                    nextPlayer = 1
+
+                _bestTransitionRecursion(depth - 1, nextBoard, nextPlayer)
+            # end recursion func
+
+        _bestTransitionRecursion(depth, self.gameBoard, self.player)
+        bestTransitionTuple = (
+            checkedTransitions.popItem()
+        )  # pop off the best transition
+
+        return bestTransitionTuple[0]
+
+    def _updateTransition(self, transition):
+        # T(Sn, Sn1) <- T(Sn, Sn1)
+        #   + alpha(
+        #       R(Sn,Sn2)
+        #     + lamba(maxM(T(Sn+2,Sm))
+        #     - T(Sn, Sn1)
+        #   )
+
+        maxTransition = self._getBestTransitionForDepth(1)
+        maxMVal = self.transitionDict[maxTransition]
+        currentTransitionVal = self.transitionDict[transition]
+
+        return currentTransitionVal + self.ALPHA * (
+            self._rewardStateTransition(transition)
+            + self.LAMBDA * maxMVal
+            - currentTransitionVal
+        )

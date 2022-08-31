@@ -12,6 +12,7 @@ Smart Chain
 ----------------------------------'''
 # Assuming that the hexes are all in one chain due to the agent's game plan. 
 # - Can defs do dynamic programming and update one move at a time to save time
+# TODO ignore in refactor for now. Need to comeback and
 
 class SmartChain():
     """A chain that links hexes that have a connection on a board"""

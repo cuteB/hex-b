@@ -3,11 +3,11 @@ from os import environ
 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
-import random
+import random # TODO delete
 import sys
 from dataclasses import dataclass
 from pygame.locals import *
-from math import cos, sin, pi
+from math import cos, sin, pi # TODO delete?
 from typing import List
 
 from hexBoy.pathfinder.PathBoy import PathBoy
@@ -66,20 +66,22 @@ class HexGame:
         pygame.init()
 
         self.boardSize = 11
-        self.hexSize = 40
+        self.hexSize = 40 # TODO move to HexGraphics
         self.gameInProgress = True  # game loop check
         self.forceQuit = False
-        self.player = 1  # current player's turn, Blue starts
+        self.player = 1  # current player's turn, Blue starts #TODO rename playerTurn
 
         self.showDisplay = showDisplay  # somtimes hide the display
 
         self.winPath = None
+        # TODO move the game options in the same block
         self.showEndGame = showEndGame
         self.showPrint = showPrint
 
         if self.showDisplay:
             self.graphics = Graphics(self.boardSize, self.hexSize)
         self.board = Board(self.boardSize)
+
 
         self.bluePathFinder = PathBoy(
             self.board,
@@ -92,6 +94,7 @@ class HexGame:
             HexNode.checkIfRedBarrier,
         )
 
+        # TODO move all of the one line declarations to the start
         self.gameNumber = 1
         self.blueWins = 0
         self.redWins = 0
@@ -110,10 +113,9 @@ class HexGame:
             self.redName = self.redAgent.name
             self.redAgent.setGameBoardAndPlayer(self.board, 2)
 
-    """---
-  Game Loops
-  ---"""
-
+    '''---
+    Game Loops
+    ---'''
     def gameEventLoop(self):
         """Main event Game Loop (Game in progress)"""
         for event in pygame.event.get():
@@ -145,10 +147,9 @@ class HexGame:
             if event.type == QUIT:
                 self.terminateGame()
 
-    """---
-  Events and handlers
-  ---"""
-
+    '''---
+    Events and handlers
+    ---'''
     def _eventStartTurn(self):
         """Trigger Game Event Start Turn"""
         pygame.event.post(pygame.event.Event(BEFORE_TURN))
@@ -185,16 +186,9 @@ class HexGame:
             self._updateAgentBoards()
             self._eventAfterTurn()
 
-    def validatePlayer(self):
-        """Validate if the current player is a human"""
-        if self.player == 1:
-            return self.blueAgent == None
-        else:
-            return self.redAgent == None
-
-    """---
-  Game Mangement
-  ---"""
+    '''---
+    Game Mangement
+    ---'''
 
     def endTurn(self):
         """Check the board for a winner or switch turns"""
@@ -233,7 +227,7 @@ class HexGame:
         else:
             return self.redAgent == None
 
-    def _setup(self):
+    def _setup(self): # TODO rename, what is it setting up?
         """Setup board and graphics, trigger start turn event"""
         if self.showDisplay:
             self.graphics.setupWindow()
@@ -248,12 +242,12 @@ class HexGame:
         self._eventStartTurn()
 
     # Update display
-    def updateGame(self):
+    def updateGame(self): # TODO rename updateGameWindow
         """Update Graphics"""
         if self.showDisplay:
             self.graphics.updateWindow(self.board, self.winPath)
 
-    def _updateAgentBoards(self):
+    def _updateAgentBoards(self): # TODO figure out the _ prefix, so random
         """Update Agents Boards because it changed"""
         if self.blueAgent != None:
             self.blueAgent.updateBoard()
@@ -288,6 +282,7 @@ class HexGame:
 
     def _switchTurns(self):
         """Switch between blue and red turns"""
+        # TODO have the option to not switch turns
         if self.player == 1:
             self.player = 2
         else:
@@ -295,7 +290,7 @@ class HexGame:
             # return True # tf is this 
 
     # Return the position of the clicked cell in the board matrix
-    def onClickFindHexagonCoords(self):
+    def onClickFindHexagonCoords(self): # TODO delete, already in HexGraphics
         # Just going to half ass this on click for now. Want it to work before
         # getting the perfect hex click function. (Half ass algorithm works well)
         #
@@ -328,23 +323,6 @@ class HexGame:
         # adjust for left border and divide by the rectangle width to get x value
         xMouseAdjusted = xMouse - borderOffset
         xRow = xMouseAdjusted // rectWidth
-
-    def _printPostGameSummary(self):
-        """Print the Post game summary of win percents"""
-
-        print(self.gameNumber)
-        if not self.showPrint:
-            return
-
-        numGames = self.gameNumber
-        if numGames <= 0:
-            numGames = 1
-        blueWinPerc = self.blueWins / numGames
-        redWinPerc = self.redWins / numGames
-        # self._printPostGameSummary()
-        print()
-        print("Blue%s Win:  %0.2f" % (self.blueName, blueWinPerc))
-        print("Red%s Win:  %0.2f" % (self.redName, redWinPerc))
 
     def _printGameSummary(self):
         """Print the current game number and current win summary"""
