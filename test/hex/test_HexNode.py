@@ -1,70 +1,92 @@
 import pytest
 
-from hexBoy.hex.HexNode import HexNode
+from hexBoy.hex.HexNode import Hex, HexNode, HexType, DefaultHexType
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
-  """Reset the board and pathfinder before each test"""
-  tmpdir.node = HexNode((0,0))
-  tmpdir.end = (11,0)
+    """Reset the board and pathfinder before each test"""
+    tmpdir.X = HexNode((0, 0))
+    tmpdir.testHexType = HexType(player=1, xType=5, cost=9)
+    tmpdir.end = (11, 0)
 
-  # ^^^ before ^^^
-  yield # run the rest
-  # vvv After vvv
+    # ^^^ before ^^^
+    yield  # run the rest
+    # vvv After vvv
 
-def test_NodeValues(tmpdir):
-  """Check default values for node"""
-  assert tmpdir.node == (0,0)
-  assert tmpdir.node.type == HexNode.SpaceTypes.EMPTY
-  assert tmpdir.node.hest == 0
+def test_HexNodeInit(tmpdir):
+    """Does HexNode inherit Hex and tuple"""
+    hex = Hex((5, 5))
+    X = HexNode(hex)
+    assert X == (5, 5)
+    assert X[0] == 5
+    assert X[1] == 5
+    assert X.x == 5
+    assert X.y == 5
 
-def test_ScoreNode(tmpdir):
-  """Score node and check that it's cost and parent are set"""
-  dad = (1,0)
-  dadCost = 10
-  tmpdir.node.scoreHeuristic(dad, dadCost, tmpdir.end)
+    X = HexNode((5,5))
+    assert X == (5, 5)
+    assert X[0] == 5
+    assert X[1] == 5
+    assert X.x == 5
+    assert X.y == 5
 
-  assert tmpdir.node.path == dadCost
-  assert tmpdir.node.cost == 1
-  assert tmpdir.node.getPC() == (dadCost + 1)
-  assert tmpdir.node.parent == dad
 
-def test_EmptyNodeBarrier(tmpdir):
-  """Check that the empty node is a barrier for red and blue"""
-  assert HexNode.checkIfBlueBarrier(tmpdir.node)
-  assert HexNode.checkIfRedBarrier(tmpdir.node)
+def test_DefaultHexTypeNode(tmpdir):
+    """Does HexNode get the default HexType"""
+    X = HexNode(tmpdir.X)
+    xType = X.getHexType()
+    assert xType.player == DefaultHexType.player
+    assert xType.cost == DefaultHexType.cost
+    assert xType.xType == DefaultHexType.xType
 
-def test_EmptyNodeBarrierForAI(tmpdir):
-  """Check that the empty node is not a barrier for red and blue for Agents"""
-  assert not HexNode.checkIfBlueBarrierForAI(tmpdir.node)
-  assert not HexNode.checkIfRedBarrierForAI(tmpdir.node)
+def test_SetHexType(tmpdir):
+    """Set and Get Hex Type"""
+    testHexType = tmpdir.testHexType
+    tmpdir.X.setHexType(testHexType)
 
-def test_CheckIfEnd(tmpdir):
-  """Check if the node is an end node for empty and end node"""
-  endNode = HexNode(HexNode.SpaceTypes.RED_END, (5,5))
-  assert not tmpdir.node.checkIfEnd()
-  assert endNode.checkIfEnd()
+    xType = tmpdir.X.getHexType()
+    assert xType.player == testHexType.player
+    assert xType.xType == testHexType.xType
+    assert xType.cost == testHexType.cost
 
-def test_NodeColour(tmpdir):
-  """Check the nodes colour for blue or not blue"""
-  blue = HexNode(HexNode.SpaceTypes.BLUE, (0,0))
-  blueEnd = HexNode(HexNode.SpaceTypes.BLUE_END, (0,0))
-  blueEdge = HexNode(HexNode.SpaceTypes.BLUE_EDGE, (0,0))
-  red = HexNode(HexNode.SpaceTypes.RED, (0,0))
+def test_PathGetSet(tmpdir):
+    """Test the get and set functions for path"""
+    assert tmpdir.X.getPath() == 0
 
-  assert blue.checkIfBlue()
-  assert blueEnd.checkIfBlue()
-  assert blueEdge.checkIfBlue()
-  assert not red.checkIfBlue()
-  assert not tmpdir.node.checkIfBlue()
+    tmpdir.X.setPath(5)
+    assert tmpdir.X.getPath() == 5
 
-def test_ExtraPathsToNode(tmpdir):
-  """Check functions that set and add extra paths"""
-  assert tmpdir.node.extraPathsToThisNode == 0
+def test_CostGetSet(tmpdir):
+    """Test the get and set functions for cost"""
+    assert tmpdir.X.getCost() == DefaultHexType.cost
 
-  tmpdir.node.setExtraPathsToNode(5)
-  assert tmpdir.node.extraPathsToThisNode == 5
+    tmpdir.X.setHexType(tmpdir.testHexType)
+    assert tmpdir.X.getCost() == tmpdir.testHexType.cost
 
-  tmpdir.node.addExtraPathsToNode(3)
-  assert tmpdir.node.extraPathsToThisNode == 8
+def test_DistGetSet(tmpdir):
+    """Test the get and set functions for dist"""
+    assert tmpdir.X.getDist() == 0
 
+    tmpdir.X.setDist(5)
+    assert tmpdir.X.getDist() == 5
+
+def test_BestGetSet(tmpdir):
+    """Test the get and set functions for best"""
+    assert tmpdir.X.getBest() == 0
+
+    tmpdir.X.setBest(5)
+    assert tmpdir.X.getBest() == 5
+
+def test_HeurGetSet(tmpdir):
+    """Test the get and set functions for heur"""
+    assert tmpdir.X.getHeur() == 0
+
+    tmpdir.X.setHeur(5)
+    assert tmpdir.X.getHeur() == 5
+
+def test_DistGetSet(tmpdir):
+    """Test the get and set functions for path"""
+    assert tmpdir.X.getDist() == 0
+
+    tmpdir.X.setDist(5)
+    assert tmpdir.X.getDist() == 5
