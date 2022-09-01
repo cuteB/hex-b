@@ -5,7 +5,7 @@ from hexBoy.hex.HexNode import HexNode
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
   """Reset the board and pathfinder before each test"""
-  tmpdir.node = HexNode(HexNode.SpaceTypes.EMPTY, (0,0))
+  tmpdir.node = HexNode((0,0))
   tmpdir.end = (11,0)
 
   # ^^^ before ^^^
@@ -14,7 +14,7 @@ def before_and_after_test(tmpdir):
 
 def test_NodeValues(tmpdir):
   """Check default values for node"""
-  assert tmpdir.node.pos == (0,0)
+  assert tmpdir.node == (0,0)
   assert tmpdir.node.type == HexNode.SpaceTypes.EMPTY
   assert tmpdir.node.hest == 0
 
@@ -67,3 +67,4 @@ def test_ExtraPathsToNode(tmpdir):
 
   tmpdir.node.addExtraPathsToNode(3)
   assert tmpdir.node.extraPathsToThisNode == 8
+
