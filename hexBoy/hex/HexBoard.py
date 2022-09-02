@@ -1,7 +1,7 @@
 import copy
 from typing import List
 from dataclasses import dataclass
-from hexBoy.hex.HexNode import HexNode
+from hexBoy.hex.node.HexNode import HexNode
 
 """
 Changes
@@ -18,10 +18,11 @@ Needs to be faster for pathfinder
 IDEA: make a board for pathfinders to modify values for their nodes
 """
 
+
+
 '''----------------------------------
 Hex Board
 ----------------------------------'''
-
 @dataclass
 class Board: 
     # TODO change name to hexboard
@@ -51,7 +52,7 @@ class Board:
 
     def __init__(self, boardSize=11):
         self.boardSize = boardSize
-        self.hexTypes = HexNode.SpaceTypes
+        self.hexTypes = HexNode.SpaceTypes  # TODO move to HexGameHexTypes
         self.moveHistory = []
         self.redStartSpace = (-1, 5)
         self.redEndSpace = (self.boardSize, 5)

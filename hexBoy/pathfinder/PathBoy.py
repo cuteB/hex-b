@@ -1,7 +1,7 @@
 import copy # TODO delete because copy isn't used anymore
 from dataclasses import dataclass
 from typing import Callable
-from hexBoy.hex.HexNode import HexNode
+from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
 
 """

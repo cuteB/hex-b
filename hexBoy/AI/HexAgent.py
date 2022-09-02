@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from hexBoy.hex.HexBoard import Board
-from hexBoy.hex.HexNode import HexNode
+from hexBoy.hex.node.HexNode import HexNode
 
 """----------------------------------
 Hex Agent

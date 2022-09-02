@@ -1,12 +1,11 @@
 import pytest
 
-from hexBoy.hex.HexNode import Hex
+from hexBoy.hex.node.HexNode import Hex
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
   """Reset the board and pathfinder before each test"""
   tmpdir.X = Hex((5,5))
-
 
   # ^^^ before ^^^
   yield # run the rest
@@ -19,4 +18,3 @@ def test_HexValues(tmpdir):
   assert tmpdir.X[1] == 5
   assert tmpdir.X.x == 5
   assert tmpdir.X.y == 5
-

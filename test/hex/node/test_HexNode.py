@@ -1,6 +1,6 @@
 import pytest
 
-from hexBoy.hex.HexNode import Hex, HexNode, HexType, DefaultHexType
+from hexBoy.hex.node.HexNode import Hex, HexNode, HexType, DefaultHexType
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
@@ -29,7 +29,6 @@ def test_HexNodeInit(tmpdir):
     assert X[1] == 5
     assert X.x == 5
     assert X.y == 5
-
 
 def test_DefaultHexTypeNode(tmpdir):
     """Does HexNode get the default HexType"""
@@ -84,9 +83,9 @@ def test_HeurGetSet(tmpdir):
     tmpdir.X.setHeur(5)
     assert tmpdir.X.getHeur() == 5
 
-def test_DistGetSet(tmpdir):
-    """Test the get and set functions for path"""
-    assert tmpdir.X.getDist() == 0
+def test_HestGetSet(tmpdir):
+    """Test the get and set functions for dist"""
+    assert tmpdir.X.getHest() == 0
 
-    tmpdir.X.setDist(5)
-    assert tmpdir.X.getDist() == 5
+    tmpdir.X.setHest(5)
+    assert tmpdir.X.getHest() == 5

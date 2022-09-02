@@ -1,7 +1,7 @@
 import pytest
 from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.HexBoard import Board
-from hexBoy.hex.HexNode import HexNode
+from hexBoy.hex.node.HexNode import HexNode
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):

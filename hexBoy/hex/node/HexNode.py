@@ -1,6 +1,7 @@
+from __future__ import annotations # Needed because dad: HexNode  is inside the class
 from dataclasses import dataclass
 from typing import List
-from __future__ import annotations # Needed because dad: HexNode  is inside the class
+
 
 """----------------------------------
 Hex 
@@ -11,7 +12,7 @@ class Hex(tuple):
     y: int # Second value in tuple
 
     def __init__(self, X):
-        """The Hex, (int, int) \nCan this indent as well?"""
+        """The Hex, (int, int) """
         tuple.__init__(self)
         self.x = X[0]
         self.y = X[1]
@@ -23,12 +24,12 @@ Hex Type
 class HexType():
     """Info About the type of hex it is."""
     player: int    # The player that owns this space. 0 neutral, -1 blocked
-    hexType: int   # What type of hex this is. Could be different every game. 
+    xType: int   # What type of hex this is. Could be different every game. 
     cost: int      # How much this space costs
 
 DefaultHexType = HexType(
     player = 0,
-    hexType = 0, # TODO think of a better name than hextype.hextype
+    xType = 0,
     cost = 1
 )
     
@@ -48,6 +49,7 @@ class HexNode(Hex):
     _heur: int  # H: Heuristic to end
     _best: int  # current best PCD
     _hest: int  # Estimate PCH
+    # TODO check if I need best and hest. They might be just PCD and PCH
 
     # family
     _dads: List[HexNode]  # Parent(s) of the node. Could have been moms too i guess. 
@@ -58,7 +60,7 @@ class HexNode(Hex):
         self._type = xType
 
         self._path = 0
-        self._cost = self.xType.cost
+        self._cost = self._type.cost
         self._dist = 0
         self._best = 0
         self._heur = 0
@@ -69,14 +71,59 @@ class HexNode(Hex):
     '''---
     Public Functions
     ---'''
-    def setHexType(self, xType: HexType) -> None:
-        """Set HexType and overwrite cost"""
-        self.xType = xType
-        self.cost = xType.cost()
-
     def getHexType(self) -> HexType:
         """Get HexType (do I really need a comment for this)"""
-        return self.xType
+        return self._type
+
+    def setHexType(self, xType: HexType) -> None:
+        """Set HexType and overwrite cost of the node"""
+        self._type = xType
+        self._cost = xType.cost
+
+    def getPath(self) -> int:
+        """Get the cost of the path that gets to this node"""
+        return self._path
+
+    def setPath(self, path: int) -> None:
+        """Set the path cost"""
+        self._path = path
+
+    def getCost(self) -> int:
+        """Get the current cost of the cell"""
+        return self._cost
+
+    def getDist(self) -> int:
+        """Get the distance to the end from this node"""
+        return self._dist
+
+    def setDist(self, dist: int) -> None:
+        """Set the distance from the node"""
+        self._dist = dist
+
+    def getBest(self) -> int:
+        """Get Best Cost of the nodes entire path"""
+        #TODO this might be PCD 
+        return self._best
+
+    def setBest(self, best: int) -> None:
+        """"Set Best cost using the node"""
+        self._best = best
+
+    def getHeur(self) -> int:
+        """Get the heuristic from the node"""
+        return self._heur
+
+    def setHeur(self, heur: int) -> None:
+        """Set the heuristic from the node"""
+        self._heur = heur
+
+    def getHest(self) -> int:
+        """Get the Estimate total cost of the path using the node with the Heuristic"""
+        return self._hest
+
+    def setHest(self, hest: int) -> None:
+        """Set the estimate total cost using the node"""
+        self._hest = hest
 
     def getPC(self) -> int:
         "Get path cost to node + cost of node"
@@ -89,6 +136,6 @@ class HexNode(Hex):
         else: 
             return None
 
-    def getCost(self) -> int:
-        """Get the current cost of the cell"""
-        return self._cost
+    def setParent(self, parent: HexNode) -> None:
+        """Set a single parent to the node"""
+        self._dads = [parent]
