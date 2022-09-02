@@ -3,7 +3,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 import pytest
 
-from hexBoy.hex.HexGame import HexGame
+from hexBoy.hex.game.HexGame import HexGame
 from hexBoy.AI.GetAgent import GetAgent
 
 @pytest.fixture(autouse=True)

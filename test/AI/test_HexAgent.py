@@ -1,6 +1,6 @@
 import pytest
 from hexBoy.AI.GetAgent import GetAgent
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 
 # TODO write more tests for agents. Not sure what I should do with them
 

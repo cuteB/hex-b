@@ -1,4 +1,4 @@
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
 from hexBoy.AI.agentUtil.agentSmart.GetStrongMoves import GetStrongMoves

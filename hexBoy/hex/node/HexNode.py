@@ -2,7 +2,6 @@ from __future__ import annotations # Needed because dad: HexNode  is inside the 
 from dataclasses import dataclass
 from typing import List
 
-
 """----------------------------------
 Hex 
 ----------------------------------"""
@@ -32,7 +31,7 @@ DefaultHexType = HexType(
     xType = 0,
     cost = 1
 )
-    
+
 """----------------------------------
 Hex Node
 ----------------------------------"""

@@ -13,7 +13,7 @@ from typing import List
 from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.hex.HexGraphics import Graphics
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.AI.HexAgent import HexAgent
 
 # Custom Events

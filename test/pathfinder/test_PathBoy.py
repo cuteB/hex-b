@@ -1,6 +1,6 @@
 import pytest
 from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.node.HexNode import HexNode
 
 @pytest.fixture(autouse=True)

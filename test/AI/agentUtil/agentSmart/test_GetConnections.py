@@ -1,6 +1,6 @@
 import pytest
 
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
 
 @pytest.fixture(autouse=True)

@@ -1,6 +1,6 @@
 import pytest
 
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):

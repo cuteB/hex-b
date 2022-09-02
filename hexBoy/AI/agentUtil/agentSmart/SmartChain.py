@@ -2,7 +2,7 @@ from re import L
 from typing import List
 from hexBoy.models.SortedDict import SortedDict
 from hexBoy.hex.node.HexNode import HexNode
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
 from hexBoy.AI.agentUtil.agentSmart.GetStrongMoves import GetStrongMoves
 from hexBoy.pathfinder.PathBoy import PathBoy

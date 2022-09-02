@@ -1,46 +1,56 @@
 import pytest
 
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import HexBoard
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
-    """Reset the board and pathfinder before each test"""
-    tmpdir.size = 11
-    tmpdir.board = Board(tmpdir.size)
+    """Reset the board before each test"""
+    tmpdir.board = HexBoard()
 
     # ^^^ before ^^^
     yield # run the rest
     # vvv After vvv
 
 def test_BoardBounds(tmpdir):
-    """Test Bounds Of the Board"""
+    """Test Bounds of the Board"""
     assert tmpdir.board.isSpaceWithinBounds((0,0))
     assert tmpdir.board.isSpaceWithinBounds((-1,0))
     assert tmpdir.board.isSpaceWithinBounds((0,11))
     assert tmpdir.board.isSpaceWithinBounds((5,5))
     assert not tmpdir.board.isSpaceWithinBounds((-1,-1))
-    assert not tmpdir.board.isSpaceWithinBounds((tmpdir.size,tmpdir.size))
+    assert not tmpdir.board.isSpaceWithinBounds((11,11))
 
 def test_ValidateAndMakeMove(tmpdir):
-    """Validate a moves and make maves"""
+    """Validate and make moves, check that previous move is invalid"""
     move = (0,0)
     assert tmpdir.board.validateMove(move)
-    tmpdir.board.makeMove(move, 1)
+    tmpdir.board.makeMove(1, move)
     assert not tmpdir.board.validateMove(move)
 
     badMove = (-1, -1)
     assert not tmpdir.board.validateMove(badMove)
 
-def test_AdjacentSpaces(tmpdir):
+def test_AdjacentSpacesBasic(tmpdir):
     """Check Adjacent Spaces the board, make sure they are on the board"""
     space = (1,1)
     actual = tmpdir.board.getAdjacentSpaces(space)
     expected = [(1,0), (1,2), (0,1), (2,1), (0,2), (2,0)]
     assert actual == expected
 
+def test_AdjacentSpacesEdge(tmpdir):
+    """Check Adjacent Spaces of edge"""
     space = (-1,0)
     actual = tmpdir.board.getAdjacentSpaces(space)
     expected = [(-1,1), (0,0), (0,-1)]
+    assert actual == expected
+
+def test_AdjacentSpacesOfPlayerMove(tmpdir):
+    """Check Adjacent Spaces the board with player moves"""
+
+    space = (1,1)
+    tmpdir.board.makeMove(1,space)
+    actual = tmpdir.board.getAdjacentSpaces(space)
+    expected = [(1,0), (1,2), (0,1), (2,1), (0,2), (2,0)]
     assert actual == expected
 
 def test_ResetBoard(tmpdir):

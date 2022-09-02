@@ -2,7 +2,7 @@ import random
 from dataclasses import dataclass
 
 from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.agentUtil.BoardEval import BoardStates

@@ -1,6 +1,6 @@
 import pytest
 
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.AI.agentUtil.agentSmart.SmartChain import SmartChain
 
 @pytest.fixture(autouse=True)

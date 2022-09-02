@@ -1,5 +1,5 @@
 import random
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.agentUtil.BoardEval import BoardStates

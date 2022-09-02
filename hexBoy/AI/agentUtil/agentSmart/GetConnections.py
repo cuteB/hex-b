@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from hexBoy.models.SortedDict import SortedDict
-from hexBoy.hex.HexBoard import Board
+from hexBoy.hex.board.HexBoard import Board
 
 def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
     """Get the tuple of (weak, strong) connections for a player"""

@@ -1,5 +1,5 @@
 import sys
-from hexBoy.hex.HexGame import Hex_Play
+from hexBoy.hex.game.HexGame import Hex_Play
 from hexBoy.AI.GetAgent import GetAgent
 
 """
