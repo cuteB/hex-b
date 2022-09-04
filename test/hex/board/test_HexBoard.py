@@ -20,16 +20,6 @@ def test_BoardBounds(tmpdir):
     assert not tmpdir.board.isSpaceWithinBounds((-1,-1))
     assert not tmpdir.board.isSpaceWithinBounds((11,11))
 
-def test_ValidateAndMakeMove(tmpdir):
-    """Validate and make moves, check that previous move is invalid"""
-    move = (0,0)
-    assert tmpdir.board.validateMove(move)
-    tmpdir.board.makeMove(1, move)
-    assert not tmpdir.board.validateMove(move)
-
-    badMove = (-1, -1)
-    assert not tmpdir.board.validateMove(badMove)
-
 def test_AdjacentSpacesBasic(tmpdir):
     """Check Adjacent Spaces the board, make sure they are on the board"""
     space = (1,1)
@@ -46,27 +36,43 @@ def test_AdjacentSpacesEdge(tmpdir):
 
 def test_AdjacentSpacesOfPlayerMove(tmpdir):
     """Check Adjacent Spaces the board with player moves"""
-
     space = (1,1)
     tmpdir.board.makeMove(1,space)
     actual = tmpdir.board.getAdjacentSpaces(space)
     expected = [(1,0), (1,2), (0,1), (2,1), (0,2), (2,0)]
     assert actual == expected
 
+def test_AdjacentSpacesWithAllTakenMoves(tmpdir):
+    """Check Adjacent Spaces when all spaces are taken"""
+    space = (1,1)
+    tmpdir.board.makeMove(1,space)
+    tmpdir.board.makeMove(1,(1,0))
+    tmpdir.board.makeMove(2,(1,2))
+    tmpdir.board.makeMove(1,(0,1))
+    tmpdir.board.makeMove(2,(2,1))
+    tmpdir.board.makeMove(1,(0,2))
+    tmpdir.board.makeMove(2,(2,0))
+    actual = tmpdir.board.getAdjacentSpaces(space)
+    expected = [(1,0), (1,2), (0,1), (2,1), (0,2), (2,0)]
+    assert actual == expected
+
+def test_ValidateAndMakeMove(tmpdir):
+    """Validate and make moves, check that previous move is invalid"""
+    move = (0,0)
+    assert tmpdir.board.validateMove(move)
+    tmpdir.board.makeMove(1, move)
+    assert not tmpdir.board.validateMove(move)
+
+    badMove = (-1, -1)
+    assert not tmpdir.board.validateMove(badMove)
+
 def test_ResetBoard(tmpdir):
     """Reset the board to all empty"""
     move = (0,0)
-    tmpdir.board.makeMove(move, 1)
-    tmpdir.board.resetGame()
+    tmpdir.board.makeMove(1, move)
+    assert not tmpdir.board.validateMove(move)
+    tmpdir.board.resetGameBoard()
     assert tmpdir.board.validateMove(move)
-
-def test_DistanceToCenter(tmpdir):
-    """Check the distance to the center of the board"""
-    move = (5,5)
-    assert tmpdir.board.getDistanceToCenter(move) == 0
-
-    move = (0,10)
-    assert tmpdir.board.getDistanceToCenter(move) == 10
 
 def test_validateEdges(tmpdir):
     """testing edges, Imma rage if this doesn't work. Jk I'm an idiot"""

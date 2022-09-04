@@ -89,3 +89,11 @@ def test_HestGetSet(tmpdir):
 
     tmpdir.X.setHest(5)
     assert tmpdir.X.getHest() == 5
+
+def test_InitHexTypeNode(tmpdir):
+    """Init HexNode with HexType in one line"""
+    X = HexNode(tmpdir.X).initHexType(tmpdir.testHexType)
+    xType = X.getHexType()
+    assert xType.player == tmpdir.testHexType.player
+    assert xType.cost == tmpdir.testHexType.cost
+    assert xType.xType == tmpdir.testHexType.xType

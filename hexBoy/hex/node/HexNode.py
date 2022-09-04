@@ -53,10 +53,10 @@ class HexNode(Hex):
     # family
     _dads: List[HexNode]  # Parent(s) of the node. Could have been moms too i guess. 
 
-    def __init__(self, X, xType: HexType = DefaultHexType):
+    def __init__(self, X):
         Hex.__init__(self, X)
         
-        self._type = xType
+        self._type = DefaultHexType
 
         self._path = 0
         self._cost = self._type.cost
@@ -78,6 +78,11 @@ class HexNode(Hex):
         """Set HexType and overwrite cost of the node"""
         self._type = xType
         self._cost = xType.cost
+
+    def initHexType(self, xType: HexType) -> HexNode:
+        """Set HexType and return the hex for a one liner init"""
+        self.setHexType(xType)
+        return self
 
     def getPath(self) -> int:
         """Get the cost of the path that gets to this node"""

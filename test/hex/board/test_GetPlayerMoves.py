@@ -1,12 +1,13 @@
 import pytest
 
-from hexBoy.hex.board.HexBoard import Board
+from hexBoy.hex.board.HexBoard import HexBoard
+
+# TODO go through
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
-    tmpdir.size = 11
-    tmpdir.board = Board(tmpdir.size)
+    tmpdir.board = HexBoard()
 
     # ^^^ before ^^^
     yield # run the rest
@@ -22,7 +23,7 @@ def test_OneMove(tmpdir):
     expectedMoves = [(0,0)]
 
     for m in expectedMoves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     actualMoves = tmpdir.board.getPlayerMoves(1)
     assert actualMoves == expectedMoves
@@ -33,10 +34,10 @@ def test_OpponentMove(tmpdir):
     oppMoves = [(0,0)]
 
     for m in expectedMoves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     for m in oppMoves:
-        tmpdir.board.makeMove(m, 2)
+        tmpdir.board.makeMove(2, m)
 
     actualMoves = tmpdir.board.getPlayerMoves(1)
     assert actualMoves == expectedMoves
@@ -47,10 +48,10 @@ def test_OneOfEachPlayerMove(tmpdir):
     oppMoves = [(0,0)]
 
     for m in expectedMoves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     for m in oppMoves:
-        tmpdir.board.makeMove(m, 2)
+        tmpdir.board.makeMove(2, m)
 
     actualMoves = tmpdir.board.getPlayerMoves(1)
     assert actualMoves == expectedMoves
@@ -61,10 +62,10 @@ def test_WholeBunchOfMoves(tmpdir):
     oppMoves = [(0,0), (1,2), (9,9)]
 
     for m in expectedMoves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     for m in oppMoves:
-        tmpdir.board.makeMove(m, 2)
+        tmpdir.board.makeMove(2, m)
 
     actualMoves = tmpdir.board.getPlayerMoves(1)
     assert actualMoves == expectedMoves

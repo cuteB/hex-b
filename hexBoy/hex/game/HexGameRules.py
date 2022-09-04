@@ -5,11 +5,11 @@ from hexBoy.hex.node.HexNode import HexNode, Hex, HexType, DefaultHexType
 class HexPlayerInfo:
     """Player info for the game. Includes player id, start/end positions and HexTypes"""
 
-    player: int
-    start: Hex
-    end: Hex
-    hex: HexType
-    edge: HexType
+    player: int = None
+    start: Hex = None
+    end: Hex = None
+    hex: HexType = None
+    edge: HexType = None
 
 class HexGameRules:
     """Rules of the game. Contains player info and Barrier Check"""
@@ -21,16 +21,16 @@ class HexGameRules:
 
     blue: HexPlayerInfo = HexPlayerInfo(
         player = 1,
-        start = Hex(5,-1),
-        end = Hex(5,11),
+        start = Hex((5,-1)),
+        end = Hex((5,11)),
         hex = HexType(player=1, xType=1, cost=0),
         edge = HexType(player=1, xType=2, cost=0)
     )
 
     red: HexPlayerInfo = HexPlayerInfo(
         player = 2,
-        start = Hex(-1,5),
-        end = Hex(11,5),
+        start = Hex((-1,5)),
+        end = Hex((11,5)),
         hex = HexType(player=2, xType=1, cost=0),
         edge = HexType(player=2, xType=2, cost=0)
     )

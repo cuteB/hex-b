@@ -1,15 +1,17 @@
-from typing import List
+from typing import List, Tuple
 from dataclasses import dataclass
+from abc import ABC, abstractmethod
+
 from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.hex.game.HexGameRules import HexGameRules
-from abc import ABC, abstractmethod
 
 '''----------------------------------
 Board
 ----------------------------------'''
 @dataclass
 class Board(ABC):
-    _boardNodeDict: dict # dict<
+    """Abstract Board"""
+    _boardNodeDict: dict
 
     @abstractmethod
     def getNodeDict(self) -> dict:
@@ -44,7 +46,8 @@ class HexagonBoard(Board):
 
     def isSpaceWithinBounds(self, cell) -> bool:
         """"Check if the pos is within the playable space"""
-        return (cell in dict)
+        print(cell)
+        return (cell in self._boardNodeDict)
     
     def getAdjacentSpaces(self, cell: tuple) -> List[tuple]:
         """Get the Hexes touching the given cell"""
@@ -78,8 +81,8 @@ class HexBoard(HexagonBoard):
     boardSize: int  # size of the board
 
     _boardNodeDict: dict # dict<Hex -> HexNode>
-    _initializedBoardDict: dict # Copy of initial boardNodeDict
-    _moveHistory: List[tuple(Hex, int)] 
+    # _initializedBoardDict: dict # Copy of initial boardNodeDict
+    _moveHistory: List[Tuple[Hex, int]]
     _blueEndZone: List[Hex]
     _redEndZone: List[Hex]
 
@@ -87,33 +90,36 @@ class HexBoard(HexagonBoard):
         self.boardSize = 11 # Always 11. 
 
         self._boardNodeDict = self._initGameBoard()
-        self._moveHistory = [] 
+        self._moveHistory = []
+
 
     def _initGameBoard(self) -> dict:
-        """Initialize the starting game board and save for when the game resets, save a list of the  edges for each player"""
+        """Initialize the starting game board and save for when the game resets"""
+        # Run every time. Saving this has pointer issues. Could probs deep copy
         dict = {}
+        self._blueEndZone = []
+        self._redEndZone = []
 
         # initialize playing spaces
         for x in range(self.boardSize):
             for y in range(self.boardSize):
-                dict[Hex((x, y))] = HexNode((x, y), HexGameRules.empty.hex)
+                dict[Hex((x, y))] = HexNode((x, y)).initHexType(HexGameRules.empty.hex)
 
         # Initialize edges in dict
         # blue edge
         for x in range(self.boardSize):
-            self.blueEndZone.append(Hex((x, -1)))
-            self.blueEndZone.append(Hex((x, 11)))
-            dict[Hex((x, -1))] = HexNode((x, -1), HexGameRules.blue.edge)
-            dict[Hex((x, 11))] = HexNode((x, 11), HexGameRules.blue.edge)
+            self._blueEndZone.append(Hex((x, -1)))
+            self._blueEndZone.append(Hex((x, 11)))
+            dict[Hex((x, -1))] = HexNode((x, -1)).initHexType(HexGameRules.blue.edge)
+            dict[Hex((x, 11))] = HexNode((x, 11)).initHexType(HexGameRules.blue.edge)
 
         # red edge
         for y in range(self.boardSize):
-            self.redEndZone.append(Hex((-1, y)))
-            self.redEndZone.append(Hex((11, y)))
-            dict[Hex((-1, y))] = HexNode((-1, y), HexGameRules.red.edge)
-            dict[Hex((11, y))] = HexNode((11, y), HexGameRules.red.edge)
+            self._redEndZone.append(Hex((-1, y)))
+            self._redEndZone.append(Hex((11, y)))
+            dict[Hex((-1, y))] = HexNode((-1, y)).initHexType(HexGameRules.red.edge)
+            dict[Hex((11, y))] = HexNode((11, y)).initHexType(HexGameRules.red.edge)
 
-        self._initializedBoardDict = dict
         return dict
 
     '''---
@@ -129,22 +135,26 @@ class HexBoard(HexagonBoard):
 
     def makeMove(self, player: int, X: Hex) -> None:
         """Make a move on the board and save it in history"""
-        self._moveHistory.append((X, player))
-        self.boardDict[X].setHexType(HexGameRules.getPlayerHex(player))
+        self._moveHistory.append((player, X))
+        self._boardNodeDict[X].setHexType(HexGameRules.getPlayerHex(player))
 
-    def resetGameBoard(self) -> None: # TODO move to HexBoard, rename resetGameBoard
+    def resetGameBoard(self) -> None:
         """Reset the board and move history"""
-        self.boardDict = self._initializedBoardDict
+        self._boardNodeDict = self._initGameBoard()
         self._moveHistory = []
 
-    def getPlayerMoves(self, player: int) -> List[(Hex, int)]:
+    def getPlayerMoves(self, player: int) -> List[Hex]:
         """Look at the move history and return a player's moves"""
         playerMoves = []
         for i in range(len(self._moveHistory)):
-            if self._moveHistory[i][1] == player:
-                playerMoves.append(self._moveHistory[i][0])
+            if self._moveHistory[i][0] == player:
+                playerMoves.append(self._moveHistory[i][1])
 
         return playerMoves
+
+    def getMoveHistory(self) -> List[Tuple[Hex,int]]:
+        """Get the move history of the current game"""
+        return self._moveHistory
 
     def getPlayerEndZone(self, player: int) -> List[Hex]:
         """Get the end zone hexes of the player"""
