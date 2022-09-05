@@ -10,19 +10,18 @@ Improvements
 """
 
 # COLOURS  R    G    B
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-DARK_RED = (150, 0, 0)
-DARK_BLUE = (0, 0, 150)
+WHITE =     (255, 255, 255)
+BLACK =     (  0,   0,   0)
+RED =       (255,   0,   0)
+BLUE =      (  0,   0, 255)
+DARK_RED =  (150,   0,   0)
+DARK_BLUE = (  0,   0, 150)
 # ty https://github.com/ThomasRush/py_a_star for the Hexagon rendering ideas
 '''----------------------------------
 Hex Graphics
 ----------------------------------'''
-
-class Graphics:
-    def __init__(self, boardSize, hexSize=40):
+class HexGraphics:
+    def __init__(self, boardSize=11, hexSize=40):
         self.hexSize = hexSize  # Hexagon size in pixels
         self.boardSize = boardSize  # Board size in Hexagons
         self.caption = "Hex Game"
@@ -134,10 +133,7 @@ class Graphics:
 
     def findHexagonCoordsForMousePos(self, mousePos):  
         """Return the Hex coords for a mouse click"""
-        # Just going to half ass this on click for now. Want it to work before
-        # getting the perfect hex click function. (Half ass algorithm works well)
-        #
-        # Right now I'll basically create a grid to get a rough estimate
+        # Right now I'll basically create a rectangle grid to get a rough estimate
         # of what cell was clicked. Will work fine when the user clicks in the middle
         #
         # Using Rectangles to estimate the hexagon

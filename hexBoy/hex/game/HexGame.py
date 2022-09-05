@@ -1,19 +1,17 @@
 # I don't like the pygame startup message.
 from os import environ
-
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
-import random # TODO delete
 import sys
 from dataclasses import dataclass
 from pygame.locals import *
-from math import cos, sin, pi # TODO delete?
 from typing import List
 
 from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.hex.node.HexNode import HexNode
-from hexBoy.hex.HexGraphics import Graphics
-from hexBoy.hex.board.HexBoard import Board
+from hexBoy.hex.node.HexNode import HexNode, Hex
+from hexBoy.hex.graphics.HexGraphics import HexGraphics
+from hexBoy.hex.game.HexGameRules import HexGameRules
+from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.AI.HexAgent import HexAgent
 
 # Custom Events
@@ -21,131 +19,127 @@ BEFORE_TURN = pygame.USEREVENT + 1
 PLAYER_TURN = pygame.USEREVENT + 2
 AFTER_TURN = pygame.USEREVENT + 3
 
-"""----------------------------------
-Main hex game class
-----------------------------------"""
-
-
+# Game options
 @dataclass
-class HexGame:
-    boardSize: int
-    hexSize: int
-
-    gameInProgress: bool  # Bool, While true loop through the game
-    forceQuit: bool  # bool, force quit the game
-    showEndGame: bool
+class HexGameOptions:
     showDisplay: bool
     showPrint: bool
+    showEndGame: bool # TODO this is sloppy. Sorta works with just one game
+    alternateStartingPlayer: bool = True
 
-    player: int  # Int, Current player. Blue=1, Red=2
-    winPath: List[tuple]  # (x,y)[], list of coordinates for the winning path
+'''----------------------------------
+Main hex game class
+----------------------------------'''
+@dataclass
+class HexGame:
+    """The Hex Game. """
+    _gameBoard: HexBoard  # Board, Hex Board Object #
+    _options: HexGameOptions
 
-    graphics: Graphics  # Graphics, render the game board
-    board: Board  # Board, Hex Board Object
-    bluePathFinder: PathBoy  # Pathfinder, Algorithms to find paths
-    redPathfinder: PathBoy
+    _currentPlayer: int  
+    _gameInProgress: bool  
+    _forceQuit: bool
 
-    gameNumber: int
-    blueAgent: HexAgent  # AIs for player, None = human
-    redAgent: HexAgent
-    blueWins: int
-    redWins: int
-    blueName: str
-    redName: str
+    _winPath: List[Hex]  # the winning path
 
-    nextMove: tuple
+    _graphics: HexGraphics  # Render the game board
+    _bluePathFinder: PathBoy  # Pathfinder, Algorithms to find paths
+    _redPathfinder: PathBoy
+
+    _blueAgent: HexAgent  # AIs for player, None = human
+    _redAgent: HexAgent
+    _gameNumber: int
+    _blueWins: int
+    _redWins: int
+
+    _blueName: str 
+    _redName: str
+
+    _nextMove: tuple
 
     def __init__(
         self,
-        computer1=None,
-        computer2=None,
-        showDisplay=False,
-        showEndGame=False,
-        showPrint=False,
+        agent1: HexAgent = None,
+        agent2: HexAgent =None,
+        gameOptions: HexGameOptions = HexGameOptions()
     ):
-        pygame.init()
+        pygame.init() # Needs to be first
 
-        self.boardSize = 11
-        self.hexSize = 40 # TODO move to HexGraphics
-        self.gameInProgress = True  # game loop check
-        self.forceQuit = False
-        self.player = 1  # current player's turn, Blue starts #TODO rename playerTurn
+        self._gameBoard = HexBoard()
+        self._options = gameOptions
+        self._currentPlayer = 1 
 
-        self.showDisplay = showDisplay  # somtimes hide the display
+        self._gameInProgress = True  # game loop check
+        self._forceQuit = False
+        self._nextMove
 
-        self.winPath = None
-        # TODO move the game options in the same block
-        self.showEndGame = showEndGame
-        self.showPrint = showPrint
+        self._currentGameNumber = 1
+        self._winPath = None
+        self._blueWins = 0
+        self._redWins = 0
 
-        if self.showDisplay:
-            self.graphics = Graphics(self.boardSize, self.hexSize)
-        self.board = Board(self.boardSize)
+        if self._options.showDisplay:
+            self._graphics = HexGraphics()
 
-
-        self.bluePathFinder = PathBoy(
-            self.board,
-            self.board.getAdjacentSpaces,
-            HexNode.checkIfBlueBarrier,
+        self._bluePathFinder = PathBoy(
+            self._gameBoard,
+            self._gameBoard.getAdjacentSpaces,
+            HexGameRules.checkIfBarrier(1,useEmpty=False),
         )
-        self.redPathFinder = PathBoy(
-            self.board,
-            self.board.getAdjacentSpaces,
-            HexNode.checkIfRedBarrier,
+        self._redPathFinder = PathBoy(
+            self._gameBoard,
+            self._gameBoard.getAdjacentSpaces,
+            HexGameRules.checkIfBarrier(2,useEmpty=False),
         )
 
-        # TODO move all of the one line declarations to the start
-        self.gameNumber = 1
-        self.blueWins = 0
-        self.redWins = 0
-        self.blueAgent = None
-        self.redAgent = None
-        self.blueName = ""
-        self.redName = ""
+        self._blueAgent = None
+        self._redAgent = None
+        self._blueName = ""
+        self._redName = ""
         # Set AIs if provided
-        if computer1 != None:
-            self.blueAgent = computer1
-            self.blueName = self.blueAgent.name
-            self.blueAgent.setGameBoardAndPlayer(self.board, 1)
+        if agent1 != None:
+            self._blueAgent = agent1
+            self._blueName = self._blueAgent.name
+            self._blueAgent.setGameBoardAndPlayer(self._gameBoard, 1)
 
-        if computer2 != None:
-            self.redAgent = computer2
-            self.redName = self.redAgent.name
-            self.redAgent.setGameBoardAndPlayer(self.board, 2)
+        if agent2 != None:
+            self._redAgent = agent2
+            self._redName = self._redAgent.name
+            self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
 
     '''---
     Game Loops
     ---'''
-    def gameEventLoop(self):
+    def _gameEventLoop(self):
         """Main event Game Loop (Game in progress)"""
         for event in pygame.event.get():
             # Quit button
             if event.type == QUIT:
-                self.terminateGame()
+                self._terminateGame()
 
             # Mouse click
             elif event.type == MOUSEBUTTONDOWN:
-                self.handleMouseClick(pygame.mouse.get_pos())
+                self._handleMouseClick(pygame.mouse.get_pos())
 
             # Start Turn
             elif event.type == BEFORE_TURN:
-                self.handleAgentTurn()
+                self._handleAgentTurn()
 
             # Handle Next move
             elif event.type == PLAYER_TURN:
-                self.handleNextMove(self.nextMove, self.player)
+                self._handleNextMove(self._currentPlayer, self._nextMove)
 
             # End Turn
             elif event.type == AFTER_TURN:
-                self.endTurn()
+                self._endTurn()
 
-    def endGameEventLoop(self):
+    def _endGameEventLoop(self):
         """Event loop after a game has been completed"""
         # loop through events.
         for event in pygame.event.get():
             # quit
             if event.type == QUIT:
-                self.terminateGame()
+                self._terminateGame()
 
     '''---
     Events and handlers
@@ -162,223 +156,185 @@ class HexGame:
         """Trigger Game Event End Turn"""
         pygame.event.post(pygame.event.Event(AFTER_TURN))
 
-    def handleMouseClick(self, mousePos):
+    def _handleMouseClick(self, mousePos: Hex):
         """Handle a click on the Game Board"""
-        if self.showDisplay:
-            move = self.graphics.findHexagonCoordsForMousePos(mousePos)
-            if self.validatePlayer() and self.board.validateMove(move):
-                self.nextMove = move
+        if self._options.showDisplay:
+            move = self._graphics.findHexagonCoordsForMousePos(mousePos)
+            if self._validatePlayer() and self._gameBoard.validateMove(move):
+                self._nextMove = move
                 self._eventDoPlayerMove()
 
-    def handleAgentTurn(self):
+    def _handleAgentTurn(self):
         """Handle getting a move from an agent if needed"""
-        if self.player == 1 and self.blueAgent != None:
-            self.nextMove = self.blueAgent.getAgentMove()
+        if self._currentPlayer == 1 and self._blueAgent != None:
+            self._nextMove = self._blueAgent.getAgentMove()
             self._eventDoPlayerMove()
-        if self.player == 2 and self.redAgent != None:
-            self.nextMove = self.redAgent.getAgentMove()
+        if self._currentPlayer == 2 and self._redAgent != None:
+            self._nextMove = self._redAgent.getAgentMove()
             self._eventDoPlayerMove()
 
-    def handleNextMove(self, move, player):
+    def _handleNextMove(self, player: int, move: Hex):
         """Handle the next move"""
-        if self.board.validateMove(move):
-            self.board.makeMove(move, player)
+        if self._gameBoard.validateMove(move):
+            self._gameBoard.makeMove(move, player)
             self._updateAgentBoards()
             self._eventAfterTurn()
 
     '''---
-    Game Mangement
+    Game Management
     ---'''
-
-    def endTurn(self):
+    def _endTurn(self):
         """Check the board for a winner or switch turns"""
-        if self.player == 1:
+        if self._currentPlayer == 1:
             # blue just went, Look for a completed blue path
-            winPath = self.bluePathFinder.findPath(
-                self.board.blueStartSpace,
-                self.board.blueEndSpace,
+            winPath = self._bluePathFinder.findPath(
+                HexGameRules.blue.start,
+                HexGameRules.blue.end,
             )
 
         else:
             # red just went, Look for a completed red path
-            winPath = self.redPathFinder.findPath(
-                self.board.redStartSpace,
-                self.board.redEndSpace,
+            winPath = self._redPathFinder.findPath(
+                HexGameRules.red.start,
+                HexGameRules.red.end,
             )
 
         # Is the game over?
         if len(winPath) != 0:
-            self.winPath = winPath
-            self.gameInProgress = False
+            self._winPath = winPath
+            self._gameInProgress = False
 
-            if self.blueAgent != None:
-                self.blueAgent.scoreGame()
-            if self.redAgent != None:
-                self.redAgent.scoreGame()
+            if self._blueAgent != None:
+                self._blueAgent.scoreGame()
+            if self._redAgent != None:
+                self._redAgent.scoreGame()
 
         else:  # switch turns
             self._switchTurns()
             self._eventStartTurn()
 
-    def validatePlayer(self):
+    def _validatePlayer(self):
         """Validate if the current player is a human"""
-        if self.player == 1:
-            return self.blueAgent == None
+        if self._currentPlayer == 1:
+            return self._blueAgent == None
         else:
-            return self.redAgent == None
+            return self._redAgent == None
 
-    def _setup(self): # TODO rename, what is it setting up?
+    def _preGameSetup(self): 
         """Setup board and graphics, trigger start turn event"""
-        if self.showDisplay:
-            self.graphics.setupWindow()
+        if self._options.showDisplay:
+            self._graphics.setupWindow()
 
-        self.board.resetGame()
-        if self.blueAgent != None:
-            self.blueAgent.startGame()
-        if self.redAgent != None:
-            self.redAgent.startGame()
+        self._gameBoard.resetGameBoard()
+        if self._blueAgent != None:
+            self._blueAgent.startGame()
+        if self._redAgent != None:
+            self._redAgent.startGame()
 
-        self.winPath = None
+        self._winPath = None
         self._eventStartTurn()
 
-    # Update display
-    def updateGame(self): # TODO rename updateGameWindow
+    def _updateGameWindow(self):
         """Update Graphics"""
-        if self.showDisplay:
-            self.graphics.updateWindow(self.board, self.winPath)
+        if self._options.showDisplay:
+            self._graphics.updateWindow(self._gameBoard, self._winPath)
 
-    def _updateAgentBoards(self): # TODO figure out the _ prefix, so random
+    def _updateAgentBoards(self):
         """Update Agents Boards because it changed"""
-        if self.blueAgent != None:
-            self.blueAgent.updateBoard()
-        if self.redAgent != None:
-            self.redAgent.updateBoard()
+        if self._blueAgent != None:
+            self._blueAgent.updateBoard()
+        if self._redAgent != None:
+            self._redAgent.updateBoard()
 
-    def terminateGame(self):
+    def _terminateGame(self):
         """Force Quit game"""
-        self.gameInProgress = False
-        self.forceQuit = True
+        self._gameInProgress = False
+        self._forceQuit = True
 
-    def playGame(self):
+    def _playGame(self):
         """Play a game"""
         # Pre Game
-        self._setup()
+        self._preGameSetup()
+
         # Game
-        while self.gameInProgress:
-            self.updateGame()
-            self.gameEventLoop()
+        while self._gameInProgress:
+            self._updateGameWindow()
+            self._gameEventLoop()
 
         # Post Game
-        self.updateGame()
-        if self.player == 1:
-            self.blueWins += 1
+        self._updateGameWindow()
+        if self._currentPlayer == 1:
+            self._blueWins += 1
         else:
-            self.redWins += 1
+            self._redWins += 1
 
-        self.gameInProgress = True
-        while self.gameInProgress and self.showDisplay and self.showEndGame:
-            self.endGameEventLoop()
-            self.updateGame()
+        self._gameInProgress = True
+        while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:
+            self._endGameEventLoop()
+            self._updateGameWindow()
 
     def _switchTurns(self):
         """Switch between blue and red turns"""
-        # TODO have the option to not switch turns
-        if self.player == 1:
-            self.player = 2
+        if self._currentPlayer == 1:
+            self._currentPlayer = 2
         else:
-            self.player = 1
-            # return True # tf is this 
-
-    # Return the position of the clicked cell in the board matrix
-    def onClickFindHexagonCoords(self): # TODO delete, already in HexGraphics
-        # Just going to half ass this on click for now. Want it to work before
-        # getting the perfect hex click function. (Half ass algorithm works well)
-        #
-        # Right now I'll basically create a grid to get a rough estimate
-        # of what cell was clicked. Will work fine when the user clicks in the middle
-        #
-        # Using Rectangles to estimate the hexagon
-        # - Height = Hexagon Size
-        # - Width = Hexagon Size * 3/4 (Need to account for interlock)
-        """
-         __
-        |  |__
-        |__|  |__
-        |  |__|  |
-        |__|  |__|
-        |  |__|  |
-        |__|  |__|
-           |__|  |
-              |__|
-        """
-
-        (xMouse, yMouse) = self.mousePos
-        hexSize = self.hexSize
-
-        # Extra space between screen border and hexagons
-        borderOffset = (hexSize / 2) + (hexSize / 8)
-        rectWidth = hexSize * (3 / 4)  # using rectangles to estimate the hexagons
-        rectHeight = hexSize
-
-        # adjust for left border and divide by the rectangle width to get x value
-        xMouseAdjusted = xMouse - borderOffset
-        xRow = xMouseAdjusted // rectWidth
+            self._currentPlayer = 1
 
     def _printGameSummary(self):
         """Print the current game number and current win summary"""
-        if not self.showPrint:
+        if not self._options.showPrint:
             return
+
+        # Note: _currentGameNumber is always one game ahead of the games completed. Showing that the game that is currently being played is the current game. 
         sys.stdout.write(
             "\rGame #%d, Blue%s wins: %d, Red%s wins: %d"
             % (
-                self.gameNumber,
-                self.blueName,
-                self.blueWins,
-                self.redName,
-                self.redWins,
+                self._currentGameNumber,
+                self._blueName,
+                self._blueWins,
+                self._redName,
+                self._redWins,
             )
         )
         sys.stdout.flush()
 
     def _printPostGameSummary(self):
         """Print the Post game summary of win percents"""
-        self.gameNumber -= 1  # always one game ahead
-        if not self.showPrint:
+        self._currentGameNumber -= 1  # _currentGameNumber is always one game ahead of completed games
+        if not self._options.showPrint:
             return
 
-        numGames = self.gameNumber
-        if numGames == 0:
+        numGames = self._currentGameNumber
+        if numGames == 0: # Always check if divide by zero
             numGames = 1
-        blueWinPerc = self.blueWins / numGames
-        redWinPerc = self.redWins / numGames
+        blueWinPercent = self._blueWins / numGames
+        redWinPercent = self._redWins / numGames
         self._printGameSummary()
         print()
-        print("Blue%s Win:  %0.2f" % (self.blueName, blueWinPerc))
-        print("Red%s Win:  %0.2f" % (self.redName, redWinPerc))
+        print("Blue%s Win:  %0.2f" % (self._blueName, blueWinPercent))
+        print("Red%s Win:  %0.2f" % (self._redName, redWinPercent))
 
-    """---
-    Main Hex Game
-    ---"""
+    '''---
+    public
+    ---'''
     def main(self, numGames=1):
         """Play a number of hex games"""
         self._printGameSummary()
 
         for i in range(numGames):
-            if not self.forceQuit:
-                self.player = (i % 2) + 1  # altertate turns
-                self.playGame()
-                self.gameNumber += 1
+            if not self._forceQuit:
+                if (self._options.alternateStartingPlayer):
+                    self._currentPlayer = (i % 2) + 1  # alternate starting 
+                self._playGame()
+                self._currentGameNumber += 1
                 self._printGameSummary()
 
         # Post summary
         self._printPostGameSummary()
 
-
-"""----------------------------------
+'''----------------------------------
 Main
-----------------------------------"""
-
-
+----------------------------------'''
 def Hex_Play(
     agentA=None,
     agentB=None,
@@ -388,12 +344,17 @@ def Hex_Play(
     showPrint=True,
 ):
     """Main HexGame Function to play games given config"""
-    game = HexGame(
-        computer1=agentA,
-        computer2=agentB,
-        showEndGame=showEndGame,
+
+    options = HexGameOptions(
         showDisplay=showDisplay,
         showPrint=showPrint,
+        showEndGame=showEndGame
+    )
+
+    game = HexGame(
+        agent1=agentA,
+        agent2=agentB,
+        options=options
     )
 
     game.main(numGames)
