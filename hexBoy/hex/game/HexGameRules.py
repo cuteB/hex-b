@@ -38,6 +38,7 @@ class HexGameRules:
 
     def getPlayerInfo(player: int) -> HexPlayerInfo:
         """Get the specified player's info"""
+        
         if (player == 1): # blue
             return HexGameRules.blue
         if (player == 2): # red
@@ -58,9 +59,24 @@ class HexGameRules:
 
     def getPlayerHex(player: int) -> HexType:
         """Get the HexType for the player"""
+
         if (player == 1): # blue
             return HexGameRules.blue.hex
         elif (player == 2): # red
             return HexGameRules.red.hex
         else: # empty
             return HexGameRules.empty.hex 
+
+    def getHeuristicFunc(player: int) -> Callable[[HexNode], int]:
+        """Return the heuristic function for the player used in the pathfinder"""
+
+        if (player == 1): # blue
+            i = 1
+        else: # red
+            i = 0
+
+        def heuristicFunc(X: Hex) -> int:
+            """Manhattan distance to end zone"""
+            return 11 - X[i]
+
+        return heuristicFunc

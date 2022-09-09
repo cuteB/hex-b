@@ -46,7 +46,6 @@ class HexagonBoard(Board):
 
     def isSpaceWithinBounds(self, cell) -> bool:
         """"Check if the pos is within the playable space"""
-        print(cell)
         return (cell in self._boardNodeDict)
     
     def getAdjacentSpaces(self, cell: tuple) -> List[tuple]:

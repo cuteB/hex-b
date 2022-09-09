@@ -22,9 +22,9 @@ AFTER_TURN = pygame.USEREVENT + 3
 # Game options
 @dataclass
 class HexGameOptions:
-    showDisplay: bool
-    showPrint: bool
-    showEndGame: bool # TODO this is sloppy. Sorta works with just one game
+    showDisplay: bool = False
+    showPrint: bool = True
+    showEndGame: bool = False # TODO this is sloppy. Sorta works with just one game
     alternateStartingPlayer: bool = True
 
 '''----------------------------------

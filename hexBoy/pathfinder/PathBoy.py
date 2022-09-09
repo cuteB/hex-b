@@ -1,16 +1,9 @@
 from dataclasses import dataclass
-from typing import Callable
-from xmlrpc.client import APPLICATION_ERROR
+from typing import Callable, Dict
 from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.models.SortedDict import SortedDict
 
-"""
-Pathboy more like Slow bois ,amirite
-- for real though. need to find a way to save the current search values
-- should be able to keep a hexboard for the boy to remember
-"""
-# TODO going to use type HexNode for now but will change later for more general use
 '''----------------------------------
 Path Finder
 ----------------------------------'''
@@ -19,17 +12,21 @@ class PathBoy:
     """Pathfinder. This boy helped me find my own path."""
     _board: Board
     
-    _getSortValue: Callable  # function to get the value to use for sorting
-    _checkIfBarrier: Callable
+    # Note: going to use type HexNode for now but will change later for more general use
+    _heuristicFunc: Callable[[HexNode], int]  # Heuristic function for A*
+    _checkIfBarrier: Callable[[Hex], bool]    
+    _getSortValue: Callable[[HexNode], bool]  # SortedDict function
 
     def __init__(
         self,
         board: Board,
         checkIfBarrier: Callable[[Hex], bool],
+        heuristicFunc: Callable[[HexNode], int], 
         getSortValue: Callable[[HexNode], bool] = None,
     ):
         self._board = board
-        self._checkIfBarrier = checkIfBarrier 
+        self._heuristicFunc = heuristicFunc
+        self._checkIfBarrier = checkIfBarrier
 
         if getSortValue == None:
             def _defaultGetSortValue(item: HexNode):
@@ -39,31 +36,46 @@ class PathBoy:
             self._getSortValue = getSortValue
 
     def findPath(self, startNode: tuple, endNode: tuple):
+        """Find path from start to end positions"""
+
         return self._AStar(
-            self._board.getNodeDict(), startNode, endNode, self._checkIfBarrier
+            startNode, endNode, self._checkIfBarrier
         )
 
     def scorePath(self, path):
+        """Score path cost of a path"""
+
         return self._scorePath(path)
 
     def findAndScorePath(self, startNode: tuple, endNode: tuple):
+        """Find path and return the score"""
+
         return self._scorePath(self._AStar(
-            self._board.getNodeDict(), startNode, endNode, self._checkIfBarrier
+            startNode, endNode, self._checkIfBarrier
         ))
 
     '''---
     AStar
     ---'''
-    def _AStar(self, nodes:dict, startPos: tuple, endPos: tuple, checkIfBarrier:Callable[[tuple], bool]):
+    def _AStar(self, startPos: tuple, endPos: tuple, checkIfBarrier:Callable[[tuple], bool]):
+        """A* path finding algorithm"""
 
+        nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
         adjacentSpaces = None 
         nextNode = None
 
-        openNodes: SortedDict = SortedDict(getSortValue=self._getSortValue) # nodes that haven't been looked at
-        closedNodes: SortedDict = SortedDict() # all nodes that have been looked at already
+        openNodes: SortedDict = SortedDict(getSortValue=self._getSortValue)
+        closedNodes: SortedDict = SortedDict()
 
         currentNode: HexNode  = nodes[startPos] 
         openNodes[currentNode] = currentNode
+
+        def scoreHeuristic(node: HexNode, parent: HexNode, pathCost: int):
+            """Score Node: set parent, path and heuristic value"""
+
+            node.setParent(parent)
+            node.setPath(pathCost)
+            node.setHeur(self._heuristicFunc(node))
 
         # loop while the end hasn't been found
         while currentNode != endPos:
@@ -71,7 +83,6 @@ class PathBoy:
             if len(openNodes) == 0:
                 return []
 
-            # keep looking for path
             # pop off the next node in open and close it
             currentNode, _ = openNodes.popItem() 
             closedNodes[currentNode] = None
@@ -86,47 +97,39 @@ class PathBoy:
                         # Already in open,
                         # Check if the current value of the node is more than the
                         # cost from the current node would be.
-                        if nextNode.getPC() > (currentNode.getPC() + nextNode.cost):
-                            nextNode.scoreHeuristic(
-                                currentNode, currentNode.getPC(), endPos
-                            )
-                            nodes[nextPos] = nextNode
-                            openNodes[nextPos] = nextNode
+                        if nextNode.getPC() > (currentNode.getPC() + nextNode.getCost()):
+                            scoreHeuristic(nextNode, currentNode, currentNode.getPC())
+                            nodes[nextNode] = nextNode
+                            openNodes[nextNode] = nextNode
 
                     else:
                         # Not in open, Score and add to open
-                        nextNode.scoreHeuristic(currentNode, currentNode.getPC(), endPos)
-                        nodes[nextPos] = nextNode
-                        openNodes[nextPos] = nextNode
+                        scoreHeuristic(nextNode, currentNode, currentNode.getPC())
+                        nodes[nextNode] = nextNode
+                        openNodes[nextNode] = nextNode
 
-        # after loop
+        # after loop. Turn linked nodes into list
         pathPos = nodes[endPos]
         path = []
         while pathPos != None:
-            # if not (  # don't include start, end edges
-            #     pathPos[0] == -1
-            #     or pathPos[1] == -1
-            #     or pathPos[0] == 11
-            #     or pathPos[1] == 11  # TODO change to boardSize
-            # ):
-            #     path.append(pathPos)
-            pathPos = nodes[pathPos].parent
-
+            path.append(pathPos)
+            pathPos = nodes[pathPos].getParent()
+        
         # reverse list
         return list(reversed(path))
 
-    # TODO why this start with capital when findPath doesn't
     def _scorePath(self, path):
         """Score path based on the node's cost"""
-        nodes = self.gameBoard.getNodeDict()
+        
+        nodes = self._board.getNodeDict()
 
-        if len(path) == 0:
+        if len(path) == 0: # Maybe change to None instead of a big number
             return 10000
 
         cost = 0
         stepNode = None
         for step in path:
             stepNode = nodes[step]
-            cost += stepNode.cost
+            cost += stepNode.getCost()
 
         return cost

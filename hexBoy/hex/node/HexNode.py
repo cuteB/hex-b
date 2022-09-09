@@ -61,9 +61,7 @@ class HexNode(Hex):
         self._path = 0
         self._cost = self._type.cost
         self._dist = 0
-        self._best = 0
         self._heur = 0
-        self._hest = 0
 
         self._dads = []
 
@@ -104,14 +102,6 @@ class HexNode(Hex):
         """Set the distance from the node"""
         self._dist = dist
 
-    def getBest(self) -> int:
-        """Get Best Cost of the nodes entire path"""
-        #TODO this might be PCD 
-        return self._best
-
-    def setBest(self, best: int) -> None:
-        """"Set Best cost using the node"""
-        self._best = best
 
     def getHeur(self) -> int:
         """Get the heuristic from the node"""
@@ -123,15 +113,16 @@ class HexNode(Hex):
 
     def getHest(self) -> int:
         """Get the Estimate total cost of the path using the node with the Heuristic"""
-        return self._hest
+        # return self._hest
+        return self._path + self._cost + self._heur
 
-    def setHest(self, hest: int) -> None:
-        """Set the estimate total cost using the node"""
-        self._hest = hest
+    def getBest(self) -> int:
+        """Get Best Cost of the nodes entire path"""
+        return self._path + self._cost + self._dist
 
     def getPC(self) -> int:
         "Get path cost to node + cost of node"
-        return self.path + self.cost
+        return self._path + self._cost
 
     def getParent(self) -> HexNode:
         """Get single parent of the node, First parent if it has many"""

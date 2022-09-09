@@ -5,6 +5,7 @@ from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
 
+# TODO comeback and do this
 
 class NumPathFinder(PathBoy):
 
@@ -18,19 +19,19 @@ class NumPathFinder(PathBoy):
 
     def getNumBestPaths(self, startNode: tuple, endNode):
         return self._numBestPaths(
-            self._board.getNodeDict(), startNode, endNode, self._checkIfBarrier
+             startNode, endNode, self._checkIfBarrier
         )
 
     '''---
     Best paths
     ---'''
-    # TODO Move these into an extended class
     def _numBestPaths(self, nodes, startPos, endPos, checkIfBarrier):
+        nodes = self._board.getNodeDict(),
         spaces = HexNode.SpaceTypes
         numPaths = SortedDict()
 
-        winPath = self.AStar(nodes, startPos, endPos, checkIfBarrier)
-        bestCost = self.ScorePath(winPath)
+        winPath = self._AStar(startPos, endPos)
+        bestCost = self.scorePath(winPath)
 
         openNodes = SortedDict(getSortValue=self.getSortValue)
         closedNodes = SortedDict()

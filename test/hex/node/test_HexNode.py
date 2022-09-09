@@ -69,12 +69,15 @@ def test_DistGetSet(tmpdir):
     tmpdir.X.setDist(5)
     assert tmpdir.X.getDist() == 5
 
-def test_BestGetSet(tmpdir):
-    """Test the get and set functions for best"""
-    assert tmpdir.X.getBest() == 0
+def test_BestGet(tmpdir):
+    """Test the get function for best"""
+    assert tmpdir.X.getBest() == 1
 
-    tmpdir.X.setBest(5)
-    assert tmpdir.X.getBest() == 5
+    tmpdir.X.setPath(1)
+    assert tmpdir.X.getBest() == 2
+
+    tmpdir.X.setDist(1)
+    assert tmpdir.X.getBest() == 3
 
 def test_HeurGetSet(tmpdir):
     """Test the get and set functions for heur"""
@@ -83,12 +86,15 @@ def test_HeurGetSet(tmpdir):
     tmpdir.X.setHeur(5)
     assert tmpdir.X.getHeur() == 5
 
-def test_HestGetSet(tmpdir):
-    """Test the get and set functions for dist"""
-    assert tmpdir.X.getHest() == 0
+def test_HestGet(tmpdir):
+    """Test the get function for Hest"""
+    assert tmpdir.X.getHest() == 1
 
-    tmpdir.X.setHest(5)
-    assert tmpdir.X.getHest() == 5
+    tmpdir.X.setPath(1)
+    assert tmpdir.X.getHest() == 2
+
+    tmpdir.X.setHeur(1)
+    assert tmpdir.X.getHest() == 3
 
 def test_InitHexTypeNode(tmpdir):
     """Init HexNode with HexType in one line"""
