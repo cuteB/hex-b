@@ -65,7 +65,7 @@ class HexAgent(ABC):
         self.agentBoard.resetGame()
 
     # Init board and player
-    def setGameBoardAndPlayer(self, gameBoard, player): # TODO I think this is private
+    def setGameBoardAndPlayer(self, gameBoard, player): # TODO I think this is private, I think i like init rather than set
         self._initGameBoard(gameBoard)
         self._initPlayerBoard(player)
 
@@ -73,7 +73,7 @@ class HexAgent(ABC):
     Agent Setup
     ---'''
 
-    # TODO These two functions are basically the same. should probably combine unless an agent has a good reason do something differen
+    # TODO These two functions are basically the same. should probably combine unless an agent has a good reason do something different
     def _initGameBoard(self, gameBoard):
         self.agentBoard = Board(gameBoard.boardSize)
         self.gameBoard = gameBoard

@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
@@ -11,14 +11,14 @@ Board
 @dataclass
 class Board(ABC):
     """Abstract Board"""
-    _boardNodeDict: dict
+    _boardNodeDict: Dict[tuple, tuple]
 
     @abstractmethod
-    def getNodeDict(self) -> dict:
+    def getNodeDict(self) -> Dict[tuple, tuple]:
         """Get the board node dict"""
 
     @abstractmethod
-    def setNodeDict(self, dict: dict) -> None:
+    def setNodeDict(self, dict: Dict[tuple, tuple]) -> None:
         """Set the board node dict"""
 
     @abstractmethod
@@ -36,7 +36,7 @@ class HexagonBoard(Board):
     """Generic board of hexagons"""
 
     # Uncle Arjan said "no non-abstract methods in abstract classes"
-    def getNodeDict(self) -> dict:
+    def getNodeDict(self) -> Dict[Hex, HexNode]:
         """Return the board node dict"""
         return self._boardNodeDict
 
@@ -79,8 +79,8 @@ class HexBoard(HexagonBoard):
     """Official Hex Game Board. 11x11 board of hexagons"""
 
     boardSize: int  # size of the board
+    _boardNodeDict: Dict[Hex, HexNode] 
 
-    _boardNodeDict: dict # dict<Hex -> HexNode>
     # _initializedBoardDict: dict # Copy of initial boardNodeDict
     _moveHistory: List[Tuple[Hex, int]]
     _blueEndZone: List[Hex]
@@ -93,7 +93,7 @@ class HexBoard(HexagonBoard):
         self._moveHistory = []
 
 
-    def _initGameBoard(self) -> dict:
+    def _initGameBoard(self) -> Dict[Hex, HexNode]:
         """Initialize the starting game board and save for when the game resets"""
         # Run every time. Saving this has pointer issues. Could probs deep copy
         dict = {}

@@ -1,3 +1,4 @@
+from typing import Callable
 from dataclasses import dataclass
 from hexBoy.hex.node.HexNode import HexNode, Hex, HexType, DefaultHexType
 
@@ -44,12 +45,16 @@ class HexGameRules:
         else: # empty (don't really need this one but probably better than None)
             return HexGameRules.empty
 
-    def checkIfBarrier(player: int, X: HexNode, useEmpty=True) -> bool:
+    def getCheckIfBarrierFunc(player: int, useEmpty=True) -> Callable[[HexNode], bool]:
         """Check if the hex is a barrier to the player"""
-        return not (
-            X.getHexType().player == player # player space
-            or (useEmpty and X.getHexType() == HexGameRules.empty.hex)# or able to use empty space
-        )
+
+        def checkIfBarrier(X: HexNode):
+            return not (
+                X.getHexType().player == player # player space
+                or (useEmpty and X.getHexType() == HexGameRules.empty.hex)# or able to use empty space
+            )
+
+        return checkIfBarrier
 
     def getPlayerHex(player: int) -> HexType:
         """Get the HexType for the player"""

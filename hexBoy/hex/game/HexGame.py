@@ -84,12 +84,12 @@ class HexGame:
         self._bluePathFinder = PathBoy(
             self._gameBoard,
             self._gameBoard.getAdjacentSpaces,
-            HexGameRules.checkIfBarrier(1,useEmpty=False),
+            HexGameRules.getCheckIfBarrierFunc(1,useEmpty=False),
         )
         self._redPathFinder = PathBoy(
             self._gameBoard,
             self._gameBoard.getAdjacentSpaces,
-            HexGameRules.checkIfBarrier(2,useEmpty=False),
+            HexGameRules.getCheckIfBarrierFunc(2,useEmpty=False),
         )
 
         self._blueAgent = None
