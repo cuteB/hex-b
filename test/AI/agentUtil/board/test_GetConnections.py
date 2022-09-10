@@ -1,14 +1,13 @@
 import pytest
 
-from hexBoy.hex.board.HexBoard import Board
-from hexBoy.AI.agentUtil.agentSmart.GetConnections import GetConnections
+from hexBoy.hex.board.HexBoard import HexBoard
+from hexBoy.AI.agentUtil.board.GetConnections import GetConnections
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
 
-    tmpdir.size = 11
-    tmpdir.board = Board(tmpdir.size)
+    tmpdir.board = HexBoard()
 
     # ^^^ before ^^^
     yield # run the rest
@@ -32,8 +31,8 @@ def test_EmptyBoardNoWeakConnections(tmpdir):
 def test_OneWeakConnection(tmpdir):
     """Two Hexes One connection"""
     
-    tmpdir.board.makeMove((5,5), 1)
-    tmpdir.board.makeMove((5,7), 1)
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.board.makeMove(1, (5,7))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -50,9 +49,9 @@ def test_OneWeakConnection(tmpdir):
 def test_TwoWeakConnections(tmpdir):
     """Three Hexes Two connection"""
     
-    tmpdir.board.makeMove((5,3), 1)
-    tmpdir.board.makeMove((5,5), 1)
-    tmpdir.board.makeMove((5,7), 1)
+    tmpdir.board.makeMove(1, (5,3))
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.board.makeMove(1, (5,7))
     
     connections = GetConnections(tmpdir.board, 1)
     expected = [
@@ -70,8 +69,8 @@ def test_TwoWeakConnections(tmpdir):
 def test_TwoHexesNoConnections(tmpdir):
     """Two Hexes no connection"""
     
-    tmpdir.board.makeMove((5,5), 1)
-    tmpdir.board.makeMove((2,2), 1)
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.board.makeMove(1, (2,2))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -88,9 +87,9 @@ def test_TwoHexesNoConnections(tmpdir):
 def test_BlockingConnectionMove(tmpdir):
     """One opp move blocking connection"""
     
-    tmpdir.board.makeMove((5,5), 1)
-    tmpdir.board.makeMove((5,6), 2)
-    tmpdir.board.makeMove((5,7), 1)
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.board.makeMove(2, (5,6))
+    tmpdir.board.makeMove(1, (5,7))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -113,7 +112,7 @@ def test_LongLineOfWeakConnections(tmpdir):
         (5,2), (5,4), (5,6)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -139,7 +138,7 @@ def test_BigClusterConnections(tmpdir):
         (6,4), (6,5)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     connections = GetConnections(tmpdir.board, 1)
 
@@ -156,8 +155,8 @@ def test_BigClusterConnections(tmpdir):
 def test_OneStrongConnection(tmpdir):
     """One Strong move"""
 
-    tmpdir.board.makeMove((5,5), 1)
-    tmpdir.board.makeMove((6,6), 1)
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.board.makeMove(1, (6,6))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -177,9 +176,9 @@ def test_OneStrongConnection(tmpdir):
 def test_TriangleConnection(tmpdir):
     """Three moves in a triangle connection"""
 
-    tmpdir.board.makeMove((4,7), 1)
-    tmpdir.board.makeMove((5,5), 1)
-    tmpdir.board.makeMove((6,6), 1)
+    tmpdir.board.makeMove(1, (4,7))
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.board.makeMove(1, (6,6))
     
     connections = GetConnections(tmpdir.board, 1)
     
@@ -205,7 +204,7 @@ def test_ComplexConnections(tmpdir):
         (9,4)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     connections = GetConnections(tmpdir.board, 1)
 
@@ -241,10 +240,10 @@ def test_ComplexConnectionsWithOpponentMove(tmpdir):
         (9,4)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     # OppMove
-    tmpdir.board.makeMove((6,5), 2)
+    tmpdir.board.makeMove(2, (6,5))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -271,7 +270,7 @@ def test_ComplexConnectionsWithOpponentMove(tmpdir):
 def test_OneEdgeMoveStrongConnection(tmpdir):
     """One move that has a strong connection with the player's end zone"""
     
-    tmpdir.board.makeMove((5,1), 1)
+    tmpdir.board.makeMove(1, (5,1))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -288,7 +287,7 @@ def test_OneEdgeMoveStrongConnection(tmpdir):
 def test_OneEdgeMoveNoConnection(tmpdir):
     """One move that has a strong connection with the player's end zone"""
     
-    tmpdir.board.makeMove((1,5), 1)
+    tmpdir.board.makeMove(1, (1,5))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -305,7 +304,7 @@ def test_OneEdgeMoveNoConnection(tmpdir):
 def test_OneEdgeMoveTouchingEndZone(tmpdir):
     """Move touching the player's end zone, no connections"""
     
-    tmpdir.board.makeMove((5,0), 1)
+    tmpdir.board.makeMove(1, (5,0))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -332,7 +331,7 @@ def test_ComplexConnectionsWithEdge(tmpdir):
         (9,3)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     connections = GetConnections(tmpdir.board, 1)
 
@@ -369,10 +368,10 @@ def test_ComplexConnectionsWithEdgeAndOpponentMove(tmpdir):
         (9,3)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     # OppMove
-    tmpdir.board.makeMove((6,4), 2)
+    tmpdir.board.makeMove(2, (6,4))
     
     connections = GetConnections(tmpdir.board, 1)
 
@@ -400,8 +399,8 @@ def test_ComplexConnectionsWithEdgeAndOpponentMove(tmpdir):
 def test_OneEdgeMoveWeakConnection(tmpdir):
     """A weak connection with the edge"""
     
-    tmpdir.board.makeMove((5,1), 1)
-    tmpdir.board.makeMove((5,0), 2)
+    tmpdir.board.makeMove(1, (5,1))
+    tmpdir.board.makeMove(2, (5,0))
 
     connections = GetConnections(tmpdir.board, 1)
 

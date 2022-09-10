@@ -28,7 +28,7 @@ class HexType():
 
 DefaultHexType = HexType(
     player = 0,
-    xType = 0,
+    xType = 1,
     cost = 1
 )
 

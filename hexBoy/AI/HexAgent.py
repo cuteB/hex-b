@@ -1,7 +1,4 @@
 """ #TODO this bit can probably move from the ABC
-Save RL agent to keep smart?
-- Store best as a greedy agent
-
 Think about composition and inheritance.
 - Pathfinders seem to fall into categories that they can use.
 - Do a better initialize maybe.
@@ -12,102 +9,61 @@ Think about composition and inheritance.
 import random
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Callable
 
-from hexBoy.hex.board.HexBoard import Board
-from hexBoy.hex.node.HexNode import HexNode
+from hexBoy.hex.board.HexBoard import HexBoard
+from hexBoy.hex.node.HexNode import Hex
+from hexBoy.hex.game.HexGameRules import HexGameRules, HexPlayerInfo
+from hexBoy.AI.agentUtil.board.SyncBoard import SyncBoard
 
-"""----------------------------------
+'''----------------------------------
 Hex Agent
-----------------------------------"""
-
-@dataclass
+----------------------------------'''
 class HexAgent(ABC):
-    # TODO descriptions
+    """Hex Agent Base class"""
     name: str
-    player: int  # 1: blue or 2: red
+    _playerInfo: HexPlayerInfo
+    _opponentInfo: HexPlayerInfo
 
     # Board
-    gameBoard: Board  # TODO These will use Hexboard
-    agentBoard: Board
-    getAdjacentSpaces = None  # TODO remove and use gameBoard.getAdjacentSpaces
+    _gameBoard: HexBoard  
+    _agentBoard: HexBoard
 
-    # pathfinder: player positions and barrier checks
-    startPos = None  # player start
-    endPos = None  # player end
-    opponentStart = None
-    opponentEnd = None
-    checkIfBarrier = (
-        None  # player barriers # TODO These functions might change up a bit
-    )
-    checkIfOpponentBarrier = None  # opponent barriers
-    moveCallback = None  # TODO give this a description
+    _moveCallback: Callable[[int, Hex], None] = None # Callback function that allows agents to do something for each move
 
-    def __init__(self):
-        # TODO I feel like a bunch of values can be defined here such as name and player start spaces too but player is set in setGameBoardAndPlayer so maybe not
-        # TODO defs set player here
-        pass  # nothing for now
+    def __init__(self, name):
+        self.name = name
 
     @abstractmethod
-    def getAgentMove(self) -> tuple: # TODO check if I need descriptions for each of the inherited functions
+    def getAgentMove(self) -> Hex:
         """Get the next move for the agent"""
 
-    def scoreGame(self):
+    def scoreGame(self) -> None:
         """Score game and get good."""
         return
 
-    def updateBoard(self):
+    def updateBoard(self) -> None:
         """Board was updated, Agent should handle the new moves"""
-        self.agentBoard.syncBoard(self.gameBoard, self.moveCallback)
+        SyncBoard(self._agentBoard, self._gameBoard, self._moveCallback)
 
-    def startGame(self):
+    def startGame(self) -> None:
         """Start the game and reset the board and other stuff"""
-        self.agentBoard.resetGame()
+        self._agentBoard.resetGameBoard()
 
-    # Init board and player
-    def setGameBoardAndPlayer(self, gameBoard, player): # TODO I think this is private, I think i like init rather than set
-        self._initGameBoard(gameBoard)
-        self._initPlayerBoard(player)
+    def setGameBoardAndPlayer(self, gameBoard: HexBoard, player:int) -> None:  
+        """Link the game board and setup the player info"""
+        self._agentBoard = HexBoard()
+        self._gameBoard = gameBoard
+        self._playerInfo = HexGameRules.getPlayerInfo(player)
+        self._opponentInfo = HexGameRules.getOpponentInfo(player)
 
-    '''---
-    Agent Setup
-    ---'''
-
-    # TODO These two functions are basically the same. should probably combine unless an agent has a good reason do something different
-    def _initGameBoard(self, gameBoard):
-        self.agentBoard = Board(gameBoard.boardSize)
-        self.gameBoard = gameBoard
-        self.getAdjacentSpaces = gameBoard.getAdjacentSpaces
-
-    def _initPlayerBoard(self, player):
-        self.player = player
-        gameBoard = self.gameBoard
-
-        # TODO again this needs to change. It is everywhere
-        # Blue player
-        if self.player == 1:
-            self.startPos = gameBoard.blueStartSpace
-            self.endPos = gameBoard.blueEndSpace
-            self.opponentStart = gameBoard.redStartSpace
-            self.opponentEnd = gameBoard.redEndSpace
-            self.checkIfBarrier = HexNode.checkIfBlueBarrierForAI
-            self.checkIfOpponentBarrier = HexNode.checkIfRedBarrierForAI
-
-        # Red player
-        else:
-            self.startPos = gameBoard.redStartSpace
-            self.endPos = gameBoard.redEndSpace
-            self.opponentStart = gameBoard.blueStartSpace
-            self.opponentEnd = gameBoard.blueEndSpace
-            self.checkIfBarrier = HexNode.checkIfRedBarrierForAI
-            self.checkIfOpponentBarrier = HexNode.checkIfBlueBarrierForAI
 
     '''---
     Random Move
-    ----'''
-
-    def _randomMove(self):
-        gameBoard = self.gameBoard
+    ---'''
+    def _randomMove(self) -> Hex:
+        """Make a random valid move"""
+        gameBoard = self._gameBoard
         x = random.randint(0, gameBoard.boardSize - 1)
         y = random.randint(0, gameBoard.boardSize - 1)
         cell = (x, y)

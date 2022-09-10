@@ -12,6 +12,7 @@ from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.hex.graphics.HexGraphics import HexGraphics
 from hexBoy.hex.game.HexGameRules import HexGameRules
 from hexBoy.hex.board.HexBoard import HexBoard
+from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
 from hexBoy.AI.HexAgent import HexAgent
 
 # Custom Events
@@ -23,8 +24,9 @@ AFTER_TURN = pygame.USEREVENT + 3
 @dataclass
 class HexGameOptions:
     showDisplay: bool = False
-    showPrint: bool = True
+    showPrint: bool = False
     showEndGame: bool = False # TODO this is sloppy. Sorta works with just one game
+    startingPlayer: int = 1
     alternateStartingPlayer: bool = True
 
 '''----------------------------------
@@ -48,7 +50,7 @@ class HexGame:
 
     _blueAgent: HexAgent  # AIs for player, None = human
     _redAgent: HexAgent
-    _gameNumber: int
+    _currentGameNumber: int
     _blueWins: int
     _redWins: int
 
@@ -61,17 +63,16 @@ class HexGame:
         self,
         agent1: HexAgent = None,
         agent2: HexAgent =None,
-        gameOptions: HexGameOptions = HexGameOptions()
+        options: HexGameOptions = HexGameOptions()
     ):
         pygame.init() # Needs to be first
 
         self._gameBoard = HexBoard()
-        self._options = gameOptions
-        self._currentPlayer = 1 
+        self._options = options
+        self._currentPlayer = self._options.startingPlayer
 
         self._gameInProgress = True  # game loop check
         self._forceQuit = False
-        self._nextMove
 
         self._currentGameNumber = 1
         self._winPath = None
@@ -83,13 +84,13 @@ class HexGame:
 
         self._bluePathFinder = PathBoy(
             self._gameBoard,
-            self._gameBoard.getAdjacentSpaces,
             HexGameRules.getCheckIfBarrierFunc(1,useEmpty=False),
+            HexGameRules.getHeuristicFunc(2)
         )
         self._redPathFinder = PathBoy(
             self._gameBoard,
-            self._gameBoard.getAdjacentSpaces,
             HexGameRules.getCheckIfBarrierFunc(2,useEmpty=False),
+            HexGameRules.getHeuristicFunc(2)
         )
 
         self._blueAgent = None
@@ -176,7 +177,7 @@ class HexGame:
     def _handleNextMove(self, player: int, move: Hex):
         """Handle the next move"""
         if self._gameBoard.validateMove(move):
-            self._gameBoard.makeMove(move, player)
+            self._gameBoard.makeMove(player, move)
             self._updateAgentBoards()
             self._eventAfterTurn()
 
@@ -201,7 +202,7 @@ class HexGame:
 
         # Is the game over?
         if len(winPath) != 0:
-            self._winPath = winPath
+            self._winPath = TrimEdgesFromPath(winPath)
             self._gameInProgress = False
 
             if self._blueAgent != None:
@@ -317,7 +318,7 @@ class HexGame:
     '''---
     public
     ---'''
-    def main(self, numGames=1):
+    def main(self, numGames=1) -> bool:
         """Play a number of hex games"""
         self._printGameSummary()
 
@@ -331,6 +332,8 @@ class HexGame:
 
         # Post summary
         self._printPostGameSummary()
+
+        return True # return true to show that the game finished
 
 '''----------------------------------
 Main

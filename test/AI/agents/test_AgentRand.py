@@ -1,21 +1,31 @@
 import pytest
-from hexBoy.AI.GetAgent import GetAgent
-from hexBoy.hex.board.HexBoard import HexBoard
 
-# TODO write more tests for agents. Not sure what I should do with them
+from hexBoy.AI.agents.AgentRand import AgentRand
+from hexBoy.hex.board.HexBoard import HexBoard
+from hexBoy.hex.game.HexGame import HexGame
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
     tmpdir.board = HexBoard()
-    tmpdir.agent = GetAgent()
+    tmpdir.agent = AgentRand()
     tmpdir.agent.setGameBoardAndPlayer(tmpdir.board, 1)
 
     # ^^^ before ^^^
     yield  # run the rest
     # vvv After vvv
 
-def test_AgentMakesValidMove(tmpdir):
+def test_AgentRandMakesValidMove(tmpdir):
     """Get a move from the agent and validate the move on the board"""
     move = tmpdir.agent.getAgentMove()
     assert tmpdir.board.validateMove(move)
+
+def test_AgentRandFullGame(tmpdir):
+    """Test full game with the agent playing both sides"""
+    game = HexGame(
+        agent1=AgentRand(),
+        agent2=AgentRand(),
+    )
+
+    assert game.main() == True
+

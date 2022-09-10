@@ -1,13 +1,12 @@
 import pytest
 
-from hexBoy.hex.board.HexBoard import Board
-from hexBoy.AI.agentUtil.agentSmart.GetStrongMoves import GetStrongMoves
+from hexBoy.hex.board.HexBoard import HexBoard
+from hexBoy.AI.agentUtil.board.GetStrongMoves import GetStrongMoves
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
-    tmpdir.size = 11
-    tmpdir.board = Board(tmpdir.size)
+    tmpdir.board = HexBoard()
 
     # ^^^ before ^^^
     yield # run the rest
@@ -21,7 +20,7 @@ def test_EmptyBoard(tmpdir):
 
 def test_OneMoveBoard(tmpdir):
     """One player move"""
-    tmpdir.board.makeMove((2,2), 1)
+    tmpdir.board.makeMove(1, (2,2))
 
     expected = [(0,3), (1,1), (1,4), (3,0), (3,3), (4,1)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -29,8 +28,8 @@ def test_OneMoveBoard(tmpdir):
 
 def test_OneMoveEach(tmpdir):
     """board with a move from each player"""
-    tmpdir.board.makeMove((2,2), 1)
-    tmpdir.board.makeMove((5,5), 2)
+    tmpdir.board.makeMove(1, (2,2))
+    tmpdir.board.makeMove(2, (5,5))
 
     expected = [(0,3), (1,1), (1,4), (3,0), (3,3), (4,1)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -38,8 +37,8 @@ def test_OneMoveEach(tmpdir):
 
 def test_OneMoveEachBeside(tmpdir):
     """Board with opp move beside player move"""
-    tmpdir.board.makeMove((2,2), 1)
-    tmpdir.board.makeMove((2,3), 2)
+    tmpdir.board.makeMove(1, (2,2))
+    tmpdir.board.makeMove(2, (2,3))
 
     expected = [(0,3), (1,1), (3,0), (4,1)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -47,8 +46,8 @@ def test_OneMoveEachBeside(tmpdir):
 
 def test_TwoMoves(tmpdir):
     """Board with two moves from the player"""
-    tmpdir.board.makeMove((2,2), 1)
-    tmpdir.board.makeMove((5,5), 1)
+    tmpdir.board.makeMove(1, (2,2))
+    tmpdir.board.makeMove(1, (5,5))
 
     expected = [(0,3), (1,1), (1,4), (3,0), (3,3), (3,6), (4,1), (4,4), (4,7), (6,3), (6,6), (7,4)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -56,8 +55,8 @@ def test_TwoMoves(tmpdir):
 
 def test_TwoMovesBeside(tmpdir):
     """Board with two moves from the player beside each other"""
-    tmpdir.board.makeMove((2,2), 1)
-    tmpdir.board.makeMove((2,3), 1)
+    tmpdir.board.makeMove(1, (2,2))
+    tmpdir.board.makeMove(1, (2,3))
 
     expected = [(0,3), (0,4), (1,1), (1,5), (3,0), (3,4), (4,1), (4,2)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -65,8 +64,8 @@ def test_TwoMovesBeside(tmpdir):
 
 def test_TwoMovesClose(tmpdir):
     """Board with two moves from the player that are one space away in the same x coord"""
-    tmpdir.board.makeMove((2,2), 1)
-    tmpdir.board.makeMove((2,4), 1)
+    tmpdir.board.makeMove(1, (2,2))
+    tmpdir.board.makeMove(1, (2,4))
 
     expected = [(0,3), (0,5), (1,1), (1,6), (3,0), (3,5), (4,1), (4,3)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -80,7 +79,7 @@ def test_OneBigConnection(tmpdir):
         (6,5), (6,6), (6,7), (6,8)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     expected = [
         (2,5),
@@ -96,7 +95,7 @@ def test_OneBigConnection(tmpdir):
 
 def test_FiveNineEdgeCase(tmpdir):
     """(5,9) because I feel like the prev test is wrong, (i'm dumb)"""
-    tmpdir.board.makeMove((5,9), 1)
+    tmpdir.board.makeMove(1, (5,9))
 
     expected = [(3,10), (4,8), (6,7), (6,10), (7,8)]
     actual = GetStrongMoves(tmpdir.board, 1)
@@ -110,7 +109,7 @@ def test_BigClusterStrongMoves(tmpdir):
         (6,4), (6,5)
     ]
     for m in moves:
-        tmpdir.board.makeMove(m, 1)
+        tmpdir.board.makeMove(1, m)
 
     expected = [
         (2,6), (2,7),

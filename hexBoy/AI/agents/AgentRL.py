@@ -1,19 +1,21 @@
 import random
 from dataclasses import dataclass
+from tokenize import Double
 
 from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.AI.HexAgent import HexAgent
-from hexBoy.AI.agentUtil.BoardEval import BoardStates
-from hexBoy.AI.agentUtil.MoveEval import evaluateMove
+from hexBoy.AI.agentUtil.agentRL.BoardEval import BoardStates
+from hexBoy.AI.agentUtil.eval.MoveEval import evaluateMove
 from hexBoy.models.SortedDict import SortedDict
+from hexBoy.AI.agentUtil.agentRL.agentRLUtil import GetBoardFromMove, GetPossibleMoves
+from hexBoy.hex.game.HexGameRules import HexGameRules
 
 # TODO Come back later. I almost want to leave this class for a bit. Not close enough to do good RL.
-"""----------------------------------
+'''----------------------------------
 Reinforcement Learning Agent
-----------------------------------"""
-
+----------------------------------'''
 @dataclass
 class AgentRL(HexAgent):
     # board states: (
@@ -26,21 +28,22 @@ class AgentRL(HexAgent):
     stateAfterLastMove = None
     transitionDict = None
 
-    initialTransitionValue: int  # value to set on first visit to transition
+    _pf: PathBoy
+    _opf: PathBoy
 
-    ALPHA = 0.3  # learning rate
-    LAMBDA = 0.1
+    initialTransitionValue: int = 10  # value to set on first visit to transition
+
+    ALPHA: Double = 0.3  # learning rate
+    LAMBDA: Double = 0.1
 
     def __init__(self):
-        HexAgent.__init__(self)
-        self.name = "Agent_RL"
+        HexAgent.__init__(self, "Agent_RL")
         self.transitionDict = SortedDict()
         self.initialTransitionValue = 10
 
-    # TODO I like the override section
-
+    # Override
     def getAgentMove(self):
-        currentState = self._getStateFromBoard(self.gameBoard)
+        currentState = self._getStateFromBoard(self._gameBoard)
 
         # score last move
         if self.stateBeforeLastMove:
@@ -63,29 +66,32 @@ class AgentRL(HexAgent):
             return random.choice(movesToConsider)
         else:
             randomMove = self._randomMove()
-            randomBoard = self.gameBoard.getBoardFromMove(randomMove, self.player)
+            randomBoard = GetBoardFromMove(self._gameBoard, randomMove, self._playerInfo.player)
             randomState = self._getStateFromBoard(randomBoard)
             self.stateAfterLastMove = randomState
 
             # pick a random move if no moves were found
             return randomMove
 
+    # Override
     def setGameBoardAndPlayer(self, gameBoard, player):
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
-        # AStar Pathfinder
         def sortFunc(item):
             return item[1].getPC()
 
-        self.pathfinder = PathBoy(
-            self.gameBoard, self.getAdjacentSpaces, self.checkIfBarrier, sortFunc
+        self._pf = PathBoy(
+            self._gameBoard, 
+            HexGameRules.getCheckIfBarrierFunc(self._playerInfo.player), 
+            HexGameRules.getHeuristicFunc(self._playerInfo.player), 
+            sortFunc
         )
 
-        self.oppPathFinder = PathBoy(
-            self.gameBoard,
-            self.getAdjacentSpaces,
-            self.checkIfOpponentBarrier,
-            sortFunc,
+        self._opf = PathBoy(
+            self._gameBoard, 
+            HexGameRules.getCheckIfBarrierFunc(self._opponentInfo.player), 
+            HexGameRules.getHeuristicFunc(self._opponentInfo.player), 
+            sortFunc
         )
 
     def updateBoard(self):
@@ -99,7 +105,6 @@ class AgentRL(HexAgent):
     '''---
     Private
     ---'''
-
     def _rewardStateTransition(self, transition):
 
         gamma = 0.1
@@ -125,22 +130,16 @@ class AgentRL(HexAgent):
         #   No: opponentNumPaths,
         # ]
 
-        ppf = self.pathfinder
-        opf = self.oppPathFinder
+        ppf = self._pf
+        opf = self._opf
 
-        playerBestPath = ppf.findPath(
-            self.startPos,
-            self.endPos,
+        Dp = ppf.findAndScorePath(
+            self._playerInfo.start,
+            self._playerInfo.end,
         )
-        Dp = ppf.ScorePath(
-            playerBestPath,
-        )
-        opponentBestPath = opf.findPath(
-            self.opponentStart,
-            self.opponentEnd,
-        )
-        Do = opf.ScorePath(
-            opponentBestPath,
+        Do = opf.findAndScorePath(
+            self._opponentInfo.start,
+            self._opponentInfo.end,
         )
 
         # Np = pf.NumBestPaths(
@@ -160,9 +159,9 @@ class AgentRL(HexAgent):
     def _getPossibleMovesToState(self, state):
         possibleMoves = []
 
-        allMoves = self.gameBoard.getPossibleMoves()
+        allMoves = GetPossibleMoves(self._gameBoard)
         for move in allMoves:
-            nextBoard = self.gameBoard.getBoardFromMove(move, self.player)
+            nextBoard = GetBoardFromMove(self._gameBoard, move, self._playerInfo.player)
             nextState = self._getStateFromBoard(nextBoard)
             if nextState == state:
                 possibleMoves.append(move)
@@ -176,13 +175,13 @@ class AgentRL(HexAgent):
             return item[1]
 
         checkedTransitions = SortedDict(getSortValue=sortFunc, reverse=False)
-        initialState = self._getStateFromBoard(self.gameBoard)
+        initialState = self._getStateFromBoard(self._gameBoard)
 
         # recursion func to call
         def _bestTransitionRecursion(depth, board, player):
             nonlocal checkedTransitions
 
-            # basecase
+            # base case
             if depth == 0:
                 stateAtDepth = self._getStateFromBoard(board)
                 transition = (initialState, stateAtDepth)
@@ -194,9 +193,9 @@ class AgentRL(HexAgent):
                 return
 
             # loop through possible moves from board
-            possibleMoves = board.getPossibleMoves()
+            possibleMoves = GetPossibleMoves(board)
             for move in possibleMoves:
-                nextBoard = board.getBoardFromMove(move, player)
+                nextBoard = GetBoardFromMove(board, move, player)
 
                 if player == 1:
                     nextPlayer = 2
@@ -206,7 +205,7 @@ class AgentRL(HexAgent):
                 _bestTransitionRecursion(depth - 1, nextBoard, nextPlayer)
             # end recursion func
 
-        _bestTransitionRecursion(depth, self.gameBoard, self.player)
+        _bestTransitionRecursion(depth, self._gameBoard, self._playerInfo.player)
         bestTransitionTuple = (
             checkedTransitions.popItem()
         )  # pop off the best transition

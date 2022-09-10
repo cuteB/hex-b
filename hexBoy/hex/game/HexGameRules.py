@@ -1,6 +1,6 @@
 from typing import Callable
 from dataclasses import dataclass
-from hexBoy.hex.node.HexNode import HexNode, Hex, HexType, DefaultHexType
+from hexBoy.hex.node.HexNode import HexNode, Hex, HexType
 
 @dataclass
 class HexPlayerInfo:
@@ -14,10 +14,12 @@ class HexPlayerInfo:
 
 class HexGameRules:
     """Rules of the game. Contains player info and Barrier Check"""
+    # xType 1: Playable Board Hex
+    # xType 2: Edge Hex
 
     empty: HexPlayerInfo = HexPlayerInfo(
         player = 0,
-        hex = DefaultHexType,
+        hex = HexType(player=0, xType=1, cost=1)
     )
 
     blue: HexPlayerInfo = HexPlayerInfo(
@@ -46,6 +48,16 @@ class HexGameRules:
         else: # empty (don't really need this one but probably better than None)
             return HexGameRules.empty
 
+    def getOpponentInfo(player: int) -> HexPlayerInfo:
+        """Get the opponent's info given the player"""
+        
+        if (player == 1): # blue, give red
+            return HexGameRules.red
+        if (player == 2): # red, give blue
+            return HexGameRules.blue
+        else: # empty (don't really need this one but probably better than None)
+            return HexGameRules.empty
+
     def getCheckIfBarrierFunc(player: int, useEmpty=True) -> Callable[[HexNode], bool]:
         """Check if the hex is a barrier to the player"""
 
@@ -67,7 +79,7 @@ class HexGameRules:
         else: # empty
             return HexGameRules.empty.hex 
 
-    def getHeuristicFunc(player: int) -> Callable[[HexNode], int]:
+    def getHeuristicFunc(player: int) -> Callable[[Hex, Hex], int]:
         """Return the heuristic function for the player used in the pathfinder"""
 
         if (player == 1): # blue
@@ -75,7 +87,7 @@ class HexGameRules:
         else: # red
             i = 0
 
-        def heuristicFunc(X: Hex) -> int:
+        def heuristicFunc(X: Hex, _: Hex) -> int:
             """Manhattan distance to end zone"""
             return 11 - X[i]
 

@@ -1,5 +1,8 @@
 import pygame
+from typing import List
 
+from hexBoy.hex.node.HexNode import HexNode, Hex
+from hexBoy.hex.board.HexBoard import HexBoard
 """
 Improvements
 - Populate the space with the current turn and who is playing (agent, player)
@@ -76,7 +79,7 @@ class HexGraphics:
         pygame.display.flip()
 
     # Put the hexagons on the board
-    def updateWindow(self, gameBoard, winPath=[]):
+    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[]):
         board = gameBoard.getNodeDict()
 
         boardSize = self.boardSize
@@ -88,7 +91,7 @@ class HexGraphics:
         # draw hexagons
         for x in range(boardSize):
             for y in range(boardSize):
-                cell = (x, y)
+                cell: Hex = (x, y)
 
                 xPos = x * hexSize + borderOffset
                 yPos = y * hexSize + borderOffset
@@ -99,9 +102,9 @@ class HexGraphics:
                 xPos -= x * (hexSize / 4)
 
                 # Render the hex based on board position
-                if board[cell].type == 1:
+                if board[cell].getHexType().player == 1:
                     self.screen.blit(self.hexBlue.getHexagon(), (xPos, yPos))
-                elif board[cell].type == 2:
+                elif board[cell].getHexType().player == 2:
                     self.screen.blit(self.hexRed.getHexagon(), (xPos, yPos))
                 else:
                     self.screen.blit(self.hexWhite.getHexagon(), (xPos, yPos))
@@ -120,12 +123,12 @@ class HexGraphics:
                 # offset xPos. Each row is quarter more to the left
                 xPos -= pos[0] * (hexSize / 4)
 
-                if board[cell].type == 1:
+                if board[cell].getHexType().player == 1:
                     self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
-                elif board[cell].type == 2:
+                elif board[cell].getHexType().player == 2:
                     self.screen.blit(self.hexRedWin.getHexagon(), (xPos, yPos))
-                elif not (board[cell].type == 3 or board[cell].type == 4):
-                    self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
+                # elif not (board[cell].type == 3 or board[cell].type == 4):
+                #     self.screen.blit(self.hexBlueWin.getHexagon(), (xPos, yPos))
 
         pygame.display.flip()
 

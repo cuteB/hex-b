@@ -1,5 +1,4 @@
 # NOTE Didn't really look at this file recently. Probs old
-"""Probs remove"""
 class BoardStates:
 
   bigBoardDict = None # dictionary of all

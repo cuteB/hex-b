@@ -10,6 +10,7 @@ def before_and_after_test(tmpdir):
     def sortFunc(item):
         return item[1].getPC()
 
+    tmpdir.sortFunc = sortFunc
     tmpdir.start = HexGameRules.blue.start
     tmpdir.end = HexGameRules.blue.end
     tmpdir.board = HexBoard()
@@ -26,7 +27,6 @@ def before_and_after_test(tmpdir):
 
 def test_EmptyBoardPath(tmpdir):
     """Test Empty Board Path Cost"""
-    board = tmpdir.board
     bestPath = tmpdir.pf.findPath(
         tmpdir.start, 
         tmpdir.end
@@ -53,8 +53,7 @@ def test_EmptyBoardPath(tmpdir):
 
 def test_OnePlayerNodePath(tmpdir):
     """Test Path cost with one node"""
-    board = tmpdir.board
-    board.makeMove(1, (1,1))
+    tmpdir.board.makeMove(1, (1,1))
 
     bestPath = tmpdir.pf.findPath(
         tmpdir.start, 
@@ -89,10 +88,8 @@ def test_OnePlayerNodePath(tmpdir):
 
 def test_PlayerPath(tmpdir):
     """Test Path Cost with winning Path"""
-    board = tmpdir.board
-
     for i in range(11):
-        board.makeMove(1, (0,i))
+        tmpdir.board.makeMove(1, (0,i))
 
     bestPath = tmpdir.pf.findPath(
         tmpdir.start, 
@@ -129,10 +126,8 @@ def test_PlayerPath(tmpdir):
 
 def test_DifferentStartEndPath(tmpdir):
     """Path with different start and end points"""
-    board = tmpdir.board
-
     for i in range(11): # TODO come back what is this test
-        board.makeMove(1, (0,i))
+        tmpdir.board.makeMove(1, (0,i))
 
     bestPath = tmpdir.pf.findPath(
         (4,6),
@@ -144,10 +139,8 @@ def test_DifferentStartEndPath(tmpdir):
 
 def test_OpponentPath(tmpdir):
     """Test Cost When Opponent Wins"""
-    board = tmpdir.board
-
     for i in range(11):
-        board.makeMove(2, (i,0))
+        tmpdir.board.makeMove(2, (i,0))
 
     bestPath = tmpdir.pf.findPath(
         tmpdir.start, 
@@ -158,13 +151,78 @@ def test_OpponentPath(tmpdir):
 
 def test_WinPathFound(tmpdir):
     """Check best Path with given moves"""
-    board = tmpdir.board
-
     for i in range(11):
-        board.makeMove(1, (5,i))
+        tmpdir.board.makeMove(1, (5,i))
 
     bestPath = tmpdir.pf.findPath(
         tmpdir.start, 
+        tmpdir.end
+    )
+
+    assert bestPath == [
+        (5,-1),
+        (5,0),
+        (5,1),
+        (5,2),
+        (5,3),
+        (5,4),
+        (5,5),
+        (5,6),
+        (5,7),
+        (5,8),
+        (5,9),
+        (5,10),
+        (5,11)
+    ]
+
+def test_EmptyPathFindWithoutUsingEmptySpaces(tmpdir):
+    """Test pathfinder that can't use empty spaces"""
+    tmpdir.pf = PathBoy(
+        tmpdir.board,
+        HexGameRules.getCheckIfBarrierFunc(1, useEmpty=False),
+        HexGameRules.getHeuristicFunc(1),
+        tmpdir.sortFunc
+    )
+
+    bestPath = tmpdir.pf.findPath(
+        tmpdir.start,
+        tmpdir.end
+    )
+
+    assert bestPath == []
+
+def test_IncompletePathFindWithoutUsingEmptySpaces(tmpdir):
+    """Test pathfinder that can't use empty spaces with a single move"""
+    tmpdir.board.makeMove(1, (5,5))
+
+    tmpdir.pf = PathBoy(
+        tmpdir.board,
+        HexGameRules.getCheckIfBarrierFunc(1, useEmpty=False),
+        HexGameRules.getHeuristicFunc(1),
+        tmpdir.sortFunc
+    )
+
+    bestPath = tmpdir.pf.findPath(
+        tmpdir.start,
+        tmpdir.end
+    )
+
+    assert bestPath == []
+
+def test_CompletePathFindWithoutUsingEmptySpaces(tmpdir):
+    """Test pathfinder that can't use empty spaces with a completed path"""
+    for i in range(11):
+        tmpdir.board.makeMove(1, (5,i))
+
+    tmpdir.pf = PathBoy(
+        tmpdir.board,
+        HexGameRules.getCheckIfBarrierFunc(1, useEmpty=False),
+        HexGameRules.getHeuristicFunc(1),
+        tmpdir.sortFunc
+    )
+
+    bestPath = tmpdir.pf.findPath(
+        tmpdir.start,
         tmpdir.end
     )
 

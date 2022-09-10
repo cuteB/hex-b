@@ -1,46 +1,46 @@
 import random
+
 from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.hex.board.HexBoard import Board
-from hexBoy.hex.node.HexNode import HexNode
+from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.AI.HexAgent import HexAgent
-from hexBoy.AI.agentUtil.BoardEval import BoardStates
-from hexBoy.AI.agentUtil.MoveEval import evaluateMove
+from hexBoy.hex.game.HexGameRules import HexGameRules
 
-"""----------------------------------
+'''----------------------------------
 AStar Search Agent
-----------------------------------"""
-
+----------------------------------'''
 class AgentAStar(HexAgent):
-    # TODO put self.pathfinder up here, also might change to self.pf
-    # TODO descriptions
+    """Hex Agent that uses A* path finding to get the next move"""
+    _pf: PathBoy
+
     def __init__(self):
-        HexAgent.__init__(self)
-        self.name = "Agent_A*"  # TODO this should be inside the init func instead
+        HexAgent.__init__(self, "Agent_A*")
 
+    # Override
     def getAgentMove(self):
-        gameBoard = self.gameBoard
-
         # Find best path to win
-        potentialMoves = self.pathfinder.findPath(
-            self.startPos,
-            self.endPos,
+        potentialMoves = self._pf.findPath(
+            self._playerInfo.start,
+            self._playerInfo.end,
         )
 
         # make a move on the best path
         random.shuffle(potentialMoves)
         for move in potentialMoves:
-            if gameBoard.validateMove(move):
+            if self._gameBoard.validateMove(move):
                 return move
 
         return self._randomMove()
 
-    def setGameBoardAndPlayer(self, gameBoard, player):
+    # Override
+    def setGameBoardAndPlayer(self, gameBoard: HexBoard, player: int):
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
         def sortFunc(item):
-            return item[1].path
+            return item[1].getPC()
 
         # AStar Pathfinder
-        self.pathfinder = PathBoy(
-            self.gameBoard, self.getAdjacentSpaces, self.checkIfBarrier, sortFunc
+        self._pf = PathBoy(
+            self._gameBoard, 
+            HexGameRules.getCheckIfBarrierFunc(self._playerInfo.player), 
+            HexGameRules.getHeuristicFunc(self._playerInfo.player)
         )

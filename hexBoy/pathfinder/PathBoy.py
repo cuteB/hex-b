@@ -1,8 +1,28 @@
 from dataclasses import dataclass
-from typing import Callable, Dict
+from typing import Callable, Dict, Tuple, List
 from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.models.SortedDict import SortedDict
+
+'''---
+Default pathfinder functions
+---'''
+def _defaultCheckIfBarrier(X: HexNode) -> bool: 
+    """Default Barrier check can only use type 1 hexes (no edges)"""
+    return X.getHexType().xType != 1
+
+def _defaultHeuristicFunc(X: HexNode, end: HexNode) -> int:
+    """Default Heuristic is the manhattan distance to the node"""
+
+    xDiff = abs(X[0] - end[0])
+    yDiff = abs(X[1] - end[1])
+
+    return xDiff + yDiff
+
+def _defaultGetSortValue(item: Tuple[HexNode, HexNode]) -> int:
+    """Default Get sort Value sorts by PC"""
+    return item[1].getPC()
+
 
 '''----------------------------------
 Path Finder
@@ -13,29 +33,23 @@ class PathBoy:
     _board: Board
     
     # Note: going to use type HexNode for now but will change later for more general use
-    _heuristicFunc: Callable[[HexNode], int]  # Heuristic function for A*
-    _checkIfBarrier: Callable[[Hex], bool]    
-    _getSortValue: Callable[[HexNode], bool]  # SortedDict function
+    _checkIfBarrier: Callable[[HexNode], bool]    
+    _heuristicFunc: Callable[[HexNode, HexNode], int]  # Heuristic function for A*
+    _getSortValue: Callable[[Tuple[HexNode, HexNode]], int]  # SortedDict function
 
     def __init__(
         self,
         board: Board,
-        checkIfBarrier: Callable[[Hex], bool],
-        heuristicFunc: Callable[[HexNode], int], 
-        getSortValue: Callable[[HexNode], bool] = None,
+        checkIfBarrier: Callable[[HexNode], bool] = _defaultCheckIfBarrier,
+        heuristicFunc: Callable[[HexNode, HexNode], int] = _defaultHeuristicFunc, 
+        getSortValue: Callable[[Tuple[HexNode, HexNode]], int] = _defaultGetSortValue,
     ):
         self._board = board
-        self._heuristicFunc = heuristicFunc
         self._checkIfBarrier = checkIfBarrier
+        self._heuristicFunc = heuristicFunc
+        self._getSortValue = getSortValue
 
-        if getSortValue == None:
-            def _defaultGetSortValue(item: HexNode):
-                return item[1].hest
-            self._getSortValue = _defaultGetSortValue
-        else:
-            self._getSortValue = getSortValue
-
-    def findPath(self, startNode: tuple, endNode: tuple):
+    def findPath(self, startNode: tuple, endNode: tuple) -> List[Hex]:
         """Find path from start to end positions"""
 
         return self._AStar(
@@ -75,7 +89,7 @@ class PathBoy:
 
             node.setParent(parent)
             node.setPath(pathCost)
-            node.setHeur(self._heuristicFunc(node))
+            node.setHeur(self._heuristicFunc(node, endPos))
 
         # loop while the end hasn't been found
         while currentNode != endPos:
@@ -133,3 +147,4 @@ class PathBoy:
             cost += stepNode.getCost()
 
         return cost
+
