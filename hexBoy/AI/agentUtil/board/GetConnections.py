@@ -1,26 +1,32 @@
 from typing import List, Tuple
 from hexBoy.models.SortedDict import SortedDict
 from hexBoy.hex.board.HexBoard import Board
+from hexBoy.hex.node.HexNode import Hex
 
-def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
+def GetConnections(board: Board, playerId: int) -> Tuple[List[Hex], List[Hex]]:
     """Get the tuple of (weak, strong) connections for a player"""
 
-    #TODO create type for hex coord instead of Tuple(int,int)
-
-    weakConnections: List[Tuple(int,int)] = []
-    strongConnections: List[Tuple(int,int)] = []
-    playerMoves: List[Tuple(int,int)] = board.getPlayerMoves(playerId)
-    playerEndZone: List[Tuple(int,int)] = board.getPlayerEndZone(playerId)
+    weakConnections: List[Hex] = []
+    strongConnections: List[Hex] = []
+    clusterAdjacentHexes: List[Hex] = None
+    connectedClusters: List[Hex] = None
+    satHexes: List[Hex] = None
+    playerMoves: List[Hex] = board.getPlayerMoves(playerId)
+    playerEndZone: List[Hex] = board.getPlayerEndZone(playerId)
     clusterId: int = 0
+    isStrongConnection: bool = None
+
     clusters: SortedDict = SortedDict() # int -> tuple
     hexToCluster: SortedDict = SortedDict() # tuple -> int
+    lookThroughHexes: SortedDict = None
 
     # Sort By lowest length 
-    def sortFunc(item): return len(item[1])
+    def sortFunc(item: List[Hex]): 
+        return len(item[1])
     connectionHexes = SortedDict(getSortValue = sortFunc)
 
     # Group connected hexes into clusters (include player end zone)
-    visitedHexes: List[Tuple(int,int)] = []
+    visitedHexes: List[Hex] = []
     allPlayerMoves = [*playerMoves, *playerEndZone]
     for pm in allPlayerMoves:
         if (pm in visitedHexes): 
@@ -30,8 +36,8 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
         clusters[clusterId] = [pm]
         hexToCluster[pm] = clusterId
 
-        lookThroughHexes = SortedDict() # TODO bring variable up to the top but still have this line. Same with all variables, probably
-        lookThroughHexes[pm] = 0 # TODO I think I want to set this to None and not 0 to be clear that I don't care about the value
+        lookThroughHexes = SortedDict() 
+        lookThroughHexes[pm] = None 
         while (len(lookThroughHexes) > 0):
             X = lookThroughHexes.popItem()[0]
 
@@ -45,7 +51,7 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[int], List[int]]:
                     clusters[clusterId].append(aX)
                     hexToCluster[aX] = clusterId
                     visitedHexes.append(aX)
-                    lookThroughHexes[aX] = 0
+                    lookThroughHexes[aX] = None
 
         clusterId += 1
 

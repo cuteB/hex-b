@@ -1,9 +1,11 @@
 import random
+from typing import List
 
-from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.AI.HexAgent import HexAgent
+from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.game.HexGameRules import HexGameRules
+from hexBoy.hex.node.HexNode import Hex
+from hexBoy.pathfinder.PathBoy import PathBoy
 
 '''----------------------------------
 AStar Search Agent
@@ -16,9 +18,9 @@ class AgentAStar(HexAgent):
         HexAgent.__init__(self, "Agent_A*")
 
     # Override
-    def getAgentMove(self):
+    def getAgentMove(self) -> Hex:
         # Find best path to win
-        potentialMoves = self._pf.findPath(
+        potentialMoves: List[Hex] = self._pf.findPath(
             self._playerInfo.start,
             self._playerInfo.end,
         )
@@ -32,11 +34,8 @@ class AgentAStar(HexAgent):
         return self._randomMove()
 
     # Override
-    def setGameBoardAndPlayer(self, gameBoard: HexBoard, player: int):
+    def setGameBoardAndPlayer(self, gameBoard: HexBoard, player: int) -> None:
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
-
-        def sortFunc(item):
-            return item[1].getPC()
 
         # AStar Pathfinder
         self._pf = PathBoy(

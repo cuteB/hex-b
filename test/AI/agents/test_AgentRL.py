@@ -1,9 +1,9 @@
 import pytest
 
 from hexBoy.AI.agents.AgentRL import AgentRL
-from hexBoy.AI.agents.AgentRand import AgentRand
+# from hexBoy.AI.agents.AgentRand import AgentRand
 from hexBoy.hex.board.HexBoard import HexBoard
-from hexBoy.hex.game.HexGame import HexGame
+# from hexBoy.hex.game.HexGame import HexGame
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
@@ -30,4 +30,3 @@ def test_AgentRLMakesValidMove(tmpdir):
 #     )
 
 #     assert game.main() == True
-

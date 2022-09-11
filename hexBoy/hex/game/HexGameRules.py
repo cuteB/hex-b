@@ -14,6 +14,7 @@ class HexPlayerInfo:
 
 class HexGameRules:
     """Rules of the game. Contains player info and Barrier Check"""
+
     # xType 1: Playable Board Hex
     # xType 2: Edge Hex
 

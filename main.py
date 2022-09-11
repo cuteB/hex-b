@@ -1,6 +1,6 @@
 import sys
 from hexBoy.hex.game.HexGame import Hex_Play
-from hexBoy.AI.GetAgent import GetAgent
+from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 
 """
 I'll put ideas here
@@ -91,9 +91,11 @@ def printHelp() -> None:
     print("\tShow Display \t`-d` \t(Default: hide display)")
     print("\tShow Endgame \t`-e` \t(Default: Skip Endgame)")
     print("\tHide Prints \t`-p` \t(Default: Show print summaries)")
+    print()
+    PrintAgentHelp()
 
 #-------------------------------------------
 #   start
 #-------------------------------------------
 if __name__ == "__main__":
-  main()
+    main()

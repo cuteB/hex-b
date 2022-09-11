@@ -28,4 +28,3 @@ def test_AgentRandFullGame(tmpdir):
     )
 
     assert game.main() == True
-

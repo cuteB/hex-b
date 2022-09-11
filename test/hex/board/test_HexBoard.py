@@ -58,6 +58,7 @@ def test_AdjacentSpacesWithAllTakenMoves(tmpdir):
 
 def test_ValidateAndMakeMove(tmpdir):
     """Validate and make moves, check that previous move is invalid"""
+
     move = (0,0)
     assert tmpdir.board.validateMove(move)
     tmpdir.board.makeMove(1, move)
@@ -68,6 +69,7 @@ def test_ValidateAndMakeMove(tmpdir):
 
 def test_ResetBoard(tmpdir):
     """Reset the board to all empty"""
+
     move = (0,0)
     tmpdir.board.makeMove(1, move)
     assert not tmpdir.board.validateMove(move)
@@ -75,7 +77,8 @@ def test_ResetBoard(tmpdir):
     assert tmpdir.board.validateMove(move)
 
 def test_validateEdges(tmpdir):
-    """testing edges, Imma rage if this doesn't work. Jk I'm an idiot"""
+    """edges are valid"""
+
     assert  not tmpdir.board.validateMove((4,11))
 
 def test_GetPlayerEndZone(tmpdir):

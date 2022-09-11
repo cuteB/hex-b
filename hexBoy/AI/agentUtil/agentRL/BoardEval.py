@@ -1,4 +1,4 @@
-# NOTE Didn't really look at this file recently. Probs old
+# COMEBACK Didn't really look at this file recently. Probs old
 class BoardStates:
 
   bigBoardDict = None # dictionary of all
@@ -16,7 +16,6 @@ class BoardStates:
     key = self._moveListToBoardKey(moveList)
     return self.bigBoardDict.get(key, 0)
 
-  # TODO doing every move only do my moves
   def scoreBoardWin(self, board):
     moveList = board.moveHistory
     playerMoves = board.getPlayerMoves(self.player)

@@ -1,6 +1,7 @@
 import random
 from dataclasses import dataclass
 from tokenize import Double
+from typing import Tuple
 
 from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.board.HexBoard import Board
@@ -12,7 +13,7 @@ from hexBoy.models.SortedDict import SortedDict
 from hexBoy.AI.agentUtil.agentRL.agentRLUtil import GetBoardFromMove, GetPossibleMoves
 from hexBoy.hex.game.HexGameRules import HexGameRules
 
-# TODO Come back later. I almost want to leave this class for a bit. Not close enough to do good RL.
+# COMEBACK I almost want to leave this class for a bit. Not close enough to do good RL.
 '''----------------------------------
 Reinforcement Learning Agent
 ----------------------------------'''
@@ -77,7 +78,7 @@ class AgentRL(HexAgent):
     def setGameBoardAndPlayer(self, gameBoard, player):
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
-        def sortFunc(item):
+        def sortFunc(item: Tuple[HexNode, HexNode]):
             return item[1].getPC()
 
         self._pf = PathBoy(

@@ -22,4 +22,5 @@ def test_SyncOneMoveBoard(tmpdir):
     assert tmpdir.agentBoard.validateMove(move) == True
 
     SyncBoard(tmpdir.agentBoard, tmpdir.gameBoard)
+
     assert tmpdir.agentBoard.validateMove(move) == False

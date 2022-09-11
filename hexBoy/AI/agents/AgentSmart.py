@@ -1,29 +1,28 @@
-from hexBoy.hex.board.HexBoard import Board
-from hexBoy.AI.HexAgent import HexAgent
+from typing import List
+
+from hexBoy.AI.agentUtil.agentSmart.SmartChain import SmartChain
 from hexBoy.AI.agentUtil.board.GetConnections import GetConnections
 from hexBoy.AI.agentUtil.board.GetStrongMoves import GetStrongMoves
-from hexBoy.hex.game.HexGameRules import HexGameRules
-from hexBoy.AI.agentUtil.agentSmart.SmartChain import SmartChain
-from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.models.SortedDict import SortedDict
 from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
+from hexBoy.AI.HexAgent import HexAgent
+from hexBoy.hex.game.HexGameRules import HexGameRules
+from hexBoy.hex.node.HexNode import Hex
+from hexBoy.pathfinder.PathBoy import PathBoy
 
 '''----------------------------------
 Agent Smart
 ----------------------------------'''
 class AgentSmart(HexAgent):
+    """AgentSmart is so smart it can think two moves ahead"""
     _chain: SmartChain = None
     _pf: PathBoy
 
-    # AgentSmart thinks two moves ahead
     def __init__(self):
         HexAgent.__init__(self, "Agent_Smart")
 
-    '''---
-    Agent Functions (Overrides)
-    ---'''
-    def getAgentMove(self) -> tuple[int,int]:
-        agentMoves = self._gameBoard.getPlayerMoves(self._playerInfo.player)
+    # Override
+    def getAgentMove(self) -> Hex:
+        agentMoves: List[Hex] = self._gameBoard.getPlayerMoves(self._playerInfo.player)
 
         # Early Move (first move)
         if (len(agentMoves) == 0):
@@ -44,7 +43,7 @@ class AgentSmart(HexAgent):
         self._chain.updateChain()
         bestPath = TrimEdgesFromPath(self._pf.findPath(self._playerInfo.start, self._playerInfo.end))
 
-        strongMoves = GetStrongMoves(self._gameBoard, self._playerInfo.player)
+        strongMoves = GetStrongMoves(self._playerInfo.player, self._gameBoard)
 
         # fill in weak connections (can probs keep like this)
         if (len(weakConnections) > 0):
@@ -83,7 +82,6 @@ class AgentSmart(HexAgent):
                 if (tDist < closestDist):
                     closestDist = tDist
                     closestPos = m
-
         
         if (self._gameBoard.validateMove(closestPos)): # should always be valid
             return closestPos
@@ -92,19 +90,13 @@ class AgentSmart(HexAgent):
         return self._randomMove()
 
     # Override
-    def setGameBoardAndPlayer(self, gameBoard, player):
+    def setGameBoardAndPlayer(self, gameBoard, player) -> None:
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
-        
-        def sortFunc(item):
-            return item[1].getPath()
 
         self._pf = PathBoy(
             self._gameBoard, 
             HexGameRules.getCheckIfBarrierFunc(self._playerInfo.player), 
-            HexGameRules.getHeuristicFunc(self._playerInfo.player), 
-            sortFunc
+            HexGameRules.getHeuristicFunc(self._playerInfo.player)
         )
 
         self._chain = SmartChain(self._playerInfo.player, self._gameBoard)
-
-    

@@ -1,14 +1,12 @@
-from typing import List, Tuple, Dict
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from typing import List, Tuple, Dict
 
-from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.hex.game.HexGameRules import HexGameRules
+from hexBoy.hex.node.HexNode import HexNode, Hex
 
 '''----------------------------------
 Board
 ----------------------------------'''
-@dataclass
 class Board(ABC):
     """Abstract Board"""
     _boardNodeDict: Dict[tuple, tuple]
@@ -36,20 +34,20 @@ class HexagonBoard(Board):
     """Generic board of hexagons"""
 
     # Uncle Arjan said "no non-abstract methods in abstract classes"
+    # Override
     def getNodeDict(self) -> Dict[Hex, HexNode]:
-        """Return the board node dict"""
         return self._boardNodeDict
 
+    # Override
     def setNodeDict(self, dict) -> None: 
-        """Set the board dict"""
         self._boardNodeDict = dict
 
+    # Override
     def isSpaceWithinBounds(self, cell) -> bool:
-        """"Check if the pos is within the playable space"""
         return (cell in self._boardNodeDict)
     
+    # Override
     def getAdjacentSpaces(self, cell: tuple) -> List[tuple]:
-        """Get the Hexes touching the given cell"""
         # Checkout /wiki/hex/Board.md for the board with coordinates
         (x,y) = cell
 
@@ -81,7 +79,7 @@ class HexBoard(HexagonBoard):
     _boardNodeDict: Dict[Hex, HexNode] 
 
     # _initializedBoardDict: dict # Copy of initial boardNodeDict
-    _moveHistory: List[Tuple[Hex, int]]
+    _moveHistory: List[Tuple[int, Hex]]
     _blueEndZone: List[Hex]
     _redEndZone: List[Hex]
 
@@ -91,9 +89,9 @@ class HexBoard(HexagonBoard):
         self._boardNodeDict = self._initGameBoard()
         self._moveHistory = []
 
-
     def _initGameBoard(self) -> Dict[Hex, HexNode]:
         """Initialize the starting game board and save for when the game resets"""
+
         # Run every time. Saving this has pointer issues. Could probs deep copy
         dict = {}
         self._blueEndZone = []
@@ -126,6 +124,7 @@ class HexBoard(HexagonBoard):
     ---'''
     def validateMove(self, X: Hex) -> bool: 
         """Check if the given cell is a valid move. Space in Empty and on the board"""
+
         return (
             X != None
             and self.isSpaceWithinBounds(X)
@@ -134,16 +133,19 @@ class HexBoard(HexagonBoard):
 
     def makeMove(self, player: int, X: Hex) -> None:
         """Make a move on the board and save it in history"""
+
         self._moveHistory.append((player, X))
         self._boardNodeDict[X].setHexType(HexGameRules.getPlayerHex(player))
 
     def resetGameBoard(self) -> None:
         """Reset the board and move history"""
+
         self._boardNodeDict = self._initGameBoard()
         self._moveHistory = []
 
     def getPlayerMoves(self, player: int) -> List[Hex]:
         """Look at the move history and return a player's moves"""
+        
         playerMoves = []
         for i in range(len(self._moveHistory)):
             if self._moveHistory[i][0] == player:
@@ -151,13 +153,15 @@ class HexBoard(HexagonBoard):
 
         return playerMoves
 
-    def getMoveHistory(self) -> List[Tuple[Hex,int]]:
+    def getMoveHistory(self) -> List[Tuple[int,Hex]]:
         """Get the move history of the current game"""
+
         return self._moveHistory
 
     def getPlayerEndZone(self, player: int) -> List[Hex]:
         """Get the end zone hexes of the player"""
-        if(player == 1): 
+
+        if (player == 1): 
             return self._blueEndZone
         else:
             return self._redEndZone

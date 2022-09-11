@@ -41,6 +41,7 @@ def test_CenterDistanceFromFarCorners(tmpdir):
 
 def test_CenterDistanceForAFewPickedHexes(tmpdir):
     """Distance for a few selected hexes"""
+
     assert GetDistanceToCenter((4, 8)) == 3
     assert GetDistanceToCenter((1, 7)) == 4
     assert GetDistanceToCenter((7, 9)) == 6
@@ -49,6 +50,7 @@ def test_CenterDistanceForAFewPickedHexes(tmpdir):
 
 def test_CenterDistFromAnEdge(tmpdir):
     """Edges should still be able to have a distance to the center"""
+    
     assert GetDistanceToCenter((5, -1)) == 6
     assert GetDistanceToCenter((1, -1)) == 10
     assert GetDistanceToCenter((9, -1)) == 6

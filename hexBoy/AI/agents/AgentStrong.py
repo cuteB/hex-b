@@ -1,26 +1,23 @@
-import random
-
-from hexBoy.hex.game.HexGameRules import HexGameRules
-from hexBoy.pathfinder.PathBoy import PathBoy
-from hexBoy.AI.HexAgent import HexAgent
+from typing import Tuple
 from hexBoy.AI.agentUtil.eval.MoveEval import evaluateMove
+from hexBoy.AI.HexAgent import HexAgent
+from hexBoy.hex.game.HexGameRules import HexGameRules
+from hexBoy.hex.node.HexNode import Hex
+from hexBoy.pathfinder.PathBoy import PathBoy
 
 '''----------------------------------
 Strong move Agent
 ----------------------------------'''
-
 class AgentStrong(HexAgent):
+    """Make moves that might be strong. Not very smart"""
     _pf: PathBoy
     _opf: PathBoy
 
     def __init__(self):
         HexAgent.__init__(self, "Agent_Strong")
 
-    '''---
-    Agent Functions
-    ---'''
     # Override
-    def getAgentMove(self):
+    def getAgentMove(self) -> Hex:
         gameBoard = self._gameBoard
 
         winPath = self._pf.findPath(
@@ -53,19 +50,14 @@ class AgentStrong(HexAgent):
     def setGameBoardAndPlayer(self, gameBoard, player):
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
 
-        def sortFunc(item):
-            return item[1].getPC()
-
         self._pf = PathBoy(
             self._gameBoard, 
             HexGameRules.getCheckIfBarrierFunc(self._playerInfo.player), 
-            HexGameRules.getHeuristicFunc(self._playerInfo.player), 
-            sortFunc
+            HexGameRules.getHeuristicFunc(self._playerInfo.player)
         )
 
         self._opf = PathBoy(
             self._gameBoard, 
             HexGameRules.getCheckIfBarrierFunc(self._opponentInfo.player), 
-            HexGameRules.getHeuristicFunc(self._opponentInfo.player), 
-            sortFunc
+            HexGameRules.getHeuristicFunc(self._opponentInfo.player),
         )

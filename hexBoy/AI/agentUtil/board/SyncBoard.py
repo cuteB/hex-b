@@ -3,7 +3,7 @@ from typing import Callable
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.node.HexNode import Hex
 
-def SyncBoard(board: HexBoard, parentBoard: HexBoard, moveCallback: Callable[[Hex], None]=None):
+def SyncBoard(board: HexBoard, parentBoard: HexBoard, moveCallback: Callable[[Hex], None] = None) -> None:
     """Sync the current board to the parent board based on move history"""
     parentMoveLen: int = len(parentBoard.getMoveHistory())
     selfMoveLen: int = len(board.getMoveHistory())

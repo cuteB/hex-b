@@ -1,11 +1,12 @@
 from typing import List
-from hexBoy.models.SortedDict import SortedDict
-from hexBoy.hex.node.HexNode import Hex
-from hexBoy.hex.board.HexBoard import HexBoard
-from hexBoy.hex.game.HexGameRules import HexGameRules, HexPlayerInfo
+
 from hexBoy.AI.agentUtil.board.GetConnections import GetConnections
 from hexBoy.AI.agentUtil.board.GetStrongMoves import GetStrongMoves
 from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
+from hexBoy.hex.board.HexBoard import HexBoard
+from hexBoy.hex.game.HexGameRules import HexGameRules, HexPlayerInfo
+from hexBoy.hex.node.HexNode import Hex
+from hexBoy.models.SortedDict import SortedDict
 from hexBoy.pathfinder.PathBoy import PathBoy
 
 '''----------------------------------
@@ -113,11 +114,11 @@ class SmartChain():
             self._linkedDict[lastNode] = None
         self._length = length
 
-    def getStartPotentialMoves(self) -> list:
+    def getStartPotentialMoves(self) -> List[Hex]:
         """Get Potential moves for the start pos (not validated)"""
 
         (x,y) = self._startPos
-        strongMoves = GetStrongMoves(self._gameBoard, self._playerInfo.player)
+        strongMoves = GetStrongMoves(self._playerInfo.player, self._gameBoard)
 
         pMoves = []
         pStrongMoves = []
@@ -150,10 +151,10 @@ class SmartChain():
                 
         return potentialMoves
 
-    def getEndPotentialMoves(self) -> list:
+    def getEndPotentialMoves(self) -> List[Hex]:
         """Get Potential moves for the end pos"""
         (x,y) = self._endPos
-        strongMoves = GetStrongMoves(self._gameBoard, self._playerInfo.player)
+        strongMoves = GetStrongMoves(self._playerInfo.player, self._gameBoard)
 
         pMoves = []
         if (self._playerInfo.player == 1):
@@ -185,7 +186,7 @@ class SmartChain():
                 
         return potentialMoves
 
-    def getPotentialMoves(self) -> list:
+    def getPotentialMoves(self) -> List[Hex]:
         """Get Moves that will extend the chain to the end"""
 
         # For now just going to return the three strong moves closer to the closest edge and the two short moves. (for both start and end)

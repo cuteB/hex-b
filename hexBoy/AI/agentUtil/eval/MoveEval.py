@@ -1,6 +1,7 @@
 from hexBoy.AI.agentUtil.board.GetDistanceToCenter import GetDistanceToCenter
 from hexBoy.hex.board.HexBoard import HexBoard
-""" I think this is just for strong, can move"""
+
+# COMEBACK This is old and needs to be updated
 
 def evaluateMove(move, gameBoard, winPath, opponentPath, player):
     value = 1

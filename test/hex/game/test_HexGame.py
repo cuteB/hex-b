@@ -1,7 +1,7 @@
 import pytest
 
-from hexBoy.hex.game.HexGame import HexGame
 from hexBoy.AI.GetAgent import GetAgent
+from hexBoy.hex.game.HexGame import HexGame
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):

@@ -1,19 +1,17 @@
 from hexBoy.AI.agents.AgentAStar import AgentAStar
 from hexBoy.AI.agents.AgentRand import AgentRand
-from hexBoy.AI.agents.AgentStrong import AgentStrong
 from hexBoy.AI.agents.AgentRL import AgentRL
 from hexBoy.AI.agents.AgentSmart import AgentSmart
+from hexBoy.AI.agents.AgentStrong import AgentStrong
+from hexBoy.AI.HexAgent import HexAgent
 
-# TODO this vvv
-# TODO Change this into plugin architecture.
+# COMEBACK Change this into plugin architecture.
 # - Looks cool
-
-# TODO add None agent so player can have name
-# TODO Add in a help string func that Main can call to populate the help message with what each agent number is
+# - add None agent so player can have name
 
 # Easy way to get an agent
-def GetAgent(agentDifficulty=0):
-    # TODO description with each agent to number
+def GetAgent(agentDifficulty=0) -> HexAgent:
+    """Get an agent given an Id"""
     # Random (default)
     if agentDifficulty == 0:
         return AgentRand()
@@ -35,4 +33,14 @@ def GetAgent(agentDifficulty=0):
 
     # just put in human
     else:
-        return None # TODO make AgentHuman() that is a human player. Add in name basically it
+        return None 
+
+def PrintAgentHelp() -> None:
+    """Print the id to Agent help message"""
+    print("Agent List")
+    print("\t0 \tAgent Random")
+    print("\t1 \tAgent AStar")
+    print("\t2 \tAgent Strong")
+    print("\t3 \tAgent RL")
+    print("\t4 \tAgent Smart")
+    print()
