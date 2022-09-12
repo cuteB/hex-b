@@ -111,10 +111,10 @@ class NumPathFinder(PathBoy):
 
         # gotta loop through everything
         while len(openNodes) > 0:
-            currentPos, currentNode = openNodes.popItem()
-            closedNodes[currentPos] = currentNode
+            currentNode = openNodes.popKey()
+            closedNodes[currentNode] = None
 
-            adjacentSpaces = self.getAdjacentSpaces(currentPos)
+            adjacentSpaces = self.getAdjacentSpaces(currentNode)
             for nextPos in adjacentSpaces:
                 nextNode = nodes[nextPos]
 
@@ -145,7 +145,7 @@ class NumPathFinder(PathBoy):
         total = 0
         ez = [] # TODO remove if not used
         while len(numPaths) > 0:
-            i, num = numPaths.popItem()
+            num = numPaths.pop()
             ez.append(num)
             total += num
         return total

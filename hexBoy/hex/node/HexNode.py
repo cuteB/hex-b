@@ -6,7 +6,9 @@ from typing import List
 Hex 
 ----------------------------------'''
 class Hex(tuple):
-    """The Hex, (int, int) \tThe lil guy in charge.""" 
+    """The Hex, tuple(int, int) 
+
+    > The lil guy in charge.""" 
 
     def __init__(self, X):
         """The Hex, (int, int) """
@@ -34,6 +36,8 @@ Hex Node
 ----------------------------------'''
 class HexNode(Hex):
     """Hex with a bunch of values important to the game board and path finding"""
+
+    # Note: Might want another class 'Node' with the PCD values and HexNode inherit from Hex and Node. I would like the pathfinder to not have to be reliant on HexNode
 
     # Hex Type
     _type: HexType 

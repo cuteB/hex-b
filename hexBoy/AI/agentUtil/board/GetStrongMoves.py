@@ -45,6 +45,6 @@ def GetStrongMoves(player: int, board: HexBoard) -> List[Hex]:
 
     # dict to list
     while (len(strongHexes) > 0):
-        strongMoves.append(strongHexes.popItem()[0])
+        strongMoves.append(strongHexes.popKey())
 
     return strongMoves

@@ -98,7 +98,7 @@ class PathBoy:
                 return []
 
             # pop off the next node in open and close it
-            currentNode, _ = openNodes.popItem() 
+            currentNode = openNodes.popKey() 
             closedNodes[currentNode] = None
 
             adjacentSpaces = self._board.getAdjacentSpaces(currentNode)

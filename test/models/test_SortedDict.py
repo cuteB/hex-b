@@ -10,7 +10,6 @@ def before_and_after_test(tmpdir):
     yield  # run the rest
     # vvv After vvv
 
-
 def test_CreateAndPopItems(tmpdir):
     """Dict should allow set, pop and check if it has a key"""
     key = 0
@@ -27,41 +26,61 @@ def test_CreateAndPopItems(tmpdir):
     dictItem = tmpdir.dict.popItem()
     assert dictItem == None
 
-
 def test_AppendDict(tmpdir):
     """Should be able create with an existing dict and SortedDict"""
     putMeInCoach = {
-        1: 1,
-        2: 2,
-        3: 3,
+        1: "a",
+        2: "b",
+        3: "c",
     }
 
-    tmpdir.dict = SortedDict(dict=putMeInCoach)
+    tmpdir.dict = SortedDict(initDict=putMeInCoach)
     assert tmpdir.dict.hasKey(1)
     assert tmpdir.dict.hasKey(2)
     assert tmpdir.dict.hasKey(3)
 
-    sd = SortedDict(dict=putMeInCoach)
-    tmpdir.dict = SortedDict(dict=sd.getDict())
+    sd = SortedDict(initDict=putMeInCoach)
+    print(sd)
+    print(putMeInCoach)
+
+    tmpdir.dict = SortedDict(initDict=sd)
+    print(tmpdir.dict.getKeys())
     assert tmpdir.dict.hasKey(1)
     assert tmpdir.dict.hasKey(2)
     assert tmpdir.dict.hasKey(3)
 
-
-
-def test_SortItemsInDict(tmpdir):
+def test_SortItemsInDictWithPop(tmpdir):
     """Should default sort items by their key"""
-    tmpdir.dict[1] = 1
-    tmpdir.dict[0] = 0
-    tmpdir.dict[2] = 2
+    tmpdir.dict[2] = "b"
+    tmpdir.dict[1] = "a"
+    tmpdir.dict[3] = "c"
 
-    assert tmpdir.dict.popItem()[1] == 0
-    assert tmpdir.dict.popItem()[1] == 1
-    assert tmpdir.dict.popItem()[1] == 2
+    assert tmpdir.dict.pop() == "a"
+    assert tmpdir.dict.pop() == "b"
+    assert tmpdir.dict.pop() == "c"
 
+def test_SortItemsInDictWithPopItem(tmpdir):
+    """Should pop key,value"""
+    tmpdir.dict[2] = "b"
+    tmpdir.dict[1] = "a"
+    tmpdir.dict[3] = "c"
+
+    assert tmpdir.dict.popItem() == (1, "a")
+    assert tmpdir.dict.popItem() == (2, "b")
+    assert tmpdir.dict.popItem() == (3, "c")
+
+def test_SortItemsInDictWithPopKey(tmpdir):
+    """Should pop key"""
+    tmpdir.dict[2] = "b"
+    tmpdir.dict[1] = "a"
+    tmpdir.dict[3] = "c"
+
+    assert tmpdir.dict.popKey() == 1
+    assert tmpdir.dict.popKey() == 2
+    assert tmpdir.dict.popKey() == 3
 
 def test_CustomSortFunc(tmpdir):
-    """Use custom sort fuction to change order of popped items"""
+    """Use custom sort function to change order of popped items"""
 
     def sortFunc(item):
         if item[1] == 2:
@@ -79,12 +98,12 @@ def test_CustomSortFunc(tmpdir):
     assert tmpdir.dict.popItem()[1] == 1
 
 
+
 def test_DeleteItemInDict(tmpdir):
     """Delete an item in the dict"""
     tmpdir.dict[0] = 0
     del tmpdir.dict[0]
     assert not tmpdir.dict.hasKey(0)
-
 
 def test_UpdateItem(tmpdir):
     """Update an item and check it, make sure it stays in sorted order"""
@@ -93,7 +112,6 @@ def test_UpdateItem(tmpdir):
 
     tmpdir.dict[0] = 15
     assert tmpdir.dict[0] == 15
-
 
 def test_UpdateItemResort(tmpdir):
     """Update an item and check that it got sorted into its proper spot"""

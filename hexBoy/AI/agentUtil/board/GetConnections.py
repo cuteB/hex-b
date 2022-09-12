@@ -39,7 +39,7 @@ def GetConnections(board: Board, playerId: int) -> Tuple[List[Hex], List[Hex]]:
         lookThroughHexes = SortedDict() 
         lookThroughHexes[pm] = None 
         while (len(lookThroughHexes) > 0):
-            X = lookThroughHexes.popItem()[0]
+            X = lookThroughHexes.popKey()
 
             adjacentHexes = board.getAdjacentSpaces(X)
             for aX in adjacentHexes:

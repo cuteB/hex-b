@@ -1,51 +1,46 @@
-"""Dict actually working well. Maybe a bit of love to make it more readable""" # TODO delete
+from typing import Callable, List, Tuple
 
-"""----------------------------------
+def _defaultGetSortValue(item):
+    """Default sort value sorts by the key"""
+    return item[0]
+
+'''----------------------------------
 Sorted Dict
-----------------------------------"""
-'''
-Time Complexity
-  get O(1)
-  del O(n)
-  set O(n)
-'''
-
+----------------------------------'''
 class SortedDict(dict):
-    # TODO gotta add the descriptions for everything, better types for Lists
-    _dictionary: dict = None  # the dict # TODO is this used or is self the dict that is used everywhere?
-    _sortedItems: list = None  # sorted list of the items based on the given value #TODO this a List[any,any]
-    _reverse: bool  = None  # which way to sort the list # TODO rename to desc. Which way is reverse? Or say in description
-    _getSortValue: callable = None  # which value to use to sort the list
+    """Dictionary that sorts elements for pop() based on getSortValue test. 
 
-    def __init__(self, dict=None, getSortValue=None, reverse=False):
+    @param dict: dict "initial dict"
+    @param getSortValue: Callable[[Tuple[any, any]], int] "What value should be used to sort the dict"
+    @param reverse: bool "Which way to sort the list. True -> desc, False -> asc"
+    
+    Time Complexity: get O(1), set O(n), del O(n)"""
+
+    _sortedItems: List[Tuple[any, any]] = None # sorted list of the items based on the given value
+    _reverse: bool  = None  # which way to sort the list 
+    _getSortValue: Callable[[Tuple[any, any]], int] = None  # which value to use to sort the list
+
+    def __init__(self, 
+        initDict: dict = None, 
+        getSortValue: Callable[[Tuple[any, any]], int] = _defaultGetSortValue, 
+        reverse: bool = False
+    ):
         dict.__init__(self)
 
         self._sortedItems = []
         self._reverse = reverse
+        self._getSortValue = getSortValue
 
-        # Set the getSortValue function
-        if getSortValue == None:
-            self._getSortValue = self._defaultGetSortValue
-        else:
-            self._getSortValue = getSortValue
-
-        # Init the dict
-        if dict == None:
-            self._dictionary = {}
-        else:
-            self._dictionary = dict
-            self._appendDict(dict)
+        if initDict != None:
+            self._appendDict(initDict)
             self._sortItems()
 
-    """---
-    Override dict functions
-    ---"""
-    # dict[key] = value
+    # Override dict[key] = value
     def __setitem__(self, key, value):
         self._addItem(key, value)
         self._sortItems()
 
-    # del(dict[key])
+    # Override del(dict[key])
     def __delitem__(self, key):
         super(SortedDict, self).__delitem__(key)
 
@@ -56,10 +51,10 @@ class SortedDict(dict):
                 break
 
     '''---
-    Private functions
+    Private
     ---'''
-    # Add item to dict, update sorted items
-    def _addItem(self, key, value):
+    def _addItem(self, key: any, value: any):
+        """Add item to dict, update sorted items"""
         if key in self:
             # Key in dict already, update entry
             super(SortedDict, self).__setitem__(key, value)
@@ -75,27 +70,42 @@ class SortedDict(dict):
             super(SortedDict, self).__setitem__(key, value)
             self._sortedItems.append((key, value))
 
-    # Combine external dict into self, update sorted items
-    def _appendDict(self, dict):
-        for key in dict:
-            self._addItem(key, dict[key])
+    def _appendDict(self, D: dict):
+        """Combine external dict into self, update sorted items"""
+        for key in D:
+            self._addItem(key, D[key])
 
         self._sortItems()
 
-    # Sort all of the items in the dict based on the sort value
     def _sortItems(self):
+        """Sort all of the items in the dict based on the sort value"""
         self._sortedItems.sort(key=self._getSortValue, reverse=self._reverse)
 
-    # Grab the value that will be used to sort the dict items
-    def _defaultGetSortValue(self, item):
-        return item[0]  # Just use the key if no other getValue is provided
-
     '''---
-    Public functions
+    Public
     ---'''
-    # TODO I want this to be .pop() instead of .popItem()
-    # pop off the lowest item (first item in sortedItems)
-    def popItem(self):
+    def pop(self) -> any:
+        """Pop the next value out of the dict"""
+        if len(self) == 0:
+            return None
+
+        else:
+            key, value = self._sortedItems[0]
+            del self[key]
+            return value
+
+    def popKey(self) -> any:
+        """Pop the next key out of the dict"""
+        if len(self) == 0:
+            return None
+
+        else:
+            key, _ = self._sortedItems[0]
+            del self[key]
+            return key
+
+    def popItem(self) -> tuple:
+        """Pop the next (key, value) out of the dict"""
         if len(self) == 0:
             return None
 
@@ -104,14 +114,13 @@ class SortedDict(dict):
             del self[key]
             return key, value
 
-    # I think I can just use "in"
-    def hasKey(self, key):
+    def hasKey(self, key) -> bool:
+        """Check if the dict has the key"""
+        # I can use "in" but I prefer look of this
         return key in self
 
-    def getDict(self):
-        return self._dictionary
-
-    def getKeys(self):
+    def getKeys(self) -> List[any]:
+        """Get the keys of the dict in order"""
         keys = []
         for i in self._sortedItems:
             keys.append(i[0])
