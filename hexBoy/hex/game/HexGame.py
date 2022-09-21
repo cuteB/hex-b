@@ -232,10 +232,11 @@ class HexGame:
     def _preGameSetup(self) -> None: 
         """Setup board and graphics, trigger start turn event"""
 
-        if self._options.showDisplay:
-            self._graphics.setupWindow()
-
         self._gameBoard.resetGameBoard()
+
+        if self._options.showDisplay:
+            self._graphics.setupWindow(self._gameBoard)
+
         if self._blueAgent != None:
             self._blueAgent.startGame()
         if self._redAgent != None:
