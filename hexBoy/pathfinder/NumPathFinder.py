@@ -5,7 +5,7 @@ from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
 
-# TODO comeback and do this
+# COMEBACK comeback and do this
 
 class NumPathFinder(PathBoy):
 
@@ -38,7 +38,7 @@ class NumPathFinder(PathBoy):
         endNodes = SortedDict()  # nodes to add up to get the number of paths
 
         # add starting position to pop off
-        currentPos = startPos # TODO maybe rename Pos to Hex
+        currentPos = startPos # maybe rename Pos to Hex
         currentNode = nodes[currentPos]
         currentNode.setExtraPathsToNode(0.25)
         openNodes[currentPos] = currentNode
@@ -85,7 +85,7 @@ class NumPathFinder(PathBoy):
         def updateNodeInOpenNodes(pos):
             nonlocal numPaths
 
-            # check if it is a #TODO check if it is a what?
+            # check if it is a # check if it is a what?
             if (
                 (nextNode.type == spaces.BLUE_EDGE or nextNode.type == spaces.RED_EDGE)
                 and (
@@ -143,7 +143,7 @@ class NumPathFinder(PathBoy):
 
         # return paths
         total = 0
-        ez = [] # TODO remove if not used
+        ez = [] #  remove if not used
         while len(numPaths) > 0:
             num = numPaths.pop()
             ez.append(num)

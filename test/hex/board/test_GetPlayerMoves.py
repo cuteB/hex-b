@@ -2,8 +2,6 @@ import pytest
 
 from hexBoy.hex.board.HexBoard import HexBoard
 
-# TODO go through
-
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
@@ -35,9 +33,6 @@ def test_OpponentMove(tmpdir):
 
     expectedMoves = []
     oppMoves = [(0,0)]
-
-    for m in expectedMoves:
-        tmpdir.board.makeMove(1, m)
 
     for m in oppMoves:
         tmpdir.board.makeMove(2, m)

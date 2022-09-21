@@ -3,7 +3,6 @@ import pytest
 from hexBoy.hex.game.HexGameRules import HexGameRules
 from hexBoy.hex.board.HexBoard import HexBoard
 
-# TODO move to test/hex/game
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""

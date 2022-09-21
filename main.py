@@ -56,8 +56,10 @@ def main() -> None:
 
         # -n, number of games
         elif (opts[i] == "-n"):
-            # TODO check if its an int first
-            numGames = int(args[argNum])
+            if (args[argNum].isnumeric()):
+                numGames = int(args[argNum])
+            else:
+                numGames = 1
             argNum += 1
 
         # -p, disable print

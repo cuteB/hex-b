@@ -126,14 +126,10 @@ def test_PlayerPath(tmpdir):
 
 def test_DifferentStartEndPath(tmpdir):
     """Path with different start and end points"""
-    for i in range(11): # TODO come back what is this test
-        tmpdir.board.makeMove(1, (0,i))
-
     bestPath = tmpdir.pf.findPath(
         (4,6),
         (7,3),
     )
-
 
     assert bestPath == [(4,6),(5,5),(6,4),(7,3)]
 
