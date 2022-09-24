@@ -2,7 +2,6 @@ import copy
 from hexBoy.hex.node.HexNode import Hex
 from hexBoy.hex.board.HexBoard import HexBoard
 
-
 # COMEBACK these two functions are ugly and bad
 # return a copy of the current board
 def GetBoardFromMove(board: HexBoard, move: Hex, player: int):

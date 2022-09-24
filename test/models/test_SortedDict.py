@@ -97,8 +97,6 @@ def test_CustomSortFunc(tmpdir):
     assert tmpdir.dict.popItem()[1] == 0
     assert tmpdir.dict.popItem()[1] == 1
 
-
-
 def test_DeleteItemInDict(tmpdir):
     """Delete an item in the dict"""
     tmpdir.dict[0] = 0

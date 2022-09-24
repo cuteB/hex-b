@@ -66,7 +66,6 @@ class AgentSmart(HexAgent):
         else: 
             pMoves = self._chain.getEndPotentialMoves()
         
-
         # look at strong moves first, ugly loops
         tDist = None
         for m in pMoves:

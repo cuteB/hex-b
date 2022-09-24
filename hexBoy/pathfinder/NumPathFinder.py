@@ -5,7 +5,7 @@ from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.node.HexNode import HexNode
 from hexBoy.models.SortedDict import SortedDict
 
-# COMEBACK comeback and do this
+# COMEBACK and do this
 
 class NumPathFinder(PathBoy):
 
@@ -149,3 +149,4 @@ class NumPathFinder(PathBoy):
             ez.append(num)
             total += num
         return total
+        

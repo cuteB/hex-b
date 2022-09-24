@@ -13,3 +13,4 @@ def TrimEdgesFromPath(path: List[Hex]) -> List[Hex]:
             trimmed.append(X)
 
     return trimmed
+    

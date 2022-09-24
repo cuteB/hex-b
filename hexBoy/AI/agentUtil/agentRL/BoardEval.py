@@ -7,7 +7,6 @@ class BoardStates:
   REWARD = 1
   GAMMA = 0.01
 
-
   def __init__(self, player):
     self.bigBoardDict = {}
     self.player = player

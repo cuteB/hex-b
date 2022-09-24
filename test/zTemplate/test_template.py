@@ -1,6 +1,5 @@
 import pytest
 
-
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
@@ -8,7 +7,6 @@ def before_and_after_test(tmpdir):
     # ^^^ before ^^^
     yield  # run the rest
     # vvv After vvv
-
 
 def test_template(tmpdir):
     """Increasing the pass percentage :* """

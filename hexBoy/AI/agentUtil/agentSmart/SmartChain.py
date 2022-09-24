@@ -257,3 +257,4 @@ class SmartChain():
         """Get the ending hex of the chain"""
 
         return self._endPos
+        

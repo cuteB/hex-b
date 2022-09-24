@@ -85,7 +85,6 @@ def test_OnePlayerNodePath(tmpdir):
         (5, 11)
     ]
 
-
 def test_PlayerPath(tmpdir):
     """Test Path Cost with winning Path"""
     for i in range(11):

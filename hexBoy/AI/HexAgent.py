@@ -1,5 +1,5 @@
 import random
-from dataclasses import dataclass
+
 from abc import ABC, abstractmethod
 from typing import Callable
 
@@ -58,7 +58,6 @@ class HexAgent(ABC):
         """Get Agent's name"""
 
         return self._name
-
 
     '''---
     private

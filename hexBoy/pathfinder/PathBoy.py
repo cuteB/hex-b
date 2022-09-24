@@ -23,7 +23,6 @@ def _defaultGetSortValue(item: Tuple[HexNode, HexNode]) -> int:
     """Default Get sort Value sorts by PC"""
     return item[1].getPC()
 
-
 '''----------------------------------
 Path Finder
 ----------------------------------'''
@@ -147,4 +146,3 @@ class PathBoy:
             cost += stepNode.getCost()
 
         return cost
-
