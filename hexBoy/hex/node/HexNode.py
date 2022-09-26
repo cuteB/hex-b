@@ -50,6 +50,7 @@ class HexNode(Hex):
 
     # family
     _dads: List[HexNode]  # Parent(s) of the node. Could have been moms too i guess. 
+    _sons: List[HexNode]  # Kid(s) of the node. Because parents only care about their best kids
 
     def __init__(self, X):
         Hex.__init__(self, X)
@@ -62,6 +63,7 @@ class HexNode(Hex):
         self._heur = 0
 
         self._dads = []
+        self._sons = []
 
     '''---
     Public Functions
