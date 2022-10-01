@@ -86,7 +86,7 @@ class PathBoy:
         def scoreHeuristic(node: HexNode, parent: HexNode, pathCost: int):
             """Score Node: set parent, path and heuristic value"""
 
-            node.setParent(parent)
+            node.setDad(parent)
             node.setPath(pathCost)
             node.setHeur(self._heuristicFunc(node, endPos))
 
@@ -126,7 +126,7 @@ class PathBoy:
         path = []
         while pathPos != None:
             path.append(pathPos)
-            pathPos = nodes[pathPos].getParent()
+            pathPos = nodes[pathPos].getDad()
         
         # reverse list
         return list(reversed(path))

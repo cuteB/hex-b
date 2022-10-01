@@ -82,6 +82,7 @@ class HexGameRules:
 
     def getHeuristicFunc(player: int) -> Callable[[Hex, Hex], int]:
         """Return the heuristic function for the player used in the pathfinder"""
+        # TODO I think I want to test this function
 
         if (player == 1): # blue
             i = 1

@@ -52,6 +52,10 @@ class HexNode(Hex):
     _dads: List[HexNode]  # Parent(s) of the node. Could have been moms too i guess. 
     _sons: List[HexNode]  # Kid(s) of the node. Because parents only care about their best kids
 
+    # paths to and from node
+    _pathsToNode: int
+    _pathsFromNode: int 
+
     def __init__(self, X):
         Hex.__init__(self, X)
         
@@ -64,6 +68,9 @@ class HexNode(Hex):
 
         self._dads = []
         self._sons = []
+
+        self._pathsToNode = 0
+        self._pathsFromNode = 0
 
     '''---
     Public Functions
@@ -123,13 +130,57 @@ class HexNode(Hex):
         "Get path cost to node + cost of node"
         return self._path + self._cost
 
-    def getParent(self) -> HexNode:
+    def getDad(self) -> HexNode:
         """Get single parent of the node, First parent if it has many"""
         if (len(self._dads) > 0):
             return self._dads[0]
         else: 
             return None
 
-    def setParent(self, parent: HexNode) -> None:
-        """Set a single parent to the node"""
-        self._dads = [parent]
+    def getDads(self) -> List[HexNode]:
+        # TODO description and tests
+        return self._dads
+
+    def setDad(self, dad: HexNode) -> None:
+        """Set a single dad to the node"""
+        self._dads = [dad]
+
+    def addDad(self, dad: HexNode) -> None:
+        # TODO description and tests
+        self._dads.append(dad)
+
+    def getSon(self) -> HexNode:
+        # TODO description and tests
+        if (len(self._sons) > 0):
+            return self._sons[0]
+        else: 
+            return None
+
+    def setSon(self, son: HexNode) -> None:
+        # TODO description and tests
+        self._sons = [son]
+
+    def addSon(self, son: HexNode) -> None:
+        # TODO description and tests
+
+        self._sons.append(son)
+    
+    def getSons(self) -> List[HexNode]:
+        # TODO tests 
+        return self._sons
+
+    def setPathsToNode(self, n: int) -> None:
+        # TODO
+        self._pathsToNode = n
+
+    def getPathsToNode(self) -> int:
+        # TODO 
+        return self._pathsToNode
+
+    def setPathsFromNode(self, n: int) -> None:
+        # TODO
+        self._pathsFromNode = n
+
+    def getPathsFromNode(self) -> int:
+        return self._pathsFromNode
+        

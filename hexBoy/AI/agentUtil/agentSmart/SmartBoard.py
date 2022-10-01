@@ -22,34 +22,7 @@ class SmartBoard(HexBoard):
     def _initGameBoard(self) -> Dict[Hex, HexNode]:    
         super()._initGameBoard
 
-        # Init all the nodes with their costs and family
-        nodes: Dict[Hex, HexNode] = self.getNodeDict()
-        adjacentSpaces: List[Hex] = None
-        nextNode: Hex = None
-
-        def sortFunc(item: Tuple[HexNode, HexNode]) -> int:
-            return item[1].getPath()
-
-        openNodes: SortedDict = SortedDict(getSortValue=sortFunc)
-        closedNodes: SortedDict = SortedDict()
-
-
-        currentNode: HexNode = None
-        openNodes[currentNode] = nodes[self._playerInfo.start]
-
-        def scoreNode(X: HexNode) -> None:
-            if (X.getHexType().xType == 2): # Edge
-                if (self._heuristic(X) == 1): # starting edge
-                    
-                
-
-
-        while (len(openNodes) != 0):
-            currentNode == openNodes.popItem()
-            closedNodes[currentNode] = None
-
-            adjacentSpaces = self.getAdjacentSpaces(currentNode)            
-            for nextPos in adjacentSpaces:
+       
 
 
 
