@@ -130,6 +130,10 @@ class HexNode(Hex):
         "Get path cost to node + cost of node"
         return self._path + self._cost
 
+    def getCD(self) -> int:
+        """Get cost of node + dist to end"""
+        return self._cost + self._dist
+
     def getDad(self) -> HexNode:
         """Get single parent of the node, First parent if it has many"""
         if (len(self._dads) > 0):
@@ -148,6 +152,11 @@ class HexNode(Hex):
     def addDad(self, dad: HexNode) -> None:
         # TODO description and tests
         self._dads.append(dad)
+
+    def delDad(self, dad: HexNode) -> None:
+        # TODO
+        if dad in self._dads:
+            self._dads.remove(dad) 
 
     def getSon(self) -> HexNode:
         # TODO description and tests
@@ -168,6 +177,11 @@ class HexNode(Hex):
     def getSons(self) -> List[HexNode]:
         # TODO tests 
         return self._sons
+
+    def delSon(self, son: HexNode) -> None:
+        # TODO
+        if son in self._sons:
+            self._sons.remove(son) 
 
     def setPathsToNode(self, n: int) -> None:
         # TODO

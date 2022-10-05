@@ -69,6 +69,23 @@ def test_EmptySmartBoardNodePCDMiddle(tmpdir):
     assert set(X.getDads()) == set([(5,10)])
     assert set(X.getSons()) == set([])
 
+def test_MoreEmptySmartBoardNodePCDMiddle(tmpdir):
+    """Testing more nodes, Some nodes might be acting funny"""
+
+    X: HexNode = tmpdir.board.getNodeDict()[(6,6)]
+    assert X.getPath() == 6
+    assert X.getDist() == 4
+    assert X.getBest() == 11
+    assert set(X.getDads()) == set([(6,5), (7,5)])
+    assert set(X.getSons()) == set([(5,7), (6,7)])
+
+    X: HexNode = tmpdir.board.getNodeDict()[(3,6)]
+    assert X.getPath() == 6
+    assert X.getDist() == 4
+    assert X.getBest() == 11
+    assert set(X.getDads()) == set([(3,5), (4,5)])
+    assert set(X.getSons()) == set([(2,7), (3,7)])
+
 def test_EmptySmartBoardTotalPaths(tmpdir):
     """Empty board paths for a player"""
 
@@ -82,17 +99,43 @@ def test_SmartBoardWithMiddleMove(tmpdir):
     tmpdir.board.makeMove(1, (5,5))
     tmpdir.npf.updateMove(1, (5,5))
 
-
     assert tmpdir.npf.getNumPaths() == 1024
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((5,5)) == 32
 
 def test_SmartBoardWithTwoMoves(tmpdir):
-    """Board with the move in the middle"""
+    """Board with two strong moves"""
 
-    tmpdir.board.makeMove(1, (5,5))
-    tmpdir.board.makeMove(1, (4,7))
+    moves = [(5,5), (4,7)]
+    for m in moves:
+        tmpdir.board.makeMove(1, m)
+        tmpdir.npf.updateMove(1, m)
+
     
     assert tmpdir.npf.getNumPaths() == 512
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
+    assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
+
+def test_SmartBoardWithThreeMoves(tmpdir):
+    """Board with three strong moves"""
+
+    moves = [(5,5), (4,7), (3,9)]
+    for m in moves:
+        tmpdir.board.makeMove(1, m)
+        tmpdir.npf.updateMove(1, m)
+    
+    assert tmpdir.npf.getNumPaths() == 256
+    assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
+    assert tmpdir.npf.getNumPathsFromHex((3,9)) == 2
+
+def test_SmartBoardWithThreeMovesUpdateDad(tmpdir):
+    """Board with three strong moves in a different place"""
+
+    moves = [(5,5), (4,7), (6,3)]
+    for m in moves:
+        tmpdir.board.makeMove(1, m)
+        tmpdir.npf.updateMove(1, m)
+    
+    assert tmpdir.npf.getNumPaths() == 256
+    assert tmpdir.npf.getNumPathsToHex((6,3)) == 8
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8

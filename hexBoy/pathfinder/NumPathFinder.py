@@ -132,15 +132,116 @@ class NumPathFinder(PathBoy):
 
     def updateMove(self, player: int, move: Hex) -> None:
         """Update board with the new move"""
-        pass
 
-        
+        # TODO only works if this is the player's move
 
+        nodes = self._board.getNodeDict()
+        X: HexNode = nodes[move]
 
+        # Helper functions
+        def _sortFunc(item: Tuple[HexNode, int]) -> int:
+            return item[1]
+
+        def _updateSon(X: HexNode) -> None:
+            """Update node's dads, path, and paths to node"""
+
+            if (X.getHexType().xType == 2): # Edge
+                return
+
+            dads: List[HexNode] = X.getDads()
+
+            # Get best dad
+            bestPC = -1
+            for d in dads:
+                if (d.getPC() < bestPC or bestPC == -1):
+                    bestPC = d.getPC()
+
+            # Get pathsTo from dads
+            badDads = []
+            pathsToNode = 0
+            for d in dads:
+                if (d.getPC() == bestPC):
+                    pathsToNode += d.getPathsToNode()
+                else:
+                    badDads.append(d)
+
+            # remove dads with worst path+cost
+            for bd in badDads:
+                X.delDad(bd)
+
+            # Update node and nodes
+            X.setPathsToNode(pathsToNode)
+            X.setPath(X.getDad().getPC())
+            nodes[X] = X
+
+        def _updateDad(X: HexNode) -> None:
+            """Update node's sons, dist and paths from node"""
+
+            if (X.getHexType().xType == 2): # Edge
+                return
+
+            sons: List[HexNode] = X.getSons()
+            
+            # Get best son
+            bestCD = -1
+            for s in sons:
+                if (s.getCD() < bestCD or bestCD == -1):
+                    bestCD = s.getCD()
+            
+            # Get pathsFrom from sons
+            badSons = []
+            pathsFromNode = 0
+            for s in sons:
+                if (s.getCD() == bestCD):
+                    pathsFromNode += s.getPathsFromNode()
+                else:
+                    badSons.append(s)
+
+            # remove sons with worst cost+dist
+            for bs in badSons:
+                X.delSon(bs)
+
+            # Update node and nodes
+            X.setPathsFromNode(pathsFromNode)
+            X.setDist(X.getSon().getCD())
+            nodes[X] = X
+
+        # Update sons first
+        openNodes = SortedDict(getSortValue=_sortFunc)
+        closedNodes = SortedDict()
+
+        for son in X.getSons():
+            openNodes[son] = 1
+
+        while (len(openNodes) != 0):
+            currentNode, depth = openNodes.popItem()
+            closedNodes[currentNode] = None
+            _updateSon(currentNode)
+
+            for son in currentNode.getSons():
+                if (not openNodes.hasKey(son) and not closedNodes.hasKey(son)):
+                    openNodes[son] = depth + 1
+
+        # Then update dads
+        openNodes = SortedDict(getSortValue=_sortFunc)
+        closedNodes = SortedDict()
+
+        for dad in X.getDads():
+            openNodes[dad] = 1
+
+        while (len(openNodes) != 0):
+            currentNode, depth = openNodes.popItem()
+            closedNodes[currentNode] = None
+
+            _updateDad(currentNode)
+
+            for dad in currentNode.getDads():
+                if (not openNodes.hasKey(dad) and not closedNodes.hasKey(dad)):
+                    openNodes[dad] = depth + 1
 
     def getNumPaths(self) -> int:
         """Get the total number of paths that have the best cost"""
-
+        bestBest: int = -1
         numPaths: int = 0
 
         nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
@@ -154,9 +255,8 @@ class NumPathFinder(PathBoy):
             currentNode: HexNode = openNodes.pop()
             closedNodes[currentNode] = None
 
-
-
-            numPaths += currentNode.getDad().getPathsToNode()
+            if (currentNode.getDad().getBest() < bestBest or bestBest == -1):
+                bestBest = currentNode.getDad().getBest()
 
             adjacentSpaces = self._board.getAdjacentSpaces(currentNode)            
             for nextPos in adjacentSpaces:
@@ -166,6 +266,12 @@ class NumPathFinder(PathBoy):
                     and nextNode.getHexType().xType == 2
                 ):
                     openNodes[nextNode] = nextNode
+
+        for X in closedNodes.getKeys():
+            dad: HexNode = X.getDad()
+            print(dad, dad.getBest(), dad.getPathsToNode()) # XXX
+            if (dad.getBest() == bestBest):
+                numPaths += dad.getPathsToNode()
 
         return numPaths
 
