@@ -111,7 +111,6 @@ def test_SmartBoardWithTwoMoves(tmpdir):
         tmpdir.board.makeMove(1, m)
         tmpdir.npf.updateMove(1, m)
 
-    
     assert tmpdir.npf.getNumPaths() == 512
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
@@ -139,3 +138,31 @@ def test_SmartBoardWithThreeMovesUpdateDad(tmpdir):
     assert tmpdir.npf.getNumPaths() == 256
     assert tmpdir.npf.getNumPathsToHex((6,3)) == 8
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
+
+def test_SmartBoardWithMoveAndOppMove(tmpdir):
+    """One Move from Each Player"""
+ 
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.npf.updateMove(1, (5,5))
+    tmpdir.board.makeMove(2, (5,6))
+    tmpdir.npf.updateMove(2, (5,6))
+
+    assert tmpdir.npf.getNumPaths() == 512
+    assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
+    assert tmpdir.npf.getNumPathsFromHex((5,5)) == 16
+
+def test_SmartBoardWithScatteredMoves(tmpdir):
+    """A bunch of moves from one player"""
+
+    moves = [(10,0), (10,10), (5,5), (2,8), (5,6)]
+    numPaths = [1024, 1, 33, 4, 22]
+    pathsTo = [1, 1, 1, 1, 1]
+    pathsFrom = [1024, 1, 32, 4, 16]
+
+    for i in range(len(moves)):
+        tmpdir.board.makeMove(1, moves[i])
+        tmpdir.npf.updateMove(1, moves[i])
+
+        assert tmpdir.npf.getNumPaths() == numPaths[i]
+        assert tmpdir.npf.getNumPathsToHex(moves[i]) == pathsTo[i]
+        assert tmpdir.npf.getNumPathsFromHex(moves[i]) == pathsFrom[i]

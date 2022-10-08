@@ -8,6 +8,7 @@ from hexBoy.models.SortedDict import SortedDict
 
 class NumPathFinder(PathBoy):
 
+    # TODO remove from pathboy. A* ruins the num path algorithm
     _playerInfo: HexPlayerInfo
 
     def __init__(
@@ -133,14 +134,22 @@ class NumPathFinder(PathBoy):
     def updateMove(self, player: int, move: Hex) -> None:
         """Update board with the new move"""
 
-        # TODO only works if this is the player's move
 
         nodes = self._board.getNodeDict()
         X: HexNode = nodes[move]
 
-        # Helper functions
+        if (player != self._playerInfo.player):
+            for s in X.getSons():
+                s.delDad(X)
+
+            for d in X.getDads():
+                d.delSon(X)
+
+
         def _sortFunc(item: Tuple[HexNode, int]) -> int:
             return item[1]
+
+        # Helper functions
 
         def _updateSon(X: HexNode) -> None:
             """Update node's dads, path, and paths to node"""
@@ -149,6 +158,22 @@ class NumPathFinder(PathBoy):
                 return
 
             dads: List[HexNode] = X.getDads()
+
+            if (len(dads) == 0): 
+                # Get new dads
+                bestDadPC = -1
+                adjHexes = self._board.getAdjacentSpaces(X)
+                for aX in adjHexes:
+                    adjX = nodes[aX]
+
+                    if (not self._checkIfBarrier(adjX)): # and (adjX.getPC() < bestDadPC or bestDadPC == -1)):
+                        bestDadPC = adjX.getPC()
+
+                for aX in adjHexes:
+                    adjX = nodes[aX]
+                    if (adjX.getPC()== bestDadPC):
+                        X.addDad(adjX) #TODO I'm pretty sure I have to add a son to aX
+                        dads.append(adjX)
 
             # Get best dad
             bestPC = -1
@@ -181,6 +206,19 @@ class NumPathFinder(PathBoy):
                 return
 
             sons: List[HexNode] = X.getSons()
+
+            if (len(sons) == 0): 
+                # Get new sons
+                bestSonCD = -1
+                for aX in self._board.getAdjacentSpaces(X):
+                    adjX = nodes[aX]
+                    if (self._checkIfBarrier(aX) and (adjX.getCD() < bestSonCD or bestSonCD == -1)):
+                        bestSonCD = adjX.getCD()
+
+                for aX in self._board.getAdjacentSpaces(X):
+                    adjX = nodes[aX]
+                    if (adjX.getCD()== bestSonCD):
+                        X.addSon(adjX) #TODO I'm pretty sure I have to add a son to aX
             
             # Get best son
             bestCD = -1
@@ -239,6 +277,12 @@ class NumPathFinder(PathBoy):
                 if (not openNodes.hasKey(dad) and not closedNodes.hasKey(dad)):
                     openNodes[dad] = depth + 1
 
+
+
+
+
+            
+
     def getNumPaths(self) -> int:
         """Get the total number of paths that have the best cost"""
         bestBest: int = -1
@@ -267,9 +311,10 @@ class NumPathFinder(PathBoy):
                 ):
                     openNodes[nextNode] = nextNode
 
+        print()
         for X in closedNodes.getKeys():
             dad: HexNode = X.getDad()
-            print(dad, dad.getBest(), dad.getPathsToNode()) # XXX
+            print(dad, dad.getBest(), dad.getPathsToNode())
             if (dad.getBest() == bestBest):
                 numPaths += dad.getPathsToNode()
 
