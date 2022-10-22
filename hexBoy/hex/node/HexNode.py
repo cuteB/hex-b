@@ -149,12 +149,17 @@ class HexNode(Hex):
         """Set a single dad to the node"""
         self._dads = [dad]
 
+    def setDads(self, dads: List[HexNode]) -> None:
+        """Set dads from list"""
+        self._dads = dads
+
     def addDad(self, dad: HexNode) -> None:
         # TODO description and tests
-        self._dads.append(dad)
+        if not dad in self._dads:
+            self._dads.append(dad)
 
     def delDad(self, dad: HexNode) -> None:
-        # TODO
+        # TODO 
         if dad in self._dads:
             self._dads.remove(dad) 
 
@@ -169,10 +174,14 @@ class HexNode(Hex):
         # TODO description and tests
         self._sons = [son]
 
+    def setSons(self, sons: List[HexNode]) -> None:
+        self._sons = sons
+
     def addSon(self, son: HexNode) -> None:
         # TODO description and tests
 
-        self._sons.append(son)
+        if not son in self._sons:
+            self._sons.append(son)
     
     def getSons(self) -> List[HexNode]:
         # TODO tests 

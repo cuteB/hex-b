@@ -79,12 +79,26 @@ def test_MoreEmptySmartBoardNodePCDMiddle(tmpdir):
     assert set(X.getDads()) == set([(6,5), (7,5)])
     assert set(X.getSons()) == set([(5,7), (6,7)])
 
-    X: HexNode = tmpdir.board.getNodeDict()[(3,6)]
+    X = tmpdir.board.getNodeDict()[(3,6)]
     assert X.getPath() == 6
     assert X.getDist() == 4
     assert X.getBest() == 11
     assert set(X.getDads()) == set([(3,5), (4,5)])
     assert set(X.getSons()) == set([(2,7), (3,7)])
+
+    X = tmpdir.board.getNodeDict()[(10,-1)]
+    assert X.getPath() == 0
+    assert X.getDist() == 11
+    assert X.getBest() == 11
+    assert set(X.getDads()) == set([])
+    assert set(X.getSons()) == set([(10,0)])
+
+    X = tmpdir.board.getNodeDict()[(5,11)]
+    assert X.getPath() == 11
+    assert X.getDist() == 0
+    assert X.getBest() == 11
+    assert set(X.getDads()) == set([(5,10)])
+    assert set(X.getSons()) == set([])
 
 def test_EmptySmartBoardTotalPaths(tmpdir):
     """Empty board paths for a player"""
@@ -154,10 +168,10 @@ def test_SmartBoardWithMoveAndOppMove(tmpdir):
 def test_SmartBoardWithScatteredMoves(tmpdir):
     """A bunch of moves from one player"""
 
-    moves = [(10,0), (10,10), (5,5), (2,8), (5,6)]
-    numPaths = [1024, 1, 33, 4, 22]
-    pathsTo = [1, 1, 1, 1, 1]
-    pathsFrom = [1024, 1, 32, 4, 16]
+    moves = [(10,0), (10,10), (5,5), (2,8), (5,6), (6,6)]
+    numPaths = [1024, 1, 33, 4, 28, 36]
+    pathsTo = [1, 1, 1, 1, 1, 1]
+    pathsFrom = [1024, 1, 32, 4, 28, 36]
 
     for i in range(len(moves)):
         tmpdir.board.makeMove(1, moves[i])
@@ -166,3 +180,24 @@ def test_SmartBoardWithScatteredMoves(tmpdir):
         assert tmpdir.npf.getNumPaths() == numPaths[i]
         assert tmpdir.npf.getNumPathsToHex(moves[i]) == pathsTo[i]
         assert tmpdir.npf.getNumPathsFromHex(moves[i]) == pathsFrom[i]
+
+
+def test_NumPathsForBoardWithChain(tmpdir):
+    """Make a chain and check start and end paths"""
+
+    moves = [(5,5), (6,3)]
+    start = [(5,5), (6,3)]
+    end = [(6,3), (5,5)]
+
+    numPaths = [1024, 516]
+    startPaths = [32, 16]
+    endPaths = [32, 16]
+
+    for i in range(len(moves)):
+        tmpdir.board.makeMove(1, moves[i])
+        tmpdir.npf.updateMove(1, moves[i])
+
+        assert tmpdir.npf.getNumPaths() == numPaths[i]
+        assert tmpdir.npf.getNumPathsToHex(start[i]) == startPaths[i]
+        assert tmpdir.npf.getNumPathsFromHex(end[i]) == endPaths[i]
+        
