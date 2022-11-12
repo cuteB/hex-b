@@ -187,11 +187,11 @@ def test_NumPathsForBoardWithChain(tmpdir):
 
     moves = [(5,5), (6,3)]
     start = [(5,5), (6,3)]
-    end = [(6,3), (5,5)]
+    end = [(5,5), (5,5)]
 
-    numPaths = [1024, 516]
-    startPaths = [32, 16]
-    endPaths = [32, 16]
+    numPaths = [1024, 512]
+    startPaths = [32, 8]
+    endPaths = [32, 32]
 
     for i in range(len(moves)):
         tmpdir.board.makeMove(1, moves[i])
@@ -201,3 +201,55 @@ def test_NumPathsForBoardWithChain(tmpdir):
         assert tmpdir.npf.getNumPathsToHex(start[i]) == startPaths[i]
         assert tmpdir.npf.getNumPathsFromHex(end[i]) == endPaths[i]
         
+
+def test_NumPathsEventuallyBlockingMoves(tmpdir):
+    """Have opponent moves slowly change the path of the player"""
+    
+    m = (5,5)
+
+    tmpdir.board.makeMove(1, m)
+    tmpdir.npf.updateMove(1, m)
+
+    assert tmpdir.npf.getNumPaths() == 1024
+    assert tmpdir.npf.getNumPathsToHex(m) == 32
+    assert tmpdir.npf.getNumPathsFromHex(m) == 32
+
+    # opp moves
+    oMoves = [(5,7), (4,6)]
+    numPaths = [512, 512]
+    startPaths = [32, 16]
+    endPaths = [32, 32]
+
+    for i in range(len(oMoves)):
+        tmpdir.board.makeMove(2, oMoves[i])
+        tmpdir.npf.updateMove(2, oMoves[i])
+
+        assert tmpdir.npf.getNumPaths() == numPaths[i]
+        assert tmpdir.npf.getNumPathsToHex(m) == startPaths[i]
+        assert tmpdir.npf.getNumPathsFromHex(m) == endPaths[i]
+
+def test_NumPathsEventuallySurroundingMove(tmpdir):
+    """Have opponent moves slowly change the path of the player"""
+    
+    m = (5,5)
+
+    tmpdir.board.makeMove(1, m)
+    tmpdir.npf.updateMove(1, m)
+
+    assert tmpdir.npf.getNumPaths() == 1024
+    assert tmpdir.npf.getNumPathsToHex(m) == 32
+    assert tmpdir.npf.getNumPathsFromHex(m) == 32
+
+    # opp moves
+    oMoves = [(4,5), (6,5), (6,4), (5,6), (5,4), (4,6)]
+    numPaths = [1024, 1024, 512, 256, 3136, 0]
+    startPaths = [32, 32, 16, 16, 0, 0]
+    endPaths = [32, 32, 32, 16, 0, 0]
+
+    for i in range(len(oMoves)):
+        tmpdir.board.makeMove(2, oMoves[i])
+        tmpdir.npf.updateMove(2, oMoves[i])
+
+        assert tmpdir.npf.getNumPaths() == numPaths[i]
+        assert tmpdir.npf.getNumPathsToHex(m) == startPaths[i]
+        assert tmpdir.npf.getNumPathsFromHex(m) == endPaths[i]

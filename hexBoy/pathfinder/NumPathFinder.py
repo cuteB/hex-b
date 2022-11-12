@@ -1,15 +1,18 @@
 import math
 from typing import Callable, Dict, List, Tuple
 
-from hexBoy.hex.board.HexBoard import Board, HexBoard
+from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.game.HexGameRules import HexGameRules, HexPlayerInfo
-from hexBoy.pathfinder.PathBoy import PathBoy
 from hexBoy.hex.node.HexNode import Hex, HexNode
 from hexBoy.models.SortedDict import SortedDict
 
-class NumPathFinder(PathBoy):
+class NumPathFinder:
+    """Track the number of best paths a player has on the board. Need to initialize board and then update each move"""
 
-    # TODO remove from pathboy. A* ruins the num path algorithm
+    _board: Board
+    _checkIfBarrier: Callable[[HexNode], bool]    
+    _heuristicFunc: Callable[[HexNode, HexNode], int]  # Heuristic function for A*
+
     _playerInfo: HexPlayerInfo
 
     _clusterId: int = 0
@@ -21,11 +24,14 @@ class NumPathFinder(PathBoy):
         board: Board,
         player: int
     ):
-        PathBoy.__init__(self, 
-            board,
-            checkIfBarrier=HexGameRules.getCheckIfBarrierFunc(player),
-            heuristicFunc=HexGameRules.getHeuristicFunc(player)
-        )
+        """Initialize num path finder
+        @param board: Board "The board to observe"
+        @param player: int "The player to monitor, sets heuristic and barrier check from player"
+        """
+
+        self._board = board
+        self._checkIfBarrier=HexGameRules.getCheckIfBarrierFunc(player)
+        self._heuristicFunc=HexGameRules.getHeuristicFunc(player)
 
         self._clusters = SortedDict()
         self._hexToCluster = SortedDict() 
@@ -36,33 +42,26 @@ class NumPathFinder(PathBoy):
         clusterHexes = self._clusters[cId]
         adjHexesToCluster = []
 
-
         for cX in clusterHexes:
             adjHexes = self._board.getAdjacentSpaces(cX)
             for aX in adjHexes:
-                if aX not in clusterHexes and aX not in adjHexesToCluster:
+                if (aX not in clusterHexes and aX not in adjHexesToCluster):
                     adjHexesToCluster.append(aX)
 
         return adjHexesToCluster
 
-
-
-
     def initEmptyBoard(self) -> None:
-
-        board = self._board
+        """Initialize an empty Hex Board for the player. Set dads/sons and the paths to/from for each node."""
 
         # Init all the nodes with their costs and family
-        nodes: Dict[Hex, HexNode] = board.getNodeDict()
-        adjacentSpaces: List[Hex] = None
-        nextNode: Hex = None
+        nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
 
-        # sort by heur. go row by row 
-        def sortFunc(item: Tuple[HexNode, HexNode]) -> int:
+        def _sortFuncByHeur(item: Tuple[HexNode, HexNode]) -> int:
+            """sort by heur. go row by row """
             return self._heuristicFunc(item[1], None)
 
         def _scoreNode(X: HexNode) -> None:
-            """Score PCD and set initial family"""
+            """Score PCD, set initial family and paths to node"""
 
             h = self._heuristicFunc(X, None)
             X.setPath(max(11 - h, 0)) # end zones return -1 with heur
@@ -70,9 +69,8 @@ class NumPathFinder(PathBoy):
             X.setHeur(h - 1)
 
             if (X.getHexType().xType == 1):
-                # Playable board
-                # Set dads/sons 
-                for aX in board.getAdjacentSpaces(X): # Sometimes using board sometimes self._board
+                # Playable board, Set dads/sons 
+                for aX in self._board.getAdjacentSpaces(X):
                     adjX = nodes[aX]
                     # Playable Board
                     if (adjX.getHexType().xType == 1): 
@@ -94,44 +92,20 @@ class NumPathFinder(PathBoy):
                             X.setDad(adjX) # only have one dad from the edge
                             adjX.setSon(X)
 
+            # Set paths to
             if (len(X.getDads()) == 0):
                 # Edges with no dads have 1 path
                 X.setPathsToNode(1)
 
             else:
+                # Regular node
                 num = 0
                 for dad in X.getDads():
                     num += dad.getPathsToNode()
                 X.setPathsToNode(num)
 
-        openNodes: SortedDict = SortedDict(getSortValue=sortFunc, reverse=True)
-        closedNodes: SortedDict = SortedDict()
-
-        currentNode: HexNode = self._playerInfo.start
-        openNodes[currentNode] = nodes[currentNode]
-
-        while (len(openNodes) != 0):
-            currentNode = openNodes.pop()
-            closedNodes[currentNode] = None
-            _scoreNode(currentNode)
-            
-            adjacentSpaces = self._board.getAdjacentSpaces(currentNode)            
-            for nextPos in adjacentSpaces:
-                nextNode = nodes[nextPos]
-
-                if not self._checkIfBarrier(nextNode) and not closedNodes.hasKey(nextPos) and not openNodes.hasKey(nextPos):
-                    nodes[nextNode] = nextNode
-                    openNodes[nextNode] = nextNode
-
-        # Go backward
-        openNodes = SortedDict(getSortValue=sortFunc)
-        closedNodes = SortedDict()
-
-        currentNode = self._playerInfo.end
-        openNodes[currentNode] = nodes[currentNode]
-
         def _setPathsFrom(X: HexNode) -> None:
-            # TODO
+            """Set paths from the node"""
             if (len(X.getSons()) == 0):
                 # Edges with no sons have 1 path
                 X.setPathsFromNode(1)
@@ -142,53 +116,87 @@ class NumPathFinder(PathBoy):
                     num += son.getPathsFromNode()
                 X.setPathsFromNode(num)
 
+        currentNode: HexNode
+        nextNode: HexNode
+
+        # Path find; from start
+        openNodes = SortedDict(getSortValue=_sortFuncByHeur, reverse=True)
+        closedNodes = SortedDict()
+        openNodes[self._playerInfo.start] = nodes[self._playerInfo.start]
         while (len(openNodes) != 0):
             currentNode = openNodes.pop()
             closedNodes[currentNode] = None
-            _setPathsFrom(currentNode)
 
-            adjacentSpaces = self._board.getAdjacentSpaces(currentNode)            
-            for nextPos in adjacentSpaces:
+            _scoreNode(currentNode)
+            
+            # Add nodes to open
+            for nextPos in self._board.getAdjacentSpaces(currentNode):
                 nextNode = nodes[nextPos]
 
-                if not self._checkIfBarrier(nextNode) and not closedNodes.hasKey(nextPos) and not openNodes.hasKey(nextPos):
+                if (not self._checkIfBarrier(nextNode) 
+                    and not closedNodes.hasKey(nextPos) 
+                    and not openNodes.hasKey(nextPos)
+                ):
                     openNodes[nextNode] = nextNode
 
+        # Path find; going backwards
+        openNodes = SortedDict(getSortValue=_sortFuncByHeur)
+        closedNodes = SortedDict()
+        openNodes[self._playerInfo.end] = nodes[self._playerInfo.end]
+        while (len(openNodes) != 0):
+            currentNode = openNodes.pop()
+            closedNodes[currentNode] = None
+
+            _setPathsFrom(currentNode)
+
+            # Add nodes to open
+            for nextPos in self._board.getAdjacentSpaces(currentNode):
+                nextNode = nodes[nextPos]
+
+                if (not self._checkIfBarrier(nextNode) 
+                    and not closedNodes.hasKey(nextPos) 
+                    and not openNodes.hasKey(nextPos)
+                ):
+                    openNodes[nextNode] = nextNode
 
     def updateMove(self, player: int, move: Hex) -> None:
-        """Update board with the new move"""
+        """Update board with the new move. Set Dads, Sons, and num paths to/from"""
+
+        print() # XXX
+        print(move) # XXX
+        print() #
 
         nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
         X: HexNode = nodes[move]
+        deadCells: SortedDict = SortedDict() # Nodes to ignore when updating parents
 
-        def _sortFunc(item: Tuple[HexNode, int]) -> int:
+
+        def _sortFuncByDepth(item: Tuple[HexNode, int]) -> int:
             return item[1]
 
-        # Helper functions
-
         def _updateNode(X: HexNode) -> None:
+            """Update PCD, Set Best dads/sons for the node"""
 
             if (X.getHexType().xType == 2): 
-                # Edge
-                return
+                return # Edge
 
             # get Adjacent Hexes            
             adjSpaces: List[Hex]
+            adjHexes: List[HexNode]
             if (X.getHexType().player == self._playerInfo.player):
                 # player move, use cluster's adjacent hexes as nodes adjHexes
-                adjSpaces: List[Hex] = self._getClusterAdjacentSpaces(self._hexToCluster[X])
+                adjSpaces = self._getClusterAdjacentSpaces(self._hexToCluster[X])
             else:
                 # regular hex
-                adjSpaces: List[Hex] = self._board.getAdjacentSpaces(X)
-            adjHexes: List[HexNode] = list(map(lambda X: nodes[X], adjSpaces)) 
-
-
+                adjSpaces = self._board.getAdjacentSpaces(X)
+            # convert Hex -> HexNode
+            adjHexes = list(map(lambda X: nodes[X], adjSpaces)) 
 
             # Get best dads and sons costs
             bestDadPC: int = -1
             bestSonCD: int = -1
             for aX in adjHexes:
-                if (not self._checkIfBarrier(aX)):
+                if (not self._checkIfBarrier(aX) and not deadCells.hasKey(aX)):
                     if (aX.getPC() < bestDadPC or bestDadPC == -1):
                         bestDadPC = aX.getPC()
                 
@@ -206,16 +214,17 @@ class NumPathFinder(PathBoy):
                     if (aX.getCD() == bestSonCD):
                         bestSons.append(aX)
 
-
             # filter out dads from the same cluster
             dadClusters: List[int] = []
             nextDads: List[HexNode] = []
             for d in bestDads:
                 if (d.getHexType().xType == 2):
+                    # If best dad is the end zone, set its dads to one of the edges
                     nextDads = [d]
                     break
 
-                elif d in self._hexToCluster.getKeys():
+                elif self._hexToCluster.hasKey(d):
+                    # Only add one dad from the same cluster
                     cId: int = self._hexToCluster[d]
                     if cId not in dadClusters:
                         dadClusters.append(cId)
@@ -223,17 +232,18 @@ class NumPathFinder(PathBoy):
                 
                 else:
                     nextDads.append(d)
-            
+
             # filter out sons from the same cluster
             sonClusters: List[int] = []
             nextSons: List[HexNode] = []
             for s in bestSons:
                 if s.getHexType().xType == 2:
-                    # end zone
+                    # If best son is the end zone, set its sons to one of the edges
                     nextSons = [s]
                     break
 
-                elif s in self._hexToCluster.getKeys():
+                elif self._hexToCluster.hasKey(s):
+                    # Only add one son from the same cluster
                     cId: int = self._hexToCluster[s]
                     if cId not in sonClusters:
                         sonClusters.append(cId)
@@ -242,15 +252,19 @@ class NumPathFinder(PathBoy):
                 else:
                     nextSons.append(s)
 
+            # Sons can't be their own grandpa
+            if (set(nextDads) == set(nextSons)):
+                print(X, "NSHTTHN")
+                # 1. identify node as a dead end
+                deadCells[X] = None
+                # 2. All node updates from now on can't use nodes that are dead ends
+
+
             X.setDads(nextDads)
             X.setSons(nextSons)
 
             X.setPath(X.getDad().getPC())
             X.setDist(X.getSon().getCD())
-            nodes[X] = X
-
-
-
 
         def _updateNodePathsTo(X: HexNode) -> None:
             """Update node's dads, path, and paths to node"""
@@ -265,9 +279,6 @@ class NumPathFinder(PathBoy):
 
             # Update node and nodes
             X.setPathsToNode(pathsToNode)
-            nodes[X] = X
-
-
 
         def _updateNodePathsFrom(X: HexNode) -> None:
             """Update node's sons, dist and paths from node"""
@@ -282,14 +293,13 @@ class NumPathFinder(PathBoy):
 
             # Update node and nodes
             X.setPathsFromNode(pathsFromNode)
-            nodes[X] = X
 
-        # Handle player move
+        # Handle player/opp move
         if (player == self._playerInfo.player):
             # player move
             adjClusters: List[int] = []
             for aX in self._board.getAdjacentSpaces(move):
-                if aX in self._hexToCluster.getKeys():
+                if self._hexToCluster.hasKey(aX):
                     # adjacent Hex is already a player move
                     adjClusters.append(self._hexToCluster[aX])
 
@@ -331,120 +341,140 @@ class NumPathFinder(PathBoy):
                 d.delSon(X)
 
         # Update family
-        openNodes = SortedDict(getSortValue=_sortFunc)
-        closedNodes = SortedDict()
-        pathDepth = SortedDict(getSortValue=_sortFunc)
-        
-        openNodes[X] = 0 # Breadth first 
-        pathDepth[X] = 0
-
         currentNode: HexNode
         order: int
-        while (len(openNodes) != 0):
-            currentNode, order = openNodes.popItem()
-            closedNodes[currentNode] = None
-            depth = pathDepth[currentNode]
+        depth: int
 
+        # Path find update family and get path update order
+        openNodes = SortedDict(getSortValue=_sortFuncByDepth)
+        closedNodes = SortedDict()
+        pathOrder = SortedDict(getSortValue=_sortFuncByDepth) # update order for paths to/from
+
+        # todo clean this part up
+        if (player == self._playerInfo.player):
+            openNodes[X] = 0 # Breadth first 
+            pathOrder[X] = 0
+        else: 
+            for s in X.getSons():
+                openNodes[s] = 0  
+                pathOrder[s] = 0
+
+            for d in X.getDads():
+                openNodes[d] = 0  
+                pathOrder[d] = 0
+
+        while (len(openNodes) != 0):
+            currentNode, depth = openNodes.popItem()
+            closedNodes[currentNode] = None
+            order = pathOrder[currentNode]
             currentNode = nodes[currentNode]
-            
 
             _updateNode(currentNode) # Family is set
 
-            sons: List[HexNode] = currentNode.getSons()
-            dads: List[HexNode] = currentNode.getDads()
             cluster: List[HexNode] = []
-            if (currentNode in self._hexToCluster.getKeys()):
+            if (self._hexToCluster.hasKey(currentNode)):
                 cluster = self._clusters[self._hexToCluster[currentNode]]
 
-            # Add nodes family/neighbours to open
-            # Go through existing hex cluster first
+            print(currentNode, " \t", currentNode.getBest(), currentNode.getDads(), currentNode.getSons(), cluster) # XXX
+
+            # Add existing hex cluster nodes to open
             for cX in cluster:
                 if (not openNodes.hasKey(cX) and not closedNodes.hasKey(cX)):
-                    openNodes[cX] = order
-                    pathDepth[cX] = depth
+                    openNodes[cX] = depth
+                    pathOrder[cX] = order
 
-            # Go through family
-            # - sons/dads that are taken hexes have a 0.5 depth difference so they go before empty hexes 
+            # Add sons to open
+            # - sons/dads that are taken hexes have a 0.5 depth difference so they go before empty hexes
+            sons: List[HexNode] = currentNode.getSons()
             for sX in sons:
                 if (not openNodes.hasKey(sX) and not closedNodes.hasKey(sX)):
-                    openNodes[sX] = order + 1
+                    openNodes[sX] = depth + 1
                     
                     if sX.getHexType().player == self._playerInfo.player: # Player hex
-                        pathDepth[sX] = math.floor(depth) + 0.5
+                        pathOrder[sX] = math.floor(order) + 0.5
                     
                     else: 
-                        pathDepth[sX] = math.floor(depth) + 1 
+                        pathOrder[sX] = math.floor(order) + 1 
 
+            # Add dads to open
+            dads: List[HexNode] = currentNode.getDads()
             for dX in dads:
                 if (not openNodes.hasKey(dX) and not closedNodes.hasKey(dX)):
-                    openNodes[dX] = order + 1
+                    openNodes[dX] = depth + 1
 
                     if dX.getHexType().player == self._playerInfo.player: # Player hex
-                        pathDepth[dX] = math.floor(depth) - 0.5
+                        pathOrder[dX] = math.floor(order) - 0.5
                     
                     else: 
-                        pathDepth[dX] = math.floor(depth) - 1
+                        pathOrder[dX] = math.floor(order) - 1
 
-
-        # update paths to/from
-        openNodes = SortedDict(initDict=pathDepth, getSortValue=_sortFunc)
+        # print() # XXX
+        # Path find; update paths to
+        openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncByDepth)
         closedNodes = SortedDict()
-
         while (len(openNodes) != 0):
-            currentNode, _ = openNodes.popItem()
+            currentNode = openNodes.popKey()
             closedNodes[currentNode] = None
             currentNode = nodes[currentNode]
 
             _updateNodePathsTo(currentNode)
 
+            # print(currentNode, currentNode.getPathsToNode()) # XXX
 
-        # update paths From
-        openNodes = SortedDict(initDict=pathDepth, getSortValue=_sortFunc, reverse=True)
+        # Path find; update paths From
+        openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncByDepth, reverse=True)
         closedNodes = SortedDict()
-
-        openNodes[nodes[move]] = 0
-
         while (len(openNodes) != 0):
-            currentNode, _ = openNodes.popItem()
+            currentNode = openNodes.popKey()
             closedNodes[currentNode] = None
             currentNode = nodes[currentNode]
 
             _updateNodePathsFrom(currentNode)
 
-
     def getNumPaths(self) -> int:
         """Get the total number of paths that have the best cost"""
-        bestBest: int = -1
+
         numPaths: int = 0
+        bestBest: int = -1 # best PCD of a node
 
         nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
-        openNodes = SortedDict()
-        closedNodes = SortedDict()
+        currentNode: HexNode
+        nextNode: HexNode
 
-        currentNode = self._playerInfo.end
-        openNodes[currentNode] = nodes[currentNode]
-
+        # Path find player end edges
+        openNodes: SortedDict = SortedDict()
+        closedNodes: SortedDict = SortedDict()
+        openNodes[self._playerInfo.end] = nodes[self._playerInfo.end]
         while (len(openNodes) != 0):
-            currentNode: HexNode = openNodes.pop()
+            currentNode = openNodes.pop()
             closedNodes[currentNode] = None
 
             if (currentNode.getDad().getBest() < bestBest or bestBest == -1):
                 bestBest = currentNode.getDad().getBest()
 
-            adjacentSpaces = self._board.getAdjacentSpaces(currentNode)            
-            for nextPos in adjacentSpaces:
+            for nextPos in self._board.getAdjacentSpaces(currentNode):
                 nextNode = nodes[nextPos]
 
-                if (not self._checkIfBarrier(nextNode) and not closedNodes.hasKey(nextPos) and not openNodes.hasKey(nextPos)
+                # Add player edges
+                if (not self._checkIfBarrier(nextNode) 
+                    and not closedNodes.hasKey(nextPos) 
+                    and not openNodes.hasKey(nextPos)
                     and nextNode.getHexType().xType == 2
                 ):
                     openNodes[nextNode] = nextNode
 
+
+        print() # XXX
+
+        # Count up paths for the edges with the best cost
+        dad: HexNode
         for X in closedNodes.getKeys():
-            dad: HexNode = X.getDad()
+            dad = X.getDad()
+            print(dad, dad.getBest(), dad.getPathsToNode()) # XXX
             if (dad.getBest() == bestBest):
                 numPaths += dad.getPathsToNode()
 
+        print(numPaths) # XXX
         return numPaths
 
     def getNumPathsToHex(self, X: Hex) -> int:
@@ -458,134 +488,3 @@ class NumPathFinder(PathBoy):
 
         node: HexNode = self._board.getNodeDict()[X]
         return node.getPathsFromNode()
-
-    """
-    '''---
-    Best paths
-    ---'''
-    def old_numBestPaths(self, nodes, startPos, endPos, checkIfBarrier):
-        nodes = self._board.getNodeDict(),
-        spaces = HexNode.SpaceTypes
-        numPaths = SortedDict()
-
-        winPath = self._AStar(startPos, endPos)
-        bestCost = self.scorePath(winPath)
-
-        openNodes = SortedDict(getSortValue=self.getSortValue)
-        closedNodes = SortedDict()
-        endNodes = SortedDict()  # nodes to add up to get the number of paths
-
-        # add starting position to pop off
-        currentPos = startPos # maybe rename Pos to Hex
-        currentNode = nodes[currentPos]
-        currentNode.setExtraPathsToNode(0.25)
-        openNodes[currentPos] = currentNode
-
-        adjacentSpaces = None
-        nextNode = None
-        closedNode = None
-
-        # helper functions
-        def setNodeInOpenNodes(pos):
-            nextNode.scoreHeuristic(currentPos, currentNode.getPC(), endPos)
-            nonlocal numPaths
-
-            # check if this pos is on the winning edge and moving from a non edge
-            # to an end edge
-            if (
-                (nextNode.type == spaces.BLUE_EDGE or nextNode.type == spaces.RED_EDGE)
-                and (
-                    currentNode.type != spaces.BLUE_EDGE
-                    or currentNode.type != spaces.RED_EDGE
-                )
-                and nextNode.getPC() == bestCost
-            ):
-                # node is an edge and has the best cost -> is a winning path
-                # add paths to the total paths
-                if currentNode.extraPathsToThisNode != 0:
-                    numPaths[currentPos] = currentNode.extraPathsToThisNode
-
-            # moving from start edge to playable board
-            elif (
-                nextNode.type != spaces.BLUE_EDGE or nextNode.type != spaces.RED_EDGE
-            ) and (
-                currentNode.type == spaces.BLUE_EDGE
-                or currentNode.type == spaces.RED_EDGE
-            ):
-                nextNode.setExtraPathsToNode(1)
-
-            else:
-                nextNode.setExtraPathsToNode(currentNode.extraPathsToThisNode)
-
-            nodes[pos] = nextNode
-            openNodes[pos] = nextNode
-
-        def updateNodeInOpenNodes(pos):
-            nonlocal numPaths
-
-            # check if it is a # check if it is a what?
-            if (
-                (nextNode.type == spaces.BLUE_EDGE or nextNode.type == spaces.RED_EDGE)
-                and (
-                    currentNode.type != spaces.BLUE_EDGE
-                    or currentNode.type != spaces.RED_EDGE
-                )
-                and nextNode.getPC() == bestCost
-            ):
-                if currentNode.extraPathsToThisNode != 0:
-                    numPaths[currentPos] = currentNode.extraPathsToThisNode
-
-            # moving from start edge to playable board
-            elif (
-                nextNode.type != spaces.BLUE_EDGE or nextNode.type != spaces.RED_EDGE
-            ) and (
-                currentNode.type == spaces.BLUE_EDGE
-                or currentNode.type == spaces.RED_EDGE
-            ):
-                nextNode.setExtraPathsToNode(1)
-
-            else:
-                openNodes[pos].addExtraPathsToNode(currentNode.extraPathsToThisNode)
-
-        # gotta loop through everything
-        while len(openNodes) > 0:
-            currentNode = openNodes.popKey()
-            closedNodes[currentNode] = None
-
-            adjacentSpaces = self.getAdjacentSpaces(currentNode)
-            for nextPos in adjacentSpaces:
-                nextNode = nodes[nextPos]
-
-                if not checkIfBarrier(nextNode) and not closedNodes.hasKey(nextPos):
-                    if (currentNode.getPC() + nextNode.cost) > bestCost:
-                        # Too expensive
-                        pass
-
-                    elif nextPos == endPos:
-                        # Path Found
-                        pass
-
-                    elif openNodes.hasKey(nextPos):
-                        # In open nodes. check cost compared to this path
-                        if nextNode.getPC() > currentNode.getPC() + nextNode.cost:
-                            # new path better. Overwrite and set path
-                            setNodeInOpenNodes(nextPos)
-
-                        elif nextNode.getPC() == currentNode.getPC() + nextNode.cost:
-                            # same path same cost. add paths to node
-                            updateNodeInOpenNodes(nextPos)
-
-                    else:
-                        # not in open nodes
-                        setNodeInOpenNodes(nextPos)
-
-        # return paths
-        total = 0
-        ez = [] #  remove if not used
-        while len(numPaths) > 0:
-            num = numPaths.pop()
-            ez.append(num)
-            total += num
-        return total
-        
-    """
