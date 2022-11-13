@@ -216,9 +216,9 @@ def test_NumPathsEventuallyBlockingMoves(tmpdir):
 
     # opp moves
     oMoves = [(5,7), (4,6)]
-    numPaths = [512, 512]
-    startPaths = [32, 16]
-    endPaths = [32, 32]
+    numPaths = [768, 256]
+    startPaths = [32, 32]
+    endPaths = [24, 8]
 
     for i in range(len(oMoves)):
         tmpdir.board.makeMove(2, oMoves[i])
@@ -242,9 +242,9 @@ def test_NumPathsEventuallySurroundingMove(tmpdir):
 
     # opp moves
     oMoves = [(4,5), (6,5), (6,4), (5,6), (5,4), (4,6)]
-    numPaths = [1024, 1024, 512, 256, 3136, 0]
-    startPaths = [32, 32, 16, 16, 0, 0]
-    endPaths = [32, 32, 32, 16, 0, 0]
+    numPaths = [1024, 1024, 512, 256, 3136, 3136]
+    startPaths = [32, 32, 16, 16, 16, 0]
+    endPaths = [32, 32, 32, 16, 16, 0]
 
     for i in range(len(oMoves)):
         tmpdir.board.makeMove(2, oMoves[i])

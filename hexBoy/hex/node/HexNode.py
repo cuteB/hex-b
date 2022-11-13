@@ -162,6 +162,7 @@ class HexNode(Hex):
         # TODO 
         if dad in self._dads:
             self._dads.remove(dad) 
+            self.updatePathsToNodeWithDads()
 
     def getSon(self) -> HexNode:
         # TODO description and tests
@@ -191,10 +192,20 @@ class HexNode(Hex):
         # TODO
         if son in self._sons:
             self._sons.remove(son) 
+            self.updatePathsFromNodeWithSons()
 
     def setPathsToNode(self, n: int) -> None:
         # TODO
         self._pathsToNode = n
+    
+    def updatePathsToNodeWithDads(self) -> None:
+        """Update the paths to node by looking at dads"""
+        dads: List[HexNode] = self.getDads()
+        pathsToNode = 0
+        for d in dads:
+            pathsToNode += d.getPathsToNode()
+
+        self.setPathsToNode(pathsToNode)
 
     def getPathsToNode(self) -> int:
         # TODO 
@@ -204,6 +215,17 @@ class HexNode(Hex):
         # TODO
         self._pathsFromNode = n
 
+    def updatePathsFromNodeWithSons(self) -> None:
+        """Update the paths from node by looking at sons"""
+        sons: List[HexNode] = self.getSons()
+        pathsFromNode = 0
+        for s in sons:
+            pathsFromNode += s.getPathsFromNode()
+
+        self.setPathsFromNode(pathsFromNode)
+
     def getPathsFromNode(self) -> int:
         return self._pathsFromNode
+    
+    
         
