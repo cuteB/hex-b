@@ -99,10 +99,7 @@ class NumPathFinder:
 
             else:
                 # Regular node
-                num = 0
-                for dad in X.getDads():
-                    num += dad.getPathsToNode()
-                X.setPathsToNode(num)
+                X.updatePathsToNodeWithDads()
 
         def _setPathsFrom(X: HexNode) -> None:
             """Set paths from the node"""
@@ -111,10 +108,7 @@ class NumPathFinder:
                 X.setPathsFromNode(1)
 
             else:
-                num = 0
-                for son in X.getSons():
-                    num += son.getPathsFromNode()
-                X.setPathsFromNode(num)
+                X.updatePathsFromNodeWithSons()
 
         currentNode: HexNode
         nextNode: HexNode
@@ -162,10 +156,15 @@ class NumPathFinder:
     def updateMove(self, player: int, move: Hex) -> None:
         """Update board with the new move. Set Dads, Sons, and num paths to/from"""
 
+        # print() # XXX
+        # print(player, move) # XXX
+        # print() # XXX
+
         nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
         X: HexNode = nodes[move]
         deadCells: SortedDict = SortedDict() # Nodes to ignore when updating parents
 
+        # Store Dads and Sons, If a node's path/dist increases update sons/dads
         sonDependencies: SortedDict = SortedDict()
         dadDependencies: SortedDict = SortedDict()
 
@@ -257,8 +256,9 @@ class NumPathFinder:
             if (set(nextDads) == set(nextSons)):
                 # 1. identify node as a dead end
                 deadCells[X] = None
-                X.setPathsFromNode(0)
                 # 2. All node updates from now on can't use nodes that are dead ends
+
+            # print(X, X.getBest(), nextDads, nextSons) # XXX
 
             X.setDads(nextDads)
             X.setSons(nextSons)
@@ -343,9 +343,7 @@ class NumPathFinder:
                 self._clusters[id] = Xs
 
         else:
-            # opp move
-            # TODO if any adjacent hex uses this one delete it
-
+            # opp move; Go through adjacent nodes and remove this node from their families
             for a in self._board.getAdjacentSpaces(X):
                 aX = nodes[a]
                 if (not self._checkIfBarrier(aX)):
@@ -357,16 +355,17 @@ class NumPathFinder:
         order: int
         depth: int
 
-        # Path find update family and get path update order
+        # Path find; update family and get path update order
         openNodes = SortedDict(getSortValue=_sortFuncByDepth)
         closedNodes = SortedDict()
         pathOrder = SortedDict(getSortValue=_sortFuncByDepth) # update order for paths to/from
 
-        # todo clean this part up
+        # Starting nodes depend on which player made the move
         if (player == self._playerInfo.player):
-            openNodes[X] = 0 # Breadth first 
+            openNodes[X] = 0 # Breadth first from player move
             pathOrder[X] = 0
         else: 
+            # Start search with the sons/dads of the taken move
             for s in X.getSons():
                 openNodes[s] = 0  
                 pathOrder[s] = 0
@@ -387,7 +386,6 @@ class NumPathFinder:
             if (self._hexToCluster.hasKey(currentNode)):
                 cluster = self._clusters[self._hexToCluster[currentNode]]
 
-
             # Add existing hex cluster nodes to open
             for cX in cluster:
                 if (not openNodes.hasKey(cX) and not closedNodes.hasKey(cX)):
@@ -395,7 +393,7 @@ class NumPathFinder:
                     pathOrder[cX] = order
 
             # Add sons to open
-            # - sons/dads that are taken hexes have a 0.5 depth difference so they go before empty hexes
+            # - nodes that are player hexes have a 0.5 depth difference so they go before empty hexes
             sons: List[HexNode] = currentNode.getSons()
             for sX in sons:
                 if (not openNodes.hasKey(sX) and not closedNodes.hasKey(sX)):
@@ -408,6 +406,7 @@ class NumPathFinder:
                         pathOrder[sX] = math.floor(order) + 1 
 
             # Add dads to open
+            # - nodes that are player hexes have a 0.5 depth difference so they go before empty hexes
             dads: List[HexNode] = currentNode.getDads()
             for dX in dads:
                 if (not openNodes.hasKey(dX) and not closedNodes.hasKey(dX)):
@@ -472,22 +471,25 @@ class NumPathFinder:
                     openNodes[nextNode] = nextNode
 
         # Count up paths for the edges with the best cost
+        # print()
         dad: HexNode
         for X in closedNodes.getKeys():
             dad = X.getDad()
+            # print(dad, dad.getBest(), dad.getPathsToNode()) # XXX
             if (dad.getBest() == bestBest):
                 numPaths += dad.getPathsToNode()
 
+        # print(numPaths) # XXX
         return numPaths
 
     def getNumPathsToHex(self, X: Hex) -> int:
-        """Get the number of paths to a given hex"""
+        """Get the number of paths to a given hex. Returns the current value and doesn't do any updates"""
 
         node: HexNode = self._board.getNodeDict()[X]
         return node.getPathsToNode()
 
     def getNumPathsFromHex(self, X: Hex) -> int:
-        """Get the number of paths from a given Hex"""
+        """Get the number of paths from a given Hex. Returns the current value and doesn't do any updates"""
 
         node: HexNode = self._board.getNodeDict()[X]
         return node.getPathsFromNode()
