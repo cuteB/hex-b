@@ -107,6 +107,19 @@ def test_EmptySmartBoardTotalPaths(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((5,5)) == 32
 
+    assert tmpdir.npf.getNumPathsToHex((0, 10)) == 1024
+    assert tmpdir.npf.getNumPathsToHex((1, 10)) == 1023
+    assert tmpdir.npf.getNumPathsToHex((2, 10)) == 1013
+    assert tmpdir.npf.getNumPathsToHex((3, 10)) == 968
+    assert tmpdir.npf.getNumPathsToHex((4, 10)) == 848
+    assert tmpdir.npf.getNumPathsToHex((5, 10)) == 638
+    assert tmpdir.npf.getNumPathsToHex((6, 10)) == 386
+    assert tmpdir.npf.getNumPathsToHex((7, 10)) == 176
+    assert tmpdir.npf.getNumPathsToHex((8, 10)) == 56
+    assert tmpdir.npf.getNumPathsToHex((9, 10)) == 11
+    assert tmpdir.npf.getNumPathsToHex((10, 10)) == 1
+    
+
 def test_SmartBoardWithMiddleMove(tmpdir):
     """Board with the move in the middle"""
 
@@ -116,6 +129,48 @@ def test_SmartBoardWithMiddleMove(tmpdir):
     assert tmpdir.npf.getNumPaths() == 1024
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((5,5)) == 32
+
+def test_NodeValuesAfterOnePlayerMove(tmpdir):
+    """Values not in the best path should still be updated"""
+
+    moves = [(5,5)]
+    for m in moves:
+        tmpdir.board.makeMove(1, m)
+        tmpdir.npf.updateMove(1, m)
+    
+    X = tmpdir.board.getNodeDict()[(4,5)]
+    
+    assert X.getPath() == 5
+    assert X.getDist() == 5
+    assert X.getBest() == 11
+    assert set(X.getDads()) == set([(4,4), (5,4), (5,5)])
+    assert set(X.getSons()) == set([(3,6), (4,6), (5,5)])
+
+    X = tmpdir.board.getNodeDict()[(6,5)]
+    
+    assert X.getPath() == 5
+    assert X.getDist() == 5
+    assert X.getBest() == 11
+    assert set(X.getDads()) == set([(6,4), (7,4), (5,5)])
+    assert set(X.getSons()) == set([(5,6), (6,6), (5,5)])
+
+def test_NodeValuesAfterTwoPlayerMoves(tmpdir):
+    """Values not in the best path should still be updated after two moves"""
+
+    moves = [(3,6), (2,7)]
+    for m in moves:
+        tmpdir.board.makeMove(1, m)
+        tmpdir.npf.updateMove(1, m)
+    
+    X = tmpdir.board.getNodeDict()[(2,6)]
+    
+    assert X.getPath() == 6
+    assert X.getDist() == 3
+    assert X.getBest() == 10
+    assert (set(X.getDads()) == set([(2,5), (3,5), (2,7)])
+        or  set(X.getDads()) == set([(2,5), (3,5), (3,6)]))
+    assert (set(X.getSons()) == set([(3,7)])
+        or set(X.getSons()) == set([(2,7)]))
 
 def test_SmartBoardWithMiddleOppMove(tmpdir):
     """Board with the opp move inn the middle"""
@@ -260,58 +315,41 @@ def test_NumPathsEventuallySurroundingMove(tmpdir):
         assert tmpdir.npf.getNumPathsToHex(m) == startPaths[i]
         assert tmpdir.npf.getNumPathsFromHex(m) == endPaths[i]
 
+def test_SampleGameTrackingBothPlayers(tmpdir):
+    """Play a game and track the number of paths for each player"""
 
-def test_NodeValuesAfterPlayerMoves(tmpdir):
-    """Values not in the best path should still be updated"""
+    pMoves = [(5,5), (3,6), (2,7), (0,9), (0,8), (0,7), (1,5), (1,9), (2,9), (2,3), (7,8), (8,6), (9,4), (10,2), (3,10)]
+    oMoves = [(5,6), (3,7), (2,8), (1,8), (1,7), (2,5), (0,10), (1,10), (2,10), (4,9), (5,7), (7,5), (8, 3), (9,1), (3,9)]
 
-    moves = [(3,6), (2,7)]
-    for m in moves:
-        tmpdir.board.makeMove(1, m)
-        tmpdir.npf.updateMove(1, m)
-    
-    X = tmpdir.board.getNodeDict()[(2,6)]
-    
-    assert X.getPath() == 6
-    assert X.getDist() == 3
-    assert X.getBest() == 10
-    assert set(X.getDads()) == set([(3,4), (3,5)])
-    assert set(X.getSons()) == set([(3,7)])
+    pNumPaths_a = [1024, 2432, 896, 128, 128, 128, 64, 64, 64, 32, 32, 32, 32, 64, 32]  # Player moves after player move
+    oNumPaths_a = [5120, 736, 256, 128, 128, 128, 128, 128, 64, 480, 80, 228, 40, 80, 108]     # opp moves after player move
+    pNumPaths_b = [512, 1152, 384, 128, 128, 96, 64, 64, 64, 32, 32, 32, 32, 64, 32]      # Player moves after opp move
+    oNumPaths_b = [992, 512, 256, 64, 64, 128, 64, 64, 480, 128, 320, 80, 140, 180, 72]      # opp moves after opp move
 
-# def test_SampleGameTrackingBothPlayers(tmpdir):
-#     """Play a game and track the number of paths for each player"""
+    pBoard = HexBoard()
+    pNPF = NumPathFinder(pBoard, 1)
+    pNPF.initEmptyBoard()
+    oBoard = HexBoard()
+    oNPF = NumPathFinder(oBoard, 2)
+    oNPF.initEmptyBoard()
 
-#     pMoves = [(5,5), (3,6), (2,7), (0,9)]
-#     oMoves = [(5,6), (3,7), (2,8), (1,8)]
-
-#     pNumPaths_a = [1024, 2432, 896, 128]  # Player moves after player move
-#     oNumPaths_a = [5120, 736, 256, 128]     # opp moves after player move
-#     pNumPaths_b = [512, 1152, 384, 0]      # Player moves after opp move
-#     oNumPaths_b = [992, 512, 256, 0]      # opp moves after opp move
-
-#     pBoard = HexBoard()
-#     pNPF = NumPathFinder(pBoard, 1)
-#     pNPF.initEmptyBoard()
-#     oBoard = HexBoard()
-#     oNPF = NumPathFinder(oBoard, 2)
-#     oNPF.initEmptyBoard()
-
-#     for i in range(len(pMoves)):
-#         # Player move
-#         pBoard.makeMove(1, pMoves[i])
-#         oBoard.makeMove(1, pMoves[i])
-#         pNPF.updateMove(1, pMoves[i])
-#         oNPF.updateMove(1, pMoves[i])
+    for i in range(len(pMoves)):
+        # Player move
+        pBoard.makeMove(1, pMoves[i])
+        oBoard.makeMove(1, pMoves[i])
+        pNPF.updateMove(1, pMoves[i])
+        oNPF.updateMove(1, pMoves[i])
         
-#         # Check Paths after player move
-#         assert pNPF.getNumPaths() == pNumPaths_a[i]
-#         assert oNPF.getNumPaths() == oNumPaths_a[i]
+        # Check Paths after player move
+        assert pNPF.getNumPaths() == pNumPaths_a[i]
+        assert oNPF.getNumPaths() == oNumPaths_a[i]
 
-#         # opp Move
-#         pBoard.makeMove(2, oMoves[i])
-#         oBoard.makeMove(2, oMoves[i])
-#         pNPF.updateMove(2, oMoves[i])
-#         oNPF.updateMove(2, oMoves[i])
+        # opp Move
+        pBoard.makeMove(2, oMoves[i])
+        oBoard.makeMove(2, oMoves[i])
+        pNPF.updateMove(2, oMoves[i])
+        oNPF.updateMove(2, oMoves[i])
         
-#         # Check Paths after opp move
-#         assert pNPF.getNumPaths() == pNumPaths_b[i]
-#         assert oNPF.getNumPaths() == oNumPaths_b[i]
+        # Check Paths after opp move
+        assert pNPF.getNumPaths() == pNumPaths_b[i]
+        assert oNPF.getNumPaths() == oNumPaths_b[i]
