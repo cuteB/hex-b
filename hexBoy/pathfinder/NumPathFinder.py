@@ -50,6 +50,28 @@ class NumPathFinder:
 
         return adjHexesToCluster
 
+    def _getAvailableAdjacentHexes(self, X: HexNode) -> List[HexNode]:
+        """Get ADjacent spaces of a node. Include cluster adjacent hexes"""
+        nodes: SortedDict = self._board.getNodeDict()
+        adjSpaces: List[Hex]
+        adjHexes: List[HexNode]
+        if (X.getHexType().xType == 2): # TODO prods set to hexrules.edge
+            return [] # COMEBACK this might need to return dads/sons
+
+        elif (X.getHexType().player == self._playerInfo.player):
+            # player move, use cluster's adjacent hexes as nodes adjHexes
+            adjSpaces = self._getClusterAdjacentSpaces(self._hexToCluster[X])
+
+        else:
+            # regular hex
+            adjSpaces = self._board.getAdjacentSpaces(X)
+
+        # convert Hex -> HexNode
+        adjHexes = list(map(lambda X: nodes[X], adjSpaces)) 
+        adjHexes = list(filter(lambda X: not self._checkIfBarrier(X), adjHexes))
+
+        return adjHexes
+
     def initEmptyBoard(self) -> None:
         """Initialize an empty Hex Board for the player. Set dads/sons and the paths to/from for each node."""
 
@@ -273,7 +295,7 @@ class NumPathFinder:
             X.setPath(X.getDad().getPC())
             X.setDist(X.getSon().getCD())
 
-            print(X, ' \t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
+            print('\t\t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
 
             # Set the dependencies of this node. If the cost of these nodes increases then this node needs to update again
             for dX in nextDads:
@@ -434,20 +456,26 @@ class NumPathFinder:
                 # TODO ignore edges
 
                 minPathOrder: int = -1
-                fromDad: bool = False
-                fromSon: bool = False
+                fromDadOrSon: bool = None
+
+                uhhDad = None # XXX
+                uhhSon = None # XXX
 
                 for dX in updatedDads:
                     if pathOrder.hasKey(dX):
                         if abs(pathOrder[dX]) < minPathOrder or minPathOrder == -1:
                             minPathOrder = abs(pathOrder[dX])
-                            fromDad = True
+                            fromDadOrSon = True
+
+                            uhhDad = dX # XXX
 
                 for sX in updatedSons:
                     if pathOrder.hasKey(sX):
                         if abs(pathOrder[sX]) < minPathOrder or minPathOrder == -1:
                             minPathOrder = abs(pathOrder[sX])
-                            fromSon = True
+                            fromDadOrSon = False
+
+                            uhhSon = sX # XXX
 
                 if minPathOrder != -1: # Should always be true
                     minPathOrder = math.floor(minPathOrder)
@@ -457,14 +485,16 @@ class NumPathFinder:
                         minPathOrder += 1
 
                     # Todo don't like not having an else
-                    if (fromDad):
+                    if (fromDadOrSon): # TODO might be None but probs not, put in a check. 
                         pathOrder[currentNode] = minPathOrder 
-                    elif (fromSon):
+                    else:
                         pathOrder[currentNode] = minPathOrder * -1
                     # print('\t\tgood', currentNode, pathOrder[currentNode]) # XXX
                 else:  
                     # print('\t\tbad ', currentNode, updatedDads, updatedSons) # XXX
                     pass
+
+                print('\t\t', fromDadOrSon, uhhDad, uhhSon)
 
             # [x] always add existing hex cluster
             # [x] if cost changed, add all adjacent
@@ -482,8 +512,10 @@ class NumPathFinder:
                     openNodes[cX] = depth
 
             hexesToAdd: List[Hex] = []
+            adjHexes: List[HexNode]
 
-            if didCostChange:
+            if didCostChange: 
+                # TODO probs skip rest of the checks in this section. this adds all adjacent anyways
                 # TODO refactor this section when function is created
                 # TODO might need to also add these to dad/son update dict
                 adjSpaces: List[Hex] = self._board.getAdjacentSpaces(currentNode)
@@ -491,13 +523,17 @@ class NumPathFinder:
                 adjHexes = list(filter(lambda X: not self._checkIfBarrier(X), adjHexes))
 
                 hexesToAdd = adjHexes
+                
+                # print('\t\tcostChange') # XXX
 
             # Dads changed so need to update sons
             if didDadsChange:
                 if (not dadUpdate.hasKey(currentNode)):
                     dadUpdate[currentNode] = None
 
+
                 hexesToAdd = [*hexesToAdd, *updatedSons]
+                # print('\t\tsons1') # XXX
 
             # Sons changed need to update dads
             if didSonsChange:
@@ -505,30 +541,54 @@ class NumPathFinder:
                     sonUpdate[currentNode] = None
 
                 hexesToAdd = [*hexesToAdd, *updatedDads]
+                # print('\t\tdads1') # XXX
             
             # check dads to see if this node needs to update sons or there is a new dad
+            dadUpdate1: bool = True
+            dadUpdate2: bool = True
             for dX in updatedDads:
-                if dadUpdate.hasKey(dX):
-                    hexesToAdd = [*hexesToAdd, *updatedSons]
+                if dadUpdate.hasKey(dX) and dadUpdate1:
+                    dadUpdate1 = False
                     dadUpdate[currentNode] = None
-                    # print("\t\tdadupdate 1")
-
-                if dX not in previousDads:
-                    sonUpdate[currentNode] = None
                     hexesToAdd = [*hexesToAdd, *updatedSons]
-                    # print("\t\tdadupdate 2")
+                    # print('\t\tsons2') # XXX
+
+                    # Check adjacent nodes and see if current node is their dad
+                    adjHexes = self._getAvailableAdjacentHexes(currentNode)
+                    for adjX in adjHexes:
+                        if currentNode in adjX.getDads():
+                            hexesToAdd.append(adjX)
+
+
+                if dX not in previousDads and dadUpdate2:
+                    dadUpdate2 = False
+                    dadUpdate[currentNode] = None
+                    hexesToAdd = [*hexesToAdd, *updatedSons]
+                    # print('\t\tsons3') # XXX
+
 
             # Check sons to see if this node needs to update dads or there is a new son
+            sonUpdate1: bool = True
+            sonUpdate2: bool = True
             for sX in updatedSons:
-                if sonUpdate.hasKey(sX):
+                if sonUpdate.hasKey(sX) and sonUpdate1:
+                    sonUpdate1 = False
                     sonUpdate[currentNode] = None
                     hexesToAdd = [*hexesToAdd, *updatedDads]
-                    # print("\t\tsonupdate 1")
+                    # print('\t\tdads2') # XXX
 
-                elif sX not in previousSons:
+
+                    # Check adjacent nodes and see if current node is their son
+                    adjHexes = self._getAvailableAdjacentHexes(currentNode)
+                    for adjX in adjHexes:
+                        if currentNode in adjX.getSons():
+                            hexesToAdd.append(adjX)
+
+                if sX not in previousSons and sonUpdate2:
+                    sonUpdate2 = False
                     hexesToAdd = [*hexesToAdd, *updatedDads]
-                    dadUpdate[currentNode] = None
-                    # print("\t\tsonupdate 2")
+                    sonUpdate[currentNode] = None
+                    # print('\t\tdads3') # XXX
 
             # Add hexes to the dict
             hexesToAdd = list(set(hexesToAdd))
@@ -536,7 +596,7 @@ class NumPathFinder:
                 if (not openNodes.hasKey(X) and not closedNodes.hasKey(X)):
                     openNodes[X] = depth + 1
 
-            # print('\t\t', hexesToAdd)
+            print('\t\t', hexesToAdd) # XXX
 
         # Path find; update paths to
         openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncByDepth)
