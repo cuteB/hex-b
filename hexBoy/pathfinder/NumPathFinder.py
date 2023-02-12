@@ -292,6 +292,9 @@ class NumPathFinder:
             X.setDads(nextDads)
             X.setSons(nextSons)
 
+            if(len(nextDads) == 0 or len(nextSons) == 0):
+                return []# TODO might add this part to the dead cell part
+
             X.setPath(X.getDad().getPC())
             X.setDist(X.getSon().getCD())
 
