@@ -196,7 +196,7 @@ class NumPathFinder:
         def _sortFuncByDepth(item: Tuple[HexNode, int]) -> int:
             return item[1]
 
-        def _updateNode(X: HexNode) -> None:
+        def _updateNodeFamily(X: HexNode) -> None:
             """Update PCD, Set Best dads/sons for the node"""
 
             if (X.getHexType().xType == 2): 
@@ -323,6 +323,7 @@ class NumPathFinder:
                     nodesToUpdate.append(sX)
 
             return nodesToUpdate
+            
 
         def _updateNodePathsTo(X: HexNode) -> None:
             """Update node's dads, path, and paths to node"""
@@ -396,16 +397,27 @@ class NumPathFinder:
         openNodes = SortedDict(getSortValue=_sortFuncByDepth)
         closedNodes = SortedDict()
         pathOrder = SortedDict(getSortValue=_sortFuncByDepth) # update order for paths to/from
+        outOfOrderNodes: SortedDict = SortedDict() 
+
+
+        def checkAddNodeToOpenNodes(_X: Hex) -> bool:
+            """Return if a node should be added to open nodes"""
+            X: HexNode = nodes[_X]
+            return (
+                not openNodes.hasKey(X) 
+                and not closedNodes.hasKey(X)
+                and X.getHexType().xType == 1
+            )
         
         # Starting nodes depend on which player made the move
         # TODO probs change to all adjacent hexes
         if (player == self._playerInfo.player):
             openNodes[X] = 0 # Breadth first from player move
-            pathOrder[X] = 0
+            # pathOrder[X] = 0
 
             for adj in self._board.getAdjacentSpaces(X):
                 adjX = nodes[adj]
-                if adjX.getHexType().player == 0:
+                if adjX.getHexType().player == 0 and checkAddNodeToOpenNodes(adjX):
                     openNodes[adjX] = 1
                     # pathOrder[adjX] = 1 # TODO needs to be negative for sons
 
@@ -413,9 +425,9 @@ class NumPathFinder:
             # Start search with the sons/dads of the taken move
             for adj in self._board.getAdjacentSpaces(X):
                 adjX = nodes[adj]
-                if not self._checkIfBarrier(adjX):
+                if not self._checkIfBarrier(adjX) and checkAddNodeToOpenNodes(adjX):
                     openNodes[adjX] = 0
-                    pathOrder[adjX] = 0
+                    # pathOrder[adjX] = 0
                     # print('good', adjX, pathOrder[adjX])
 
             # for s in X.getSons():
@@ -428,14 +440,17 @@ class NumPathFinder:
 
         while (len(openNodes) != 0):
             currentNode, depth = openNodes.popItem()
-            closedNodes[currentNode] = None
+            closedNodes[currentNode] = depth
             currentNode = nodes[currentNode]
 
             previousCost: int = currentNode.getBest()
             previousDads: List[Hex] = currentNode.getDads()
             previousSons: List[Hex] = currentNode.getSons()
 
-            nodesToUpdate = _updateNode(currentNode) # Family is set
+            if (not outOfOrderNodes.hasKey(currentNode)):
+                nodesToUpdate = _updateNodeFamily(currentNode) # Family is set
+            else:
+                nodesToUpdate = []
 
             updatedCost: int = currentNode.getBest()
             updatedDads: List[Hex] = currentNode.getDads()
@@ -446,25 +461,29 @@ class NumPathFinder:
             didSonsChange: bool = set(previousSons) != set(updatedSons)
 
             # Add nodes that need to be updated at the front of the open nodes
-            for X in nodesToUpdate:
-                openNodes[X] = 0
+            for adjX in nodesToUpdate:
+                if (checkAddNodeToOpenNodes(adjX)):
+                    openNodes[adjX] = 0
 
             # Set pathOrder based on adjacent hex path orders
             # - sons will have a positive value and dads have a negative value
             # - nodes that are player hexes have a 0.5 depth difference so they go before empty hexes
-            if not pathOrder.hasKey(currentNode) and currentNode.getHexType().xType == 1:
-                # TODO ignore edges
-
+            
+            if (not outOfOrderNodes.hasKey(currentNode)):
                 minPathOrder: int = -1
-                fromDadOrSon: bool = None
+                actualPathOrder: int = -1
+                increment: int = 0
+                fromDadOrSon: bool = None # true: dad, false: son
 
                 uhhDad = None # XXX
                 uhhSon = None # XXX
 
+                # Check Dads
                 for dX in updatedDads:
                     if pathOrder.hasKey(dX):
                         if abs(pathOrder[dX]) < minPathOrder or minPathOrder == -1:
                             minPathOrder = abs(pathOrder[dX])
+                            actualPathOrder = pathOrder[dX]
                             fromDadOrSon = True
 
                             uhhDad = dX # XXX
@@ -473,42 +492,89 @@ class NumPathFinder:
                     if pathOrder.hasKey(sX):
                         if abs(pathOrder[sX]) < minPathOrder or minPathOrder == -1:
                             minPathOrder = abs(pathOrder[sX])
+                            actualPathOrder = pathOrder[sX]
                             fromDadOrSon = False
 
                             uhhSon = sX # XXX
 
-                if minPathOrder != -1: # Should always be true
-                    minPathOrder = math.floor(minPathOrder)
+                if minPathOrder != -1: # TODO also check if fromDadOrSon == None
+                    actualPathOrder = math.floor(actualPathOrder) 
                     if currentNode.getHexType().player == self._playerInfo.player: # Player hex
-                        minPathOrder += 0.5
+                        increment = 0.5
                     else:
-                        minPathOrder += 1
+                        increment = 1
 
                     # Todo don't like not having an else
                     if (fromDadOrSon): # TODO might be None but probs not, put in a check. 
-                        pathOrder[currentNode] = minPathOrder 
+                        # 
+                        pathOrder[currentNode] = actualPathOrder + increment
+                        print('\t\t\t good', pathOrder[currentNode], "fromDad", uhhDad, "=", actualPathOrder, "+", increment) # XXX
+
                     else:
-                        pathOrder[currentNode] = minPathOrder * -1
-                    # print('\t\tgood', currentNode, pathOrder[currentNode]) # XXX
+                        pathOrder[currentNode] = actualPathOrder - increment
+                        print('\t\t\t good', pathOrder[currentNode], "fromSon", uhhSon, "=", actualPathOrder, "-", increment) # XXX
                 else:  
-                    # print('\t\tbad ', currentNode, updatedDads, updatedSons) # XXX
-                    pass
+                    print('\t\t\t bad ', 0) # XXX
+                    pathOrder[currentNode] = 0 
 
-                print('\t\t', fromDadOrSon, uhhDad, uhhSon)
+                print('\t\t\t', fromDadOrSon, uhhDad, uhhSon)
 
-            # [x] always add existing hex cluster
-            # [x] if cost changed, add all adjacent
-            # [x] if sons changed, add dads, append to son update dict
-            # [x] if dads changed, add sons, append to dad update dict
-            # [x] if dad in dad update dict, add sons, append to dad update dict
-            # [x] if son in son update dict, add dads, append to son update dict
+            else:
+                del outOfOrderNodes[currentNode]
+
+
+            # Need to check if family nodes are still in the right order
+            # [x] check if there is a adjacent node out of order(pathorder greater than +- 1 of current node's pathorder)
+            # [x] set the out of order node's value to what it should be
+            # [x] add node to a list that changes the behaviour of the update
+            # [x] update the pathfind update to check this list for the current node. if it exists then don't modify the existing pathorder of the node and only check adjacent nodes if they are out of order
+
+            currentPathOrder = pathOrder[currentNode]
+            # check if nodes adjacent nodes, that have their path set, are still in order compared to currentNode
+
+
+
+            adjHexes = self._getAvailableAdjacentHexes(currentNode)
+            for aX in adjHexes: 
+                if (pathOrder.hasKey(aX)):
+                    aXPathOrder = pathOrder[aX]
+                    # TODO what does this if do
+
+                    if (
+                        ((aX in updatedSons or currentNode in aX.getDads()) or (aX in updatedDads or currentNode in aX.getSons()))
+                        and (aXPathOrder < (currentPathOrder - 1)) or ((currentPathOrder + 1) < aXPathOrder)
+                    ):
+                        outOfOrderNodes[aX] = None
+                        openNodes[aX] = -1
+
+                        # Still need to check if it is a player node to modify increment
+                        if currentNode.getHexType().player == self._playerInfo.player: # Player hex
+                            increment = 0.5
+                        else:
+                            increment = 1
+
+                        if (aX in updatedDads or currentNode in aX.getSons()):
+                            pathOrder[aX] = currentPathOrder - increment
+
+                        elif (aX in updatedSons or currentNode in aX.getDads()):
+                            pathOrder[aX] = currentPathOrder + increment
+
+                        print ("bad",currentPathOrder, aX, aXPathOrder, "->" , pathOrder[aX]) # XXX
+
+
+                    
+
+
+                
+
 
             # Add existing hex cluster nodes to open
+            # TODO maybe add cluster nodes to hexesToAdd instead of adding them to open here
             cluster: List[HexNode] = []
             if (self._hexToCluster.hasKey(currentNode)):
                 cluster = self._clusters[self._hexToCluster[currentNode]]
             for cX in cluster:
-                if (not openNodes.hasKey(cX) and not closedNodes.hasKey(cX)):
+                if (checkAddNodeToOpenNodes(cX)):
                     openNodes[cX] = depth
 
             hexesToAdd: List[Hex] = []
@@ -592,11 +658,14 @@ class NumPathFinder:
 
             # Add hexes to the dict
             hexesToAdd = list(set(hexesToAdd))
-            for X in hexesToAdd:
-                if (not openNodes.hasKey(X) and not closedNodes.hasKey(X)):
-                    openNodes[X] = depth + 1
+            for addX in hexesToAdd:
+                if (checkAddNodeToOpenNodes(addX)):
+                    openNodes[addX] = depth + 1
 
-            print('\t\t', hexesToAdd) # XXX
+                elif (closedNodes.hasKey(addX) and didCostChange):
+                    openNodes[addX] = closedNodes[addX]
+
+            print('\t\t\t', "add", hexesToAdd) # XXX
 
         # Path find; update paths to
         openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncByDepth)
