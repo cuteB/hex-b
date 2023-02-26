@@ -304,7 +304,7 @@ def test_NumPathsEventuallySurroundingMove(tmpdir):
     # opp moves
     oMoves = [(4,5), (6,5), (6,4), (5,6), (5,4), (4,6)]
     numPaths = [1024, 1024, 512, 256, 3136, 3136]
-    startPaths = [32, 32, 16, 16, 16, 0]
+    startPaths = [32, 32, 16, 16, 32, 0]
     endPaths = [32, 32, 32, 16, 16, 0]
 
     for i in range(len(oMoves)):
@@ -315,41 +315,41 @@ def test_NumPathsEventuallySurroundingMove(tmpdir):
         assert tmpdir.npf.getNumPathsToHex(m) == startPaths[i]
         assert tmpdir.npf.getNumPathsFromHex(m) == endPaths[i]
 
-# def test_SampleGameTrackingBothPlayers(tmpdir):
-#     """Play a game and track the number of paths for each player"""
+def test_SampleGameTrackingBothPlayers(tmpdir):
+    """Play a game and track the number of paths for each player"""
 
-#     pMoves = [(5,5), (3,6), (2,7), (0,9), (0,8), (0,7), (1,5), (1,9), (2,9), (2,3), (7,8), (8,6), (9,4), (10,2), (3,10)]
-#     oMoves = [(5,6), (3,7), (2,8), (1,8), (1,7), (2,5), (0,10), (1,10), (2,10), (4,9), (5,7), (7,5), (8, 3), (9,1), (3,9)]
+    pMoves = [(5,5), (3,6), (2,7), (0,9), (0,8), (0,7), (1,5), (1,9), (2,9), (2,3), (7,8), (8,6), (9,4), (10,2), (3,10)]
+    oMoves = [(5,6), (3,7), (2,8), (1,8), (1,7), (2,5), (0,10), (1,10), (2,10), (4,9), (5,7), (7,5), (8, 3), (9,1), (3,9)]
 
-#     pNumPaths_a = [1024, 2432, 896, 128, 128, 128, 64, 64, 64, 32, 32, 32, 32, 64, 32]  # Player moves after player move
-#     oNumPaths_a = [5120, 736, 256, 128, 128, 128, 128, 128, 64, 480, 80, 228, 40, 80, 108]     # opp moves after player move
-#     pNumPaths_b = [512, 1152, 384, 128, 128, 96, 64, 64, 64, 32, 32, 32, 32, 64, 32]      # Player moves after opp move
-#     oNumPaths_b = [992, 512, 256, 64, 64, 128, 64, 64, 480, 128, 320, 80, 140, 180, 72]      # opp moves after opp move
+    pNumPaths_a = [1024, 2432, 896, 128, 128, 128, 64, 64, 64, 32, 32, 32, 32, 64, 32]  # Player moves after player move
+    oNumPaths_a = [5120, 736, 256, 128, 128, 128, 128, 128, 64, 480, 80, 228, 40, 80, 108]     # opp moves after player move
+    pNumPaths_b = [512, 1152, 384, 128, 128, 96, 64, 64, 64, 32, 32, 32, 32, 64, 32]      # Player moves after opp move
+    oNumPaths_b = [992, 512, 256, 64, 64, 128, 64, 64, 480, 128, 320, 80, 140, 180, 72]      # opp moves after opp move
 
-#     pBoard = HexBoard()
-#     pNPF = NumPathFinder(pBoard, 1)
-#     pNPF.initEmptyBoard()
-#     oBoard = HexBoard()
-#     oNPF = NumPathFinder(oBoard, 2)
-#     oNPF.initEmptyBoard()
+    pBoard = HexBoard()
+    pNPF = NumPathFinder(pBoard, 1)
+    pNPF.initEmptyBoard()
+    oBoard = HexBoard()
+    oNPF = NumPathFinder(oBoard, 2)
+    oNPF.initEmptyBoard()
 
-#     for i in range(len(pMoves)):
-#         # Player move
-#         pBoard.makeMove(1, pMoves[i])
-#         oBoard.makeMove(1, pMoves[i])
-#         pNPF.updateMove(1, pMoves[i])
-#         oNPF.updateMove(1, pMoves[i])
+    for i in range(len(pMoves)):
+        # Player move
+        pBoard.makeMove(1, pMoves[i])
+        oBoard.makeMove(1, pMoves[i])
+        pNPF.updateMove(1, pMoves[i])
+        oNPF.updateMove(1, pMoves[i])
         
-#         # Check Paths after player move
-#         assert pNPF.getNumPaths() == pNumPaths_a[i]
-#         assert oNPF.getNumPaths() == oNumPaths_a[i]
+        # Check Paths after player move
+        assert pNPF.getNumPaths() == pNumPaths_a[i]
+        assert oNPF.getNumPaths() == oNumPaths_a[i]
 
-#         # opp Move
-#         pBoard.makeMove(2, oMoves[i])
-#         oBoard.makeMove(2, oMoves[i])
-#         pNPF.updateMove(2, oMoves[i])
-#         oNPF.updateMove(2, oMoves[i])
+        # opp Move
+        pBoard.makeMove(2, oMoves[i])
+        oBoard.makeMove(2, oMoves[i])
+        pNPF.updateMove(2, oMoves[i])
+        oNPF.updateMove(2, oMoves[i])
         
-#         # Check Paths after opp move
-#         assert pNPF.getNumPaths() == pNumPaths_b[i]
-#         assert oNPF.getNumPaths() == oNumPaths_b[i]
+        # Check Paths after opp move
+        assert pNPF.getNumPaths() == pNumPaths_b[i]
+        assert oNPF.getNumPaths() == oNumPaths_b[i]
