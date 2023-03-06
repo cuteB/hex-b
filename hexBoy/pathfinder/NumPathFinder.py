@@ -292,12 +292,12 @@ class NumPathFinder:
             # [ ] Node can either be a dad or son 
             if (len(nextDads) < len(nextSons)):
                 for dX in nextDads:
-                    if dX in nextSons:
+                    if dX in nextSons and dX.getHexType().player != self._playerInfo.player:
                         nextSons.remove(dX)
 
             else:
                 for sX in nextSons:
-                    if sX in nextDads:
+                    if sX in nextDads and sX.getHexType().player != self._playerInfo.player:
                         nextDads.remove(sX)
 
             X.setDads(nextDads)
@@ -564,7 +564,7 @@ class NumPathFinder:
 
                     # Adjacent order is too far away from current node order
                     if (
-                        (aXPathOrder < (currentPathOrder - 1)) 
+                        (aXPathOrder < (currentPathOrder - 1)) # TODO it might be valid to have a difference bigger than 1
                         or ((currentPathOrder + 1) < aXPathOrder)
                         or (aX in updatedDads and aXPathOrder > currentPathOrder)
                         or (aX in updatedSons and aXPathOrder < currentPathOrder)
