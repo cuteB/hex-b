@@ -204,6 +204,18 @@ def test_SmartBoardWithThreeMoves(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((3,9)) == 2
 
+def test_ConnectingClustersWithThreeMoves(tmpdir):
+    """Board that connects two moves into a single cluster"""
+
+    moves = [(5,5), (4,7), (4,6)]
+    for m in moves:
+        tmpdir.board.makeMove(1, m)
+        tmpdir.npf.updateMove(1, m)
+    
+    assert tmpdir.npf.getNumPaths() == 256
+    assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
+    assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
+
 def test_SmartBoardWithThreeMovesUpdateDad(tmpdir):
     """Board with three strong moves in a different place"""
 
