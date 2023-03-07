@@ -334,22 +334,22 @@ def test_SampleGameTrackingBothPlayers(tmpdir):
     oNPF.initEmptyBoard()
 
     for i in range(len(pMoves)):
-        # Player move
+        # Player move for Player Board
         pBoard.makeMove(1, pMoves[i])
-        oBoard.makeMove(1, pMoves[i])
         pNPF.updateMove(1, pMoves[i])
-        oNPF.updateMove(1, pMoves[i])
-        
-        # Check Paths after player move
         assert pNPF.getNumPaths() == pNumPaths_a[i]
+        
+        # Player move for Opp Board
+        oBoard.makeMove(1, pMoves[i])
+        oNPF.updateMove(1, pMoves[i])
         assert oNPF.getNumPaths() == oNumPaths_a[i]
 
-        # opp Move
+        # Opp move for Player Board
         pBoard.makeMove(2, oMoves[i])
-        oBoard.makeMove(2, oMoves[i])
         pNPF.updateMove(2, oMoves[i])
-        oNPF.updateMove(2, oMoves[i])
-        
-        # Check Paths after opp move
         assert pNPF.getNumPaths() == pNumPaths_b[i]
+        
+        # Opp move for Opp Board
+        oBoard.makeMove(2, oMoves[i])
+        oNPF.updateMove(2, oMoves[i])
         assert oNPF.getNumPaths() == oNumPaths_b[i]
