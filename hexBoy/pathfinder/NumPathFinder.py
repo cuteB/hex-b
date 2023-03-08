@@ -178,9 +178,12 @@ class NumPathFinder:
     def updateMove(self, player: int, move: Hex) -> None:
         """Update board with the new move. Set Dads, Sons, and num paths to/from"""
 
-        # print() # XXX
-        # print("Board", self._playerInfo.player, "player", player, move) # XXX
-        # print() # XXX
+        # [ ] would eventually like to change a move from one player to next but not really relevant to the game
+        # [ ] in late game the secondary paths don't seem to be updating.
+
+        print() # XXX
+        print("Board", self._playerInfo.player, "player", player, move) # XXX
+        print() # XXX
 
         nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
         X: HexNode = nodes[move]
@@ -227,7 +230,7 @@ class NumPathFinder:
 
             adjHexes = self._getAvailableAdjacentHexes(X)
 
-            # print(X, ' \t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
+            print(X, ' \t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
 
             # Get best dads and sons costs
             bestDadPC: int = -1
@@ -316,7 +319,7 @@ class NumPathFinder:
             X.setPath(X.getDad().getPC())
             X.setDist(X.getSon().getCD())
 
-            # print('\t\t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
+            print('\t\t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
 
             # Set the dependencies of this node. If the cost of these nodes increases then this node needs to update again
             for dX in nextDads:
@@ -401,7 +404,6 @@ class NumPathFinder:
                 Xs.append(move)
                 self._clusters[id] = Xs
                 self._hexToCluster[move] = id
-                print(self._getAvailableAdjacentHexes(nodes[move]))
 
         # Handle opp move
         # else:
@@ -547,19 +549,19 @@ class NumPathFinder:
                         actualPathOrder = math.floor(actualPathOrder) 
 
                         pathOrder[currentNode] = actualPathOrder + increment
-                        # print('\t\t\t good', pathOrder[currentNode], "fromDad", uhhDad, "=", actualPathOrder, "+", increment) # XXX
+                        print('\t\t\t good', pathOrder[currentNode], "fromDad", uhhDad, "=", actualPathOrder, "+", increment) # XXX
 
                     else:
                         actualPathOrder = math.ceil(actualPathOrder) 
 
                         pathOrder[currentNode] = actualPathOrder - increment
-                        # print('\t\t\t good', pathOrder[currentNode], "fromSon", uhhSon, "=", actualPathOrder, "-", increment) # XXX
+                        print('\t\t\t good', pathOrder[currentNode], "fromSon", uhhSon, "=", actualPathOrder, "-", increment) # XXX
                 else: 
                     if currentNode.getHexType().player == self._playerInfo.player: # Player hex
                         pathOrder[currentNode] = 0.5 # This has to be positive
                     else:
                         pathOrder[currentNode] = 0 
-                    # print('\t\t\t new ', pathOrder[currentNode]) # XXX
+                    print('\t\t\t new ', pathOrder[currentNode]) # XXX
 
                 # print('\t\t\t', fromDadOrSon, uhhDad, uhhSon) # XXX
 
@@ -576,7 +578,6 @@ class NumPathFinder:
             currentPathOrder = pathOrder[currentNode]
             if abs(currentPathOrder) > 130: break # XXX
             # check if nodes adjacent nodes, that have their path set, are still in order compared to currentNode
-
 
             # [ ] Check if dad order is less than current path order and son order is greater than current path order
 
@@ -609,7 +610,7 @@ class NumPathFinder:
                         else:
                             pathOrder[aX] = currentPathOrder
 
-                        # print ("\t\t\tbad",currentPathOrder, aX, aXPathOrder, "->" , pathOrder[aX]) # XXX
+                        print ("bad",currentPathOrder, aX, aXPathOrder, "->" , pathOrder[aX]) # XXX
 
 
 
@@ -639,6 +640,9 @@ class NumPathFinder:
             if didDadsChange:
                 if (not dadUpdate.hasKey(currentNode)):
                     dadUpdate[currentNode] = None
+                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+                        for cX in self._clusters[self._hexToCluster[currentNode]]:
+                            dadUpdate[cX] = None
 
 
                 hexesToAdd.extend(updatedSons)
@@ -648,6 +652,10 @@ class NumPathFinder:
             if didSonsChange:
                 if (not sonUpdate.hasKey(currentNode)):
                     sonUpdate[currentNode] = None
+
+                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+                        for cX in self._clusters[self._hexToCluster[currentNode]]: # TODO holy copy and paste this 
+                            sonUpdate[cX] = None
 
                 hexesToAdd.extend(updatedDads)
                 # print('\t\tdads1') # XXX
@@ -660,6 +668,11 @@ class NumPathFinder:
                     dadUpdate1 = False
                     dadUpdate[currentNode] = None
                     hexesToAdd.extend(updatedSons)
+
+                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+                        for cX in self._clusters[self._hexToCluster[currentNode]]:
+                            dadUpdate[cX] = None
+
                     # print('\t\tsons2') # XXX
 
                     # Check adjacent nodes and see if current node is their dad
@@ -668,13 +681,15 @@ class NumPathFinder:
                         if currentNode in adjX.getDads():
                             hexesToAdd.append(adjX)
 
-
                 if dX not in previousDads and dadUpdate2:
                     dadUpdate2 = False
                     dadUpdate[currentNode] = None
                     hexesToAdd.extend(updatedSons)
                     # print('\t\tsons3') # XXX
 
+                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+                        for cX in self._clusters[self._hexToCluster[currentNode]]:
+                            dadUpdate[cX] = None
 
             # Check sons to see if this node needs to update dads or there is a new son
             sonUpdate1: bool = True
@@ -685,6 +700,10 @@ class NumPathFinder:
                     sonUpdate[currentNode] = None
                     hexesToAdd.extend(updatedDads)
                     # print('\t\tdads2') # XXX
+
+                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+                        for cX in self._clusters[self._hexToCluster[currentNode]]:
+                            sonUpdate[cX] = None
 
 
                     # Check adjacent nodes and see if current node is their son
@@ -698,6 +717,10 @@ class NumPathFinder:
                     hexesToAdd.extend(updatedDads)
                     sonUpdate[currentNode] = None
                     # print('\t\tdads3') # XXX
+
+                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+                        for cX in self._clusters[self._hexToCluster[currentNode]]:
+                            sonUpdate[cX] = None
 
             # Add hexes to the dict
             hexesToAdd = list(set(hexesToAdd))
@@ -716,7 +739,7 @@ class NumPathFinder:
                     added.append(addX)
 
 
-            # print('\t\t\t', "add", added, " from", hexesToAdd) # XXX
+            print('\t\t\t', "add", added, " from", hexesToAdd) # XXX
 
         # Path find; update paths to
         openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncPathOrder)
@@ -728,7 +751,7 @@ class NumPathFinder:
 
             _updateNodePathsTo(currentNode)
 
-            # print(depth, '\t', currentNode, '\t', currentNode.getPathsToNode()) # XXX
+            print(depth, '\t', currentNode, '\t', currentNode.getPathsToNode()) # XXX
 
         # Path find; update paths From
         # print() # XXX
@@ -781,17 +804,17 @@ class NumPathFinder:
                     openNodes[nextNode] = nextNode
 
         # Count up paths for the edges with the best cost
-        # print() # XXX
+        print() # XXX
         dad: HexNode
         for X in closedNodes.getKeys():
             dad = X.getDad()
             if (dad != None): # XXX
                 pass
-                # print(dad, dad.getBest(), dad.getPathsToNode(), not self._checkIfBarrier(X.getDad())) # XXX
+                print(dad, dad.getBest(), dad.getPathsToNode(), not self._checkIfBarrier(X.getDad())) # XXX
             if (dad != None and dad.getBest() == bestBest and not self._checkIfBarrier(X.getDad())):
                 numPaths += dad.getPathsToNode()
 
-        # print(numPaths) # XXX
+        print(numPaths) # XXX
         return numPaths
 
     def getNumPathsToHex(self, X: Hex) -> int:

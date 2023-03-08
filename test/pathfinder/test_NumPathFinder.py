@@ -330,13 +330,13 @@ def test_NumPathsEventuallySurroundingMove(tmpdir):
 def test_SampleGameTrackingBothPlayers(tmpdir):
     """Play a game and track the number of paths for each player"""
 
-    pMoves = [(5,5), (3,6), (2,7), (0,9), (0,8), (0,7), (1,5), (1,9), (2,9), (2,3), (7,8), (8,6), (9,4), (10,2), (3,10)]
-    oMoves = [(5,6), (3,7), (2,8), (1,8), (1,7), (2,5), (0,10), (1,10), (2,10), (4,9), (5,7), (7,5), (8, 3), (9,1), (3,9)]
+    pMoves = [(5,5), (3,6), (2,7), (0,9), (0,8), (0,7), (1,5), (1,9), (2,9), (2,3), (7,8), (8,6), (9,4), (10,2), (3,10), (4,8), (6,5), (8,4), (9,2), (10,1)]
+    oMoves = [(5,6), (3,7), (2,8), (1,8), (1,7), (2,5), (0,10), (1,10), (2,10), (4,9), (5,7), (7,5), (8, 3), (9,1), (3,9), (5,8), (6,6), (7,4), (8,2), (10,0)]
 
-    pNumPaths_a = [1024, 2432, 896, 128, 128, 128, 64, 64, 64, 32, 32, 32, 32, 64, 32]  # Player moves after player move
-    oNumPaths_a = [5120, 736, 256, 128, 128, 128, 128, 128, 64, 480, 80, 228, 40, 80, 108]     # opp moves after player move
-    pNumPaths_b = [512, 1152, 384, 128, 128, 96, 64, 64, 64, 32, 32, 32, 32, 64, 32]      # Player moves after opp move
-    oNumPaths_b = [992, 512, 256, 64, 64, 128, 64, 64, 480, 128, 320, 80, 140, 180, 72]      # opp moves after opp move
+    pNumPaths_a = [1024, 2432, 896, 128, 128, 128, 64, 64, 64, 32, 32, 32, 32, 64, 32, 32, 32, 32, 32, 32,32]  # Player moves after player move
+    oNumPaths_a = [5120, 736, 256, 128, 128, 128, 128, 128, 64, 480, 80, 228, 40, 80, 108, 36, 15, 8, 3, 1]     # opp moves after player move
+    pNumPaths_b = [512, 1152, 384, 128, 128, 96, 64, 64, 64, 32, 32, 32, 32, 64, 32, 32, 32, 32, 32, 0]      # Player moves after opp move
+    oNumPaths_b = [992, 512, 256, 64, 64, 128, 64, 64, 480, 128, 320, 80, 140, 180, 72, 36, 15, 6, 2, 1]      # opp moves after opp move
 
     pBoard = HexBoard()
     pNPF = NumPathFinder(pBoard, 1)
