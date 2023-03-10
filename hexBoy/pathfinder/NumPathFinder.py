@@ -5,6 +5,7 @@ from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.game.HexGameRules import HexGameRules, HexPlayerInfo
 from hexBoy.hex.node.HexNode import Hex, HexNode
 from hexBoy.models.SortedDict import SortedDict
+from hexBoy.pathfinder.PathBoy import PathBoy
 
 class NumPathFinder:
     """Track the number of best paths a player has on the board. Need to initialize board and then update each move"""
@@ -14,6 +15,8 @@ class NumPathFinder:
     _heuristicFunc: Callable[[HexNode, HexNode], int]  # Heuristic function for A*
 
     _playerInfo: HexPlayerInfo
+
+    _pf: PathBoy
 
     _clusterId: int = 0
     _clusters: SortedDict # int -> List[Hex]    
@@ -36,6 +39,7 @@ class NumPathFinder:
         self._clusters = SortedDict()
         self._hexToCluster = SortedDict() 
         self._playerInfo = HexGameRules.getPlayerInfo(player)
+
 
     def _getClusterAdjacentSpaces(self, cId: int) -> List[Hex]:
         """Get the adjacent spaces around a cluster"""
@@ -230,7 +234,7 @@ class NumPathFinder:
 
             adjHexes = self._getAvailableAdjacentHexes(X)
 
-            print(X, ' \t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
+            # print(X, ' \t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
 
             # Get best dads and sons costs
             bestDadPC: int = -1
@@ -319,7 +323,7 @@ class NumPathFinder:
             X.setPath(X.getDad().getPC())
             X.setDist(X.getSon().getCD())
 
-            print('\t\t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
+            # print('\t\t', X.getBest(), X.getPath(), X.getDist(), adjHexes, X.getDads(), X.getSons()) # XXX
 
             # Set the dependencies of this node. If the cost of these nodes increases then this node needs to update again
             for dX in nextDads:
@@ -413,6 +417,11 @@ class NumPathFinder:
         #         if (not self._checkIfBarrier(aX)):
         #             aX.delDad(X)
         #             aX.delSon(X)
+
+        # check if there is a path available
+        # bestPath = self._pf.findPath(self._playerInfo.start, self._playerInfo.end)
+        # if (len(bestPath) == 0): 
+        #     return 0
 
         # Update family
         currentNode: HexNode
@@ -549,19 +558,19 @@ class NumPathFinder:
                         actualPathOrder = math.floor(actualPathOrder) 
 
                         pathOrder[currentNode] = actualPathOrder + increment
-                        print('\t\t\t good', pathOrder[currentNode], "fromDad", uhhDad, "=", actualPathOrder, "+", increment) # XXX
+                        # print('\t\t\t good', pathOrder[currentNode], "fromDad", uhhDad, "=", actualPathOrder, "+", increment) # XXX
 
                     else:
                         actualPathOrder = math.ceil(actualPathOrder) 
 
                         pathOrder[currentNode] = actualPathOrder - increment
-                        print('\t\t\t good', pathOrder[currentNode], "fromSon", uhhSon, "=", actualPathOrder, "-", increment) # XXX
+                        # print('\t\t\t good', pathOrder[currentNode], "fromSon", uhhSon, "=", actualPathOrder, "-", increment) # XXX
                 else: 
                     if currentNode.getHexType().player == self._playerInfo.player: # Player hex
                         pathOrder[currentNode] = 0.5 # This has to be positive
                     else:
                         pathOrder[currentNode] = 0 
-                    print('\t\t\t new ', pathOrder[currentNode]) # XXX
+                    # print('\t\t\t new ', pathOrder[currentNode]) # XXX
 
                 # print('\t\t\t', fromDadOrSon, uhhDad, uhhSon) # XXX
 
@@ -610,7 +619,7 @@ class NumPathFinder:
                         else:
                             pathOrder[aX] = currentPathOrder
 
-                        print ("bad",currentPathOrder, aX, aXPathOrder, "->" , pathOrder[aX]) # XXX
+                        # print ("bad",currentPathOrder, aX, aXPathOrder, "->" , pathOrder[aX]) # XXX
 
 
 
@@ -739,7 +748,7 @@ class NumPathFinder:
                     added.append(addX)
 
 
-            print('\t\t\t', "add", added, " from", hexesToAdd) # XXX
+            # print('\t\t\t', "add", added, " from", hexesToAdd) # XXX
 
         # Path find; update paths to
         openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncPathOrder)
@@ -751,7 +760,7 @@ class NumPathFinder:
 
             _updateNodePathsTo(currentNode)
 
-            print(depth, '\t', currentNode, '\t', currentNode.getPathsToNode()) # XXX
+            # print(depth, '\t', currentNode, '\t', currentNode.getPathsToNode()) # XXX
 
         # Path find; update paths From
         # print() # XXX
