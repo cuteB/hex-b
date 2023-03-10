@@ -786,6 +786,9 @@ class NumPathFinder:
         currentNode: HexNode
         nextNode: HexNode
 
+        if not self.checkIfPlayerStillHasPath():
+            return 0
+
         # Path find player end edges
         openNodes: SortedDict = SortedDict()
         closedNodes: SortedDict = SortedDict()
@@ -837,3 +840,46 @@ class NumPathFinder:
 
         node: HexNode = self._board.getNodeDict()[X]
         return node.getPathsFromNode()
+
+
+    def checkIfPlayerStillHasPath(self):
+        """Using an existing node dict from the num path finder get the best path"""
+
+        def _sortFunc(item: Tuple[HexNode, int]) -> int:
+            return item[0].getDist()
+        
+        def _tempGetAdjacentSpaces(X: HexNode) -> List[HexNode]:
+            nodes: SortedDict = self._board.getNodeDict()
+            adjSpaces: List[Hex]
+            adjHexes: List[HexNode]
+                # regular hex
+            adjSpaces = self._board.getAdjacentSpaces(X)
+
+            # convert Hex -> HexNode
+            adjHexes = list(map(lambda X: nodes[X], adjSpaces)) 
+            adjHexes = list(filter(lambda X: not self._checkIfBarrier(X), adjHexes))
+
+            return adjHexes
+
+        nodes: Dict[Hex, HexNode] = self._board.getNodeDict()
+
+        openNodes: SortedDict = SortedDict(getSortValue=_sortFunc)
+        closedNodes: SortedDict = SortedDict()
+
+        currentNode: HexNode  = nodes[self._playerInfo.start] 
+        openNodes[currentNode] = currentNode
+
+        # Path find; start on the start, add all of the edges and find any path to the end
+        while currentNode != self._playerInfo.end:
+            if (len(openNodes) == 0):
+                return False
+            
+            currentNode = openNodes.popKey()
+            closedNodes[currentNode] = None
+
+            nextHexes: List[HexNode] = _tempGetAdjacentSpaces(currentNode)
+            for nX in nextHexes:
+                if not closedNodes.hasKey(nX) and not openNodes.hasKey(nX):
+                    openNodes[nX] = None
+            
+        return True
