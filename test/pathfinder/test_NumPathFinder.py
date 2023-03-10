@@ -228,17 +228,17 @@ def test_SmartBoardWithThreeMovesUpdateDad(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((6,3)) == 8
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
 
-# def test_SmartBoardWithMoveAndOppMove(tmpdir):
-#     """One Move from Each Player"""
+def test_SmartBoardWithMoveAndOppMove(tmpdir):
+    """One Move from Each Player"""
  
-#     tmpdir.board.makeMove(1, (5,5))
-#     tmpdir.npf.updateMove(1, (5,5))
-#     tmpdir.board.makeMove(2, (5,6))
-#     tmpdir.npf.updateMove(2, (5,6))
+    tmpdir.board.makeMove(1, (5,5))
+    tmpdir.npf.updateMove(1, (5,5))
+    tmpdir.board.makeMove(2, (5,6))
+    tmpdir.npf.updateMove(2, (5,6))
 
-#     assert tmpdir.npf.getNumPaths() == 512
-#     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
-#     assert tmpdir.npf.getNumPathsFromHex((5,5)) == 16
+    assert tmpdir.npf.getNumPaths() == 512
+    assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
+    assert tmpdir.npf.getNumPathsFromHex((5,5)) == 16
 
 def test_SmartBoardWithScatteredMoves(tmpdir):
     """A bunch of moves from one player"""

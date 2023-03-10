@@ -5,19 +5,16 @@ from hexBoy.hex.board.HexBoard import Board
 from hexBoy.hex.game.HexGameRules import HexGameRules, HexPlayerInfo, HexTypes
 from hexBoy.hex.node.HexNode import Hex, HexNode
 from hexBoy.models.SortedDict import SortedDict
-from hexBoy.pathfinder.PathBoy import PathBoy
 
 class NumPathFinder:
     """Track the number of best paths a player has on the board. Need to initialize board and then update each move"""
 
     _board: Board
+    _playerInfo: HexPlayerInfo
     _checkIfBarrier: Callable[[HexNode], bool]    
     _heuristicFunc: Callable[[HexNode, HexNode], int]  # Heuristic function for A*
 
-    _playerInfo: HexPlayerInfo
-
-    _pf: PathBoy
-
+    # Cluster info for player
     _clusterId: int = 0
     _clusters: SortedDict # int -> List[Hex]    
     _hexToCluster: SortedDict # Hex -> int
@@ -33,51 +30,13 @@ class NumPathFinder:
         """
 
         self._board = board
+        self._playerInfo = HexGameRules.getPlayerInfo(player)
         self._checkIfBarrier=HexGameRules.getCheckIfBarrierFunc(player)
         self._heuristicFunc=HexGameRules.getHeuristicFunc(player)
 
         self._clusters = SortedDict()
         self._hexToCluster = SortedDict() 
-        self._playerInfo = HexGameRules.getPlayerInfo(player)
 
-
-    def _getClusterAdjacentSpaces(self, cId: int) -> List[Hex]:
-        """Get the adjacent spaces around a cluster"""
-
-        clusterHexes = self._clusters[cId]
-        adjHexesToCluster = []
-
-        for cX in clusterHexes:
-            adjHexes = self._board.getAdjacentSpaces(cX)
-            for aX in adjHexes:
-                if (aX not in clusterHexes and aX not in adjHexesToCluster):
-                    adjHexesToCluster.append(aX)
-
-        return adjHexesToCluster
-
-    def _getAvailableAdjacentHexes(self, X: HexNode) -> List[HexNode]:
-        """Get Adjacent spaces of a node. Include cluster adjacent hexes"""
-
-        nodes: SortedDict = self._board.getNodeDict()
-        adjSpaces: List[Hex]
-        adjHexes: List[HexNode]
-        if (X.getHexType().xType == HexTypes.edge):
-            return [] # COMEBACK this might need to return dads/sons
-
-        elif (X.getHexType().player == self._playerInfo.player):
-            # player move, use cluster's adjacent hexes as nodes adjHexes
-            adjSpaces = self._getClusterAdjacentSpaces(self._hexToCluster[X])
-
-        else:
-            # playable area
-            adjSpaces = self._board.getAdjacentSpaces(X)
-
-        # convert Hex -> HexNode
-        adjHexes = list(map(lambda X: nodes[X], adjSpaces)) 
-        adjHexes = list(filter(lambda X: not self._checkIfBarrier(X), adjHexes))
-
-        return adjHexes
-    
     def initEmptyBoard(self) -> None:
         """Initialize an empty Hex Board for the player. Set dads/sons and the paths to/from for each node."""
 
@@ -96,8 +55,8 @@ class NumPathFinder:
             X.setDist(max(h - 1, 0))
             X.setHeur(h - 1)
 
-            if (X.getHexType().xType == 1):
-                # Playable board, Set dads/sons 
+            if (X.getHexType().xType == HexTypes.area):
+                # Playable area, Set dads/sons 
                 for aX in self._board.getAdjacentSpaces(X):
                     adjX = nodes[aX]
                     # Playable Board
@@ -140,6 +99,16 @@ class NumPathFinder:
 
         currentNode: HexNode
         nextNode: HexNode
+        openNodes: SortedDict
+        closedNodes: SortedDict
+
+        def _addNodeToOpen(X: HexNode): # TODO rename to something that implies an if statement
+            """Should the node be added to the open nodes dict"""
+            return (
+                not self._checkIfBarrier(nextNode) 
+                and not closedNodes.hasKey(nextPos) 
+                and not openNodes.hasKey(nextPos)
+            )
 
         # Path find; from start
         openNodes = SortedDict(getSortValue=_sortFuncByHeur, reverse=True)
@@ -155,10 +124,7 @@ class NumPathFinder:
             for nextPos in self._board.getAdjacentSpaces(currentNode):
                 nextNode = nodes[nextPos]
 
-                if (not self._checkIfBarrier(nextNode) 
-                    and not closedNodes.hasKey(nextPos) 
-                    and not openNodes.hasKey(nextPos)
-                ):
+                if _addNodeToOpen(nextNode):
                     openNodes[nextNode] = nextNode
 
         # Path find; going backwards
@@ -175,10 +141,7 @@ class NumPathFinder:
             for nextPos in self._board.getAdjacentSpaces(currentNode):
                 nextNode = nodes[nextPos]
 
-                if (not self._checkIfBarrier(nextNode) 
-                    and not closedNodes.hasKey(nextPos) 
-                    and not openNodes.hasKey(nextPos)
-                ):
+                if _addNodeToOpen(nextNode):
                     openNodes[nextNode] = nextNode
 
     def updateMove(self, player: int, move: Hex) -> None:
@@ -762,3 +725,40 @@ class NumPathFinder:
                     openNodes[nX] = None
             
         return True
+    
+    def _getClusterAdjacentSpaces(self, cId: int) -> List[Hex]:
+        """Get the adjacent spaces around a cluster"""
+
+        clusterHexes: List[Hex] = self._clusters[cId]
+        adjHexesToCluster: List[Hex] = []
+
+        for cX in clusterHexes:
+            adjHexes = self._board.getAdjacentSpaces(cX)
+            for aX in adjHexes:
+                if (aX not in clusterHexes and aX not in adjHexesToCluster):
+                    adjHexesToCluster.append(aX)
+
+        return adjHexesToCluster
+
+    def _getAvailableAdjacentHexes(self, X: HexNode) -> List[HexNode]:
+        """Get Adjacent spaces of a node. Include cluster adjacent hexes"""
+
+        nodes: SortedDict = self._board.getNodeDict()
+        adjSpaces: List[Hex]
+        adjHexes: List[HexNode]
+        if (X.getHexType().xType == HexTypes.edge):
+            return [] # COMEBACK this might need to return dads/sons
+
+        elif (X.getHexType().player == self._playerInfo.player):
+            # player move, use cluster's adjacent hexes as nodes adjHexes
+            adjSpaces = self._getClusterAdjacentSpaces(self._hexToCluster[X])
+
+        else:
+            # playable area
+            adjSpaces = self._board.getAdjacentSpaces(X)
+
+        # convert Hex -> HexNode
+        adjHexes = list(map(lambda X: nodes[X], adjSpaces)) 
+        adjHexes = list(filter(lambda X: not self._checkIfBarrier(X), adjHexes))
+
+        return adjHexes
