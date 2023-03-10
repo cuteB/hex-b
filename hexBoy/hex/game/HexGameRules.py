@@ -12,6 +12,10 @@ class HexPlayerInfo:
     hex: HexType = None
     edge: HexType = None
 
+class HexTypes:
+    area: int = 1 # TODO think of a better name than area (playable area??)
+    edge: int = 2
+
 class HexGameRules:
     """Rules of the game. Contains player info and Barrier Check"""
 
@@ -27,16 +31,16 @@ class HexGameRules:
         player = 1,
         start = Hex((5,-1)),
         end = Hex((5,11)),
-        hex = HexType(player=1, xType=1, cost=0),
-        edge = HexType(player=1, xType=2, cost=0)
+        hex = HexType(player=1, xType=HexTypes.area, cost=0),
+        edge = HexType(player=1, xType=HexTypes.edge, cost=0)
     )
 
     red: HexPlayerInfo = HexPlayerInfo(
         player = 2,
         start = Hex((-1,5)),
         end = Hex((11,5)),
-        hex = HexType(player=2, xType=1, cost=0),
-        edge = HexType(player=2, xType=2, cost=0)
+        hex = HexType(player=2, xType=HexTypes.area, cost=0),
+        edge = HexType(player=2, xType=HexTypes.edge, cost=0)
     )
 
     def getPlayerInfo(player: int) -> HexPlayerInfo:
