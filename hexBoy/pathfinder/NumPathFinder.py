@@ -145,7 +145,10 @@ class NumPathFinder:
                     openNodes[nextNode] = nextNode
 
     def updateMove(self, player: int, move: Hex) -> None:
-        """Update board with the new move. Set Dads, Sons, and num paths to/from"""
+        """Update board with the new move. Set Dads, Sons, and num paths to/from
+        @param player: int "The player who made the move"
+        @param move: int "The Coordinates to the move that was made
+        """
 
         # [ ] would eventually like to change a move from one player to next but not really relevant to the game
         # [ ] in late game the secondary paths don't seem to be updating.
@@ -174,7 +177,6 @@ class NumPathFinder:
 
             if (X.getHexType().xType == 2): 
                 return [] # Edge
-
 
             originalP: int = X.getPath()
             originalD: int = X.getDist()
@@ -346,7 +348,6 @@ class NumPathFinder:
         outOfOrderNodes: SortedDict = SortedDict() 
         costAlreadyUpdated: SortedDict = SortedDict()
 
-
         def checkAddNodeToOpenNodes(_X: Hex) -> bool:
             """Return if a node should be added to open nodes"""
             X: HexNode = nodes[_X]
@@ -430,17 +431,17 @@ class NumPathFinder:
                             actualPathOrder = pathOrder[sX]
                             fromDadOrSon = False
 
-                if minPathOrder != -1: # TODO also check if fromDadOrSon == None
+                if minPathOrder != -1:
                     if currentNode.getHexType().player == self._playerInfo.player: # Player hex
                         increment = 0.5
                     else:
                         increment = 1
 
-                    if (fromDadOrSon): # TODO might be None but probs not, put in a check. 
+                    if (fromDadOrSon): 
                         actualPathOrder = math.floor(actualPathOrder) 
                         pathOrder[currentNode] = actualPathOrder + increment
 
-                    else:
+                    else: # fromDadOrSon shouldn't be None here
                         actualPathOrder = math.ceil(actualPathOrder) 
                         pathOrder[currentNode] = actualPathOrder - increment
                 else: 
@@ -489,56 +490,42 @@ class NumPathFinder:
                         else: # TODO This is probably old. Only checking dad/sons
                             pathOrder[aX] = currentPathOrder
 
-
-            # TODO review down VVVVVV
-            # Add existing hex cluster nodes to open
+            # Always add existing hex cluster nodes to open
             hexesToAdd: List[Hex] = []
             if (self._hexToCluster.hasKey(currentNode)):
                 hexesToAdd.extend(self._clusters[self._hexToCluster[currentNode]])
 
             adjHexes: List[HexNode]
             if didCostChange: 
-                # TODO probs skip rest of the checks in this section. this adds all adjacent anyways
-                # TODO refactor this section when function is created
-                # TODO might need to also add these to dad/son update dict
-                adjHexes = self._getAvailableAdjacentHexes(currentNode)
                 costAlreadyUpdated[currentNode] = None
-
+                adjHexes = self._getAvailableAdjacentHexes(currentNode)
                 hexesToAdd.extend(adjHexes)
-                
-            # Dads changed so need to update sons
-            if didDadsChange:
-                if (not dadUpdate.hasKey(currentNode)):
-                    dadUpdate[currentNode] = None
-                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
-                        for cX in self._clusters[self._hexToCluster[currentNode]]:
-                            dadUpdate[cX] = None
-
-                hexesToAdd.extend(updatedSons)
-
-            # Sons changed need to update dads
-            if didSonsChange:
-                if (not sonUpdate.hasKey(currentNode)):
-                    sonUpdate[currentNode] = None
-
-                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
-                        for cX in self._clusters[self._hexToCluster[currentNode]]: # TODO holy copy and paste this 
-                            sonUpdate[cX] = None
-
-                hexesToAdd.extend(updatedDads)
             
-            # check dads to see if this node needs to update sons or there is a new dad
-            dadUpdate1: bool = True
-            dadUpdate2: bool = True
-            for dX in updatedDads:
-                if dadUpdate.hasKey(dX) and dadUpdate1:
-                    dadUpdate1 = False
-                    dadUpdate[currentNode] = None
-                    hexesToAdd.extend(updatedSons)
-
-                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+            # Check dads to see if this node needs to update its sons
+            dadUpdate1_addCluster: bool = True
+            #|- Dads changed, need to update all sons
+            if didDadsChange:
+                dadUpdate1_addCluster = False
+                hexesToAdd.extend(updatedSons)
+                if (not dadUpdate.hasKey(currentNode)):
+                    # Add currentNode and its cluster to dadUpdate
+                    if (self._hexToCluster.hasKey(currentNode)):
                         for cX in self._clusters[self._hexToCluster[currentNode]]:
                             dadUpdate[cX] = None
+                    else: 
+                        dadUpdate[currentNode] = None
+
+            #|- Dad has forced update, need to update all sons
+            for dX in updatedDads:
+                if dadUpdate.hasKey(dX):
+                    hexesToAdd.extend(updatedSons)
+                    if dadUpdate1_addCluster: 
+                        # Add currentNode and its cluster to dadUpdate if not already added
+                        if (self._hexToCluster.hasKey(currentNode)):
+                            for cX in self._clusters[self._hexToCluster[currentNode]]:
+                                dadUpdate[cX] = None
+                        else: 
+                            dadUpdate[currentNode] = None
 
                     # Check adjacent nodes and see if current node is their dad
                     adjHexes = self._getAvailableAdjacentHexes(currentNode)
@@ -546,29 +533,32 @@ class NumPathFinder:
                         if currentNode in adjX.getDads():
                             hexesToAdd.append(adjX)
 
-                if dX not in previousDads and dadUpdate2:
-                    dadUpdate2 = False
-                    dadUpdate[currentNode] = None
-                    hexesToAdd.extend(updatedSons)
+                    break
 
-                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
-                        for cX in self._clusters[self._hexToCluster[currentNode]]:
-                            dadUpdate[cX] = None
-
-            # Check sons to see if this node needs to update dads or there is a new son
-            sonUpdate1: bool = True
-            sonUpdate2: bool = True
-            for sX in updatedSons:
-                if sonUpdate.hasKey(sX) and sonUpdate1:
-                    sonUpdate1 = False
-                    sonUpdate[currentNode] = None
-                    hexesToAdd.extend(updatedDads)
-                    # print('\t\tdads2') # XXX
-
-                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
+            # Check sons to see if this node needs to update its dads
+            sonUpdate_addCluster: bool = True
+            #|- Sons changed, need to update all dads
+            if didSonsChange:
+                sonUpdate_addCluster = False
+                hexesToAdd.extend(updatedDads)
+                if (not sonUpdate.hasKey(currentNode)):
+                    if (self._hexToCluster.hasKey(currentNode)):
                         for cX in self._clusters[self._hexToCluster[currentNode]]:
                             sonUpdate[cX] = None
+                    else:
+                        sonUpdate[currentNode] = None
 
+            #|- Son has forced update, need to update all dads
+            for sX in updatedSons:
+                if sonUpdate.hasKey(sX):
+                    hexesToAdd.extend(updatedDads)
+                    if sonUpdate_addCluster:
+                        # Add currentNode and its cluster to dadUPdate if not already added
+                        if (self._hexToCluster.hasKey(currentNode)):
+                            for cX in self._clusters[self._hexToCluster[currentNode]]:
+                                sonUpdate[cX] = None
+                        else:
+                            sonUpdate[currentNode] = None
 
                     # Check adjacent nodes and see if current node is their son
                     adjHexes = self._getAvailableAdjacentHexes(currentNode)
@@ -576,31 +566,20 @@ class NumPathFinder:
                         if currentNode in adjX.getSons():
                             hexesToAdd.append(adjX)
 
-                if sX not in previousSons and sonUpdate2:
-                    sonUpdate2 = False
-                    hexesToAdd.extend(updatedDads)
-                    sonUpdate[currentNode] = None
-                    # print('\t\tdads3') # XXX
+                    break
 
-                    if (self._hexToCluster.hasKey(currentNode)): # TODO double check cluster only gets added once
-                        for cX in self._clusters[self._hexToCluster[currentNode]]:
-                            sonUpdate[cX] = None
-
-            # Add hexes to the dict
+            # Add hexes to the openNodes
             hexesToAdd = list(set(hexesToAdd))
             for addX in hexesToAdd:
                 if (checkAddNodeToOpenNodes(addX)):
+                    # - Basic add
                     openNodes[addX] = depth + 1
 
                 elif (closedNodes.hasKey(addX) and didCostChange 
                     and (not costAlreadyUpdated.hasKey(addX) or previousCost < updatedCost)
                 ):
+                    # - Cost increased, need to update the node again
                     openNodes[addX] = closedNodes[addX]
-                    #del closedNodes[addX]
-
-
-            # TODO review up ^^^^^^^^^
-
 
         # Path find; update paths to
         openNodes = SortedDict(initDict=pathOrder, getSortValue=_sortFuncPathOrder)

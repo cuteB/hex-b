@@ -256,7 +256,6 @@ def test_SmartBoardWithScatteredMoves(tmpdir):
         assert tmpdir.npf.getNumPathsToHex(moves[i]) == pathsTo[i]
         assert tmpdir.npf.getNumPathsFromHex(moves[i]) == pathsFrom[i]
 
-
 def test_NumPathsForBoardWithChain(tmpdir):
     """Make a chain and check start and end paths"""
 
