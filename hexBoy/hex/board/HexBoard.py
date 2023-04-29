@@ -97,10 +97,8 @@ class HexBoard(HexagonBoard):
         self._blueEndZone = []
         self._redEndZone = []
 
-        # initialize playing spaces
-        for x in range(self.boardSize):
-            for y in range(self.boardSize):
-                dict[Hex((x, y))] = HexNode((x, y)).initHexType(HexGameRules.empty.hex)
+        # initialize playing area
+        dict = {Hex((x,y)): HexNode((x,y)).initHexType(HexGameRules.empty.hex) for x in range(self.boardSize) for y in range(self.boardSize)}
 
         # Initialize edges in dict
         # blue edge
