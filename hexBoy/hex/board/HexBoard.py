@@ -62,12 +62,11 @@ class HexagonBoard(Board):
         ]
 
         # validate the potential spaces and return the adjacent spaces
-        adjacentSpaces = []
-        for space in potentialSpaces:
-            if self.isSpaceWithinBounds(space):
-                adjacentSpaces.append(space)
-
-        return adjacentSpaces
+        return [
+            space
+            for space in potentialSpaces
+            if self.isSpaceWithinBounds(space)
+        ]
 
 '''----------------------------------
 Hex Board
@@ -134,13 +133,12 @@ class HexBoard(HexagonBoard):
 
     def getPlayerMoves(self, player: int) -> List[Hex]:
         """Look at the move history and return a player's moves"""
-        
-        playerMoves = []
-        for i in range(len(self._moveHistory)):
-            if self._moveHistory[i][0] == player:
-                playerMoves.append(self._moveHistory[i][1])
-
-        return playerMoves
+        # move (player, move)
+        return [
+            m[1] 
+            for m in self._moveHistory 
+            if m[0] == player
+        ]
 
     def getMoveHistory(self) -> List[Tuple[int,Hex]]:
         """Get the move history of the current game"""
