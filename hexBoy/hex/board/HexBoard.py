@@ -94,28 +94,19 @@ class HexBoard(HexagonBoard):
 
         # Run every time. Saving this has pointer issues. Could probs deep copy
         dict = {}
-        self._blueEndZone = []
-        self._redEndZone = []
+        self._blueEndZone = [(x,y) for x in range(self.boardSize) for y in [-1,11]]
+        self._redEndZone = [(x,y) for y in range(self.boardSize) for x in [-1,11]]
 
-        # initialize playing area
-        dict = {Hex((x,y)): HexNode((x,y)).initHexType(HexGameRules.empty.hex) for x in range(self.boardSize) for y in range(self.boardSize)}
-
-        # Initialize edges in dict
-        # blue edge
-        for x in range(self.boardSize):
-            self._blueEndZone.append(Hex((x, -1)))
-            self._blueEndZone.append(Hex((x, 11)))
-            dict[Hex((x, -1))] = HexNode((x, -1)).initHexType(HexGameRules.blue.edge)
-            dict[Hex((x, 11))] = HexNode((x, 11)).initHexType(HexGameRules.blue.edge)
-
-        # red edge
-        for y in range(self.boardSize):
-            self._redEndZone.append(Hex((-1, y)))
-            self._redEndZone.append(Hex((11, y)))
-            dict[Hex((-1, y))] = HexNode((-1, y)).initHexType(HexGameRules.red.edge)
-            dict[Hex((11, y))] = HexNode((11, y)).initHexType(HexGameRules.red.edge)
-
-        return dict
+        # initialize the dict with comprehension
+        dict = {
+            Hex((x,y)): HexNode((x,y)).initHexType(HexGameRules.blue.edge) if y == -1 or y == 11
+            else HexNode((x,y)).initHexType(HexGameRules.red.edge) if x == -1 or x == 11
+            else HexNode((x,y)).initHexType(HexGameRules.empty.hex)
+            for x in range(-1, self.boardSize + 1) for y in range(-1, self.boardSize + 1)
+            if (x,y) not in [(11,11), (-1,-1), (-1,11), (11,-1)] # ignore the 4 edge corners 
+        }
+        
+        return dict # need to return the dict instead of just setting it here.
 
     '''---
     Public
