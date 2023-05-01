@@ -4,13 +4,16 @@ def _defaultGetSortValue(item):
     """Default sort value sorts by the key"""
     return item[0]
 
+# IDEA give SortedDict a type for the tooltip so I know what the key/val types are
+# TODO get() function that returns the value of a key but also takes in a value that will be returned if there is no key
+
 '''----------------------------------
 Sorted Dict
 ----------------------------------'''
 class SortedDict(dict):
     """Dictionary that sorts elements for pop() based on getSortValue test. 
 
-    @param dict: dict "initial dict"
+    @param initDict: dict "initial dict"
     @param getSortValue: Callable[[Tuple[any, any]], int] "What value should be used to sort the dict"
     @param reverse: bool "Which way to sort the list. True -> desc, False -> asc"
     
@@ -25,6 +28,10 @@ class SortedDict(dict):
         getSortValue: Callable[[Tuple[any, any]], int] = _defaultGetSortValue, 
         reverse: bool = False
     ):
+        """@param initDict: dict "initial dict"
+        @param getSortValue: Callable[[Tuple[any, any]], int] "What value should be used to sort the dict"
+        @param reverse: bool "Which way to sort the list. True -> desc, False -> asc"
+        """
         dict.__init__(self)
 
         self._sortedItems = []
