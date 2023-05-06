@@ -57,6 +57,13 @@ class SortedDict(dict):
                 del self._sortedItems[ind]
                 break
 
+    # Override dict[key]
+    def __getitem__(self, key):
+        if (key in self):
+            return super(SortedDict, self).__getitem__(key)
+        else: 
+            return None
+
     '''---
     Private
     ---'''

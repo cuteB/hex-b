@@ -119,7 +119,6 @@ class HexNode(Hex):
 
     def getHest(self) -> int:
         """Get the Estimate total cost of the path using the node with the Heuristic"""
-        # return self._hest
         return self._path + self._cost + self._heur
 
     def getBest(self) -> int:
@@ -135,14 +134,14 @@ class HexNode(Hex):
         return self._cost + self._dist
 
     def getDad(self) -> HexNode:
-        """Get single parent of the node, First parent if it has many"""
+        """Get single dad of the node, First dad if it has many"""
         if (len(self._dads) > 0):
             return self._dads[0]
         else: 
             return None
 
     def getDads(self) -> List[HexNode]:
-        # TODO description and tests
+        """Get all dads of the node"""
         return self._dads
 
     def setDad(self, dad: HexNode) -> None:
@@ -154,48 +153,48 @@ class HexNode(Hex):
         self._dads = dads
 
     def addDad(self, dad: HexNode) -> None:
-        # TODO description and tests
+        """Add a dad to the node"""
         if not dad in self._dads:
             self._dads.append(dad)
 
     def delDad(self, dad: HexNode) -> None:
-        # TODO 
+        """Delete a dad from the node if it exists"""
         if dad in self._dads:
             self._dads.remove(dad) 
             self.updatePathsToNodeWithDads()
 
     def getSon(self) -> HexNode:
-        # TODO description and tests
+        """Get single son of the node, First son if it has many"""
         if (len(self._sons) > 0):
             return self._sons[0]
         else: 
             return None
 
     def setSon(self, son: HexNode) -> None:
-        # TODO description and tests
+        """Set a single son to the node"""
         self._sons = [son]
 
     def setSons(self, sons: List[HexNode]) -> None:
+        """Set sons from list"""
         self._sons = sons
 
     def addSon(self, son: HexNode) -> None:
-        # TODO description and tests
-
+        """Add a son to the node"""
         if not son in self._sons:
             self._sons.append(son)
     
     def getSons(self) -> List[HexNode]:
-        # TODO tests 
+        """Get all sons of the node"""
         return self._sons
 
     def delSon(self, son: HexNode) -> None:
-        # TODO
+        """Delete a son from the node if it exists"""
         if son in self._sons:
             self._sons.remove(son) 
             self.updatePathsFromNodeWithSons()
 
     def setPathsToNode(self, n: int) -> None:
-        # TODO
+        """Set the paths to node"""
         self._pathsToNode = n
     
     def updatePathsToNodeWithDads(self) -> None:
@@ -208,11 +207,11 @@ class HexNode(Hex):
         self.setPathsToNode(pathsToNode)
 
     def getPathsToNode(self) -> int:
-        # TODO 
+        """Get the paths to node"""
         return self._pathsToNode
 
     def setPathsFromNode(self, n: int) -> None:
-        # TODO
+        """Set the paths from node"""
         self._pathsFromNode = n
 
     def updatePathsFromNodeWithSons(self) -> None:
@@ -225,7 +224,6 @@ class HexNode(Hex):
         self.setPathsFromNode(pathsFromNode)
 
     def getPathsFromNode(self) -> int:
+        """Get the paths from node"""
         return self._pathsFromNode
-    
-    
         

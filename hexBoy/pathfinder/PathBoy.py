@@ -90,7 +90,7 @@ class PathBoy:
             node.setPath(pathCost)
             node.setHeur(self._heuristicFunc(node, endPos))
 
-        # loop while the end hasn't been found
+        # Path Find; loop while the end hasn't been found
         while currentNode != endPos:
             # All nodes have been looked at, return no path
             if len(openNodes) == 0:
@@ -136,7 +136,7 @@ class PathBoy:
         
         nodes = self._board.getNodeDict()
 
-        if len(path) == 0: # Maybe change to None instead of a big number
+        if len(path) == 0: # TODO Maybe change to None instead of a big number
             return 10000
 
         cost = 0
