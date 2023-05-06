@@ -50,6 +50,11 @@ class HexNode(Hex):
 
     # family
     _dads: List[HexNode]  # Parent(s) of the node. Could have been moms too i guess. 
+    _sons: List[HexNode]  # Kid(s) of the node. Because parents only care about their best kids
+
+    # paths to and from node
+    _pathsToNode: int
+    _pathsFromNode: int 
 
     def __init__(self, X):
         Hex.__init__(self, X)
@@ -62,6 +67,10 @@ class HexNode(Hex):
         self._heur = 0
 
         self._dads = []
+        self._sons = []
+
+        self._pathsToNode = 0
+        self._pathsFromNode = 0
 
     '''---
     Public Functions
@@ -121,13 +130,102 @@ class HexNode(Hex):
         "Get path cost to node + cost of node"
         return self._path + self._cost
 
-    def getParent(self) -> HexNode:
+    def getCD(self) -> int:
+        """Get cost of node + dist to end"""
+        return self._cost + self._dist
+
+    def getDad(self) -> HexNode:
         """Get single parent of the node, First parent if it has many"""
         if (len(self._dads) > 0):
             return self._dads[0]
         else: 
             return None
 
-    def setParent(self, parent: HexNode) -> None:
-        """Set a single parent to the node"""
-        self._dads = [parent]
+    def getDads(self) -> List[HexNode]:
+        # TODO description and tests
+        return self._dads
+
+    def setDad(self, dad: HexNode) -> None:
+        """Set a single dad to the node"""
+        self._dads = [dad]
+
+    def setDads(self, dads: List[HexNode]) -> None:
+        """Set dads from list"""
+        self._dads = dads
+
+    def addDad(self, dad: HexNode) -> None:
+        # TODO description and tests
+        if not dad in self._dads:
+            self._dads.append(dad)
+
+    def delDad(self, dad: HexNode) -> None:
+        # TODO 
+        if dad in self._dads:
+            self._dads.remove(dad) 
+            self.updatePathsToNodeWithDads()
+
+    def getSon(self) -> HexNode:
+        # TODO description and tests
+        if (len(self._sons) > 0):
+            return self._sons[0]
+        else: 
+            return None
+
+    def setSon(self, son: HexNode) -> None:
+        # TODO description and tests
+        self._sons = [son]
+
+    def setSons(self, sons: List[HexNode]) -> None:
+        self._sons = sons
+
+    def addSon(self, son: HexNode) -> None:
+        # TODO description and tests
+
+        if not son in self._sons:
+            self._sons.append(son)
+    
+    def getSons(self) -> List[HexNode]:
+        # TODO tests 
+        return self._sons
+
+    def delSon(self, son: HexNode) -> None:
+        # TODO
+        if son in self._sons:
+            self._sons.remove(son) 
+            self.updatePathsFromNodeWithSons()
+
+    def setPathsToNode(self, n: int) -> None:
+        # TODO
+        self._pathsToNode = n
+    
+    def updatePathsToNodeWithDads(self) -> None:
+        """Update the paths to node by looking at dads"""
+        dads: List[HexNode] = self.getDads()
+        pathsToNode = 0
+        for d in dads:
+            pathsToNode += d.getPathsToNode()
+
+        self.setPathsToNode(pathsToNode)
+
+    def getPathsToNode(self) -> int:
+        # TODO 
+        return self._pathsToNode
+
+    def setPathsFromNode(self, n: int) -> None:
+        # TODO
+        self._pathsFromNode = n
+
+    def updatePathsFromNodeWithSons(self) -> None:
+        """Update the paths from node by looking at sons"""
+        sons: List[HexNode] = self.getSons()
+        pathsFromNode = 0
+        for s in sons:
+            pathsFromNode += s.getPathsFromNode()
+
+        self.setPathsFromNode(pathsFromNode)
+
+    def getPathsFromNode(self) -> int:
+        return self._pathsFromNode
+    
+    
+        

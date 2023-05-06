@@ -75,8 +75,10 @@ def main() -> None:
         showPrint,
     )
 
+# TODO put the flag first so they are all in a nice line
 def printHelp() -> None:
     """Help I forgot how to run the game"""
+
     print()
     print("Command Line Arguments")
     print("----------------------")
@@ -84,7 +86,7 @@ def printHelp() -> None:
     print()
     print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
     print("\tEnter Blue agent: \t`-b <arg>`")
-    print("\tEnter Red agent: \t`-r <arg>`")
+    print("\tEnter Red agent: \t`-r <arg>`") # TODO put this at the bottom before agent help()
     print()
     print("Game Config")
     print("\tNumber of games \t`-n <arg>` \t(Default: 1)")
