@@ -13,7 +13,7 @@ class HexPlayerInfo:
     edge: HexType = None
 
 class HexTypes:
-    area: int = 1 # TODO think of a better name than area (playable area??)
+    area: int = 1 # COMEBACK think of a better name than area (playable area??)
     edge: int = 2
 
 class HexGameRules:
