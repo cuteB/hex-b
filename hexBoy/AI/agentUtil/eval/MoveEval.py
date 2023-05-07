@@ -67,7 +67,7 @@ def isStrongMove(move, gameBoard: HexBoard, player):
 
 # From agent strong?
 def evaluateBoardMove(self, gameBoard):
-
+    """Deprecated"""
     move = self.randomMove(gameBoard)
     moveVal = self.boardEval.evaluateBoard(gameBoard.moveHistory)
 

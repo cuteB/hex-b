@@ -75,7 +75,6 @@ def main() -> None:
         showPrint,
     )
 
-# TODO put the flag first so they are all in a nice line
 def printHelp() -> None:
     """Help I forgot how to run the game"""
 
@@ -84,17 +83,17 @@ def printHelp() -> None:
     print("----------------------")
     print("\tCan be used in any order. Flags that are expecting an argument need its argument directly after the flag")
     print()
-    print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
-    print("\tEnter Blue agent: \t`-b <arg>`")
-    print("\tEnter Red agent: \t`-r <arg>`") # TODO put this at the bottom before agent help()
-    print()
     print("Game Config")
-    print("\tNumber of games \t`-n <arg>` \t(Default: 1)")
+    print("`-n <arg>`\tNumber of games \t(Default: 1)")
     print()
     print("Basic Config Flags")
-    print("\tShow Display \t`-d` \t(Default: hide display)")
-    print("\tShow Endgame \t`-e` \t(Default: Skip Endgame)")
-    print("\tHide Prints \t`-p` \t(Default: Show print summaries)")
+    print("`-d`\t\tShow Display\t(Default: hide display)")
+    print("`-e`\t\tShow Endgame\t(Default: Skip Endgame)")
+    print("`-p`\t\tHide Prints\t(Default: Show print summaries)")
+    print()
+    print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
+    print("`-b <arg>` \tDefine Blue agent")
+    print("`-r <arg>`\tDefine Red agent")
     print()
     PrintAgentHelp()
 

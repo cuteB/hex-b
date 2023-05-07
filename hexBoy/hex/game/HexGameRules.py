@@ -19,7 +19,7 @@ class HexTypes:
 class HexGameRules:
     """Rules of the game. Contains player info and Barrier Check"""
 
-    # xType 1: Playable Board Hex
+    # xType 1: Playable Hex
     # xType 2: Edge Hex
 
     empty: HexPlayerInfo = HexPlayerInfo(
@@ -87,7 +87,6 @@ class HexGameRules:
     def getHeuristicFunc(player: int) -> Callable[[Hex, Hex], int]:
         """Return the heuristic function for the player used in the pathfinder
         Heuristic used in the game is distance to the end edge. only takes in a start hex and ignores the second input param"""
-        # TODO I think I want to test this function
 
         if (player == 1): # blue
             i = 1

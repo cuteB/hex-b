@@ -136,8 +136,8 @@ class PathBoy:
         
         nodes = self._board.getNodeDict()
 
-        if len(path) == 0: # TODO Maybe change to None instead of a big number
-            return 10000
+        if len(path) == 0: 
+            return None # This might not work 
 
         cost = 0
         stepNode = None

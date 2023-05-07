@@ -236,3 +236,24 @@ def test_CompletePathFindWithoutUsingEmptySpaces(tmpdir):
         (5,10),
         (5,11)
     ]
+
+def test_NoPathAvailable(tmpdir):
+    """Test pathfinder when no path is available"""
+
+    for i in range(11):
+        tmpdir.board.makeMove(2, (5,i))
+
+    tmpdir.pf = PathBoy(
+        tmpdir.board,
+        HexGameRules.getCheckIfBarrierFunc(1, useEmpty=False),
+        HexGameRules.getHeuristicFunc(1),
+        tmpdir.sortFunc
+    )
+
+    bestPath = tmpdir.pf.findPath(
+        tmpdir.start,
+        tmpdir.end
+    )
+
+    assert bestPath == []
+    assert tmpdir.pf.scorePath(bestPath) == None

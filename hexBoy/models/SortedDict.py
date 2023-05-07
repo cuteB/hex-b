@@ -5,7 +5,6 @@ def _defaultGetSortValue(item):
     return item[0]
 
 # IDEA give SortedDict a type for the tooltip so I know what the key/val types are
-# TODO get() function that returns the value of a key but also takes in a value that will be returned if there is no key
 
 '''----------------------------------
 Sorted Dict
@@ -130,7 +129,7 @@ class SortedDict(dict):
 
     def hasKey(self, key) -> bool:
         """Check if the dict has the key"""
-        # I can use "in" but I prefer look of this
+        # I can use "in" but I prefer look of using this function in the code
         return key in self
 
     def getKeys(self) -> List[any]:

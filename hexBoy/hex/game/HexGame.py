@@ -66,6 +66,10 @@ class HexGame:
         agent2: HexAgent =None,
         options: HexGameOptions = HexGameOptions()
     ):
+        """@param agent1: HexAgent "Blue Agent"
+        @param agent2: HexAgent "Red Agent"
+        @param options: HexGameOptions "Game Options"
+        """
         pygame.init() # Needs to be first
 
         self._gameBoard = HexBoard()
