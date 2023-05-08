@@ -34,7 +34,16 @@ Main hex game class
 ----------------------------------'''
 @dataclass
 class HexGame:
-    """The Hex Game"""
+    """The *Hex* Game
+    
+    ### pls bold
+
+    1. uhh
+        - [uhh]
+
+    > does this change anything
+        
+    """
 
     _gameBoard: HexBoard  # Board, Hex Board Object #
     _options: HexGameOptions
@@ -66,9 +75,13 @@ class HexGame:
         agent2: HexAgent =None,
         options: HexGameOptions = HexGameOptions()
     ):
-        """@param agent1: HexAgent "Blue Agent"
-        @param agent2: HexAgent "Red Agent"
-        @param options: HexGameOptions "Game Options"
+        """
+        # Initialize the HexGame
+
+        Args:
+            agent1: (HexAgent) "Blue Agent"
+            agent2: HexAgent "Red Agent"
+            options: HexGameOptions "Game Options"
         """
         pygame.init() # Needs to be first
 
