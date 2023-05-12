@@ -34,13 +34,15 @@ Main hex game class
 ----------------------------------'''
 @dataclass
 class HexGame:
-    """# Hex
-    The game
-    
+    """ # Hex
+    The game class to manage agents and games.
+
     - Played on an 11 x 11 hexagon grid. With blue on the top and bottom and read on the left and right.
     - Each player takes turns placing a piece on the board. 
     - The goal is to connect your sides of the board.
     - The first player to connect their sides wins.
+
+    Public:
 
     > Thank you Hex for changing my life
     """
@@ -76,7 +78,7 @@ class HexGame:
         options: HexGameOptions = HexGameOptions()
     ):
         """
-        # Initialize the HexGame
+        Initialize the HexGame
 
         Args:
             agent1: (HexAgent) "Blue Agent"
@@ -126,34 +128,50 @@ class HexGame:
             self._redName = self._redAgent.getName()
             self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
 
+        self._eventToHandler = {
+            QUIT: self._terminateGame,
+            MOUSEBUTTONDOWN: self._handleMouseClick,
+            BEFORE_TURN: self._handleAgentTurn,
+            PLAYER_TURN: self._handleNextMove,
+            AFTER_TURN: self._endTurn
+        }   
+
     '''---
     Game Loops
     ---'''
+
     def _gameEventLoop(self) -> None:
         """Main event Game Loop (Game in progress)"""
 
         # TODO Turn this into a dictionary with the key being the event type and the value being the handler
 
+        def noop():
+            pass
+
         for event in pygame.event.get():
-            # Quit button
-            if event.type == QUIT:
-                self._terminateGame()
 
-            # Mouse click
-            elif event.type == MOUSEBUTTONDOWN:
-                self._handleMouseClick(pygame.mouse.get_pos())
+            handler = self._eventToHandler.get(event.type, noop)
+            handler()
 
-            # Start Turn
-            elif event.type == BEFORE_TURN:
-                self._handleAgentTurn()
+            # # Quit button
+            # if event.type == QUIT:
+            #     self._terminateGame()
 
-            # Handle Next move
-            elif event.type == PLAYER_TURN:
-                self._handleNextMove(self._currentPlayer, self._nextMove)
+            # # Mouse click
+            # elif event.type == MOUSEBUTTONDOWN:
+            #     self._handleMouseClick()
 
-            # End Turn
-            elif event.type == AFTER_TURN:
-                self._endTurn()
+            # # Start Turn
+            # elif event.type == BEFORE_TURN:
+            #     self._handleAgentTurn()
+
+            # # Handle Next move
+            # elif event.type == PLAYER_TURN:
+            #     self._handleNextMove()
+
+            # # End Turn
+            # elif event.type == AFTER_TURN:
+            #     self._endTurn()
 
     def _endGameEventLoop(self) -> None:
         """Event loop after a game has been completed"""
@@ -186,6 +204,8 @@ class HexGame:
             mousePos: Hex "Mouse position on the game board"
         """
 
+        mousePos = pygame.mouse.get_pos
+
         if self._options.showDisplay:
             move = self._graphics.findHexagonCoordsForMousePos(mousePos)
             if self._validatePlayer() and self._gameBoard.validateMove(move):
@@ -202,13 +222,10 @@ class HexGame:
             self._nextMove = self._redAgent.getAgentMove()
             self._eventDoPlayerMove()
 
-    def _handleNextMove(self, player: int, move: Hex) -> None:
-        """Handle the next move
-        
-        Args:
-            player: int "Player making the move"
-            move: Hex "Move to make"
-        """
+    def _handleNextMove(self) -> None:
+        """Handle the next move"""
+        player = self.player
+        move = self.move
 
         if self._gameBoard.validateMove(move):
             self._gameBoard.makeMove(player, move)
@@ -434,7 +451,7 @@ def Hex_Play(
         showEndGame=showEndGame
     )
 
-    game = HexGame(
+    game: HexGame = HexGame(
         agent1=agentA,
         agent2=agentB,
         options=options
