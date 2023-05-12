@@ -11,8 +11,9 @@ I'll put ideas here
 - pylint
 """
 
-""" Main Function """
 def main() -> None:
+    """ Main Function to run the game"""
+
     agentA = GetAgent(1)
     agentB = GetAgent(1)
     showEndGame = False
