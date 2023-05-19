@@ -9,24 +9,30 @@ connectionPath = 'hexBoy/db/hex_sqlite.db'
 connectionString = 'sqlite:///' + connectionPath
 
 engine = create_engine(connectionString, echo=True)
+# echo parameter adds the sql representation of the queries to the console
 
 '''---
 Copy Pasted these two
 ---'''
+# can also do Base = DeclarativeBase
 class Base(DeclarativeBase):
     pass
 
 class User(Base):
+    #  Table Name
     __tablename__ = "user_account"
 
+    # Column Definitions
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
     fullname: Mapped[Optional[str]]
 
+    # Relationship Definitions
     addresses: Mapped[List["Address"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
+    # Print Method for when the object is returned or printed
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.name!r}, fullname={self.fullname!r})"
 
@@ -47,7 +53,7 @@ class Address(Base):
 # create table
 Base.metadata.create_all(engine)
 
-
+# Sessions are used to run queries and interact with the database
 with Session(engine) as session:
 
     # start cleanup
