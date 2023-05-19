@@ -1,16 +1,18 @@
 # import sqlite3
 
 from typing import List, Optional
-from sqlalchemy import create_engine, ForeignKey, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import create_engine, ForeignKey, String, select
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
 
+connectionPath = 'hexBoy/db/hex_sqlite.db'
+connectionString = 'sqlite:///' + connectionPath
 
+engine = create_engine(connectionString, echo=True)
 
 '''---
-Copy Pasted these
+Copy Pasted these two
 ---'''
-
 class Base(DeclarativeBase):
     pass
 
@@ -42,8 +44,78 @@ class Address(Base):
         return (f"Address(id={self.id!r}, email_address={self.email_address!r}") 
 
 
-connectionPath = 'hexBoy/db/hex_sqlite.db'
-connectionString = 'sqlite:///' + connectionPath
+# create table
+Base.metadata.create_all(engine)
 
-engine = create_engine(connectionString, echo=True)
-print(type(engine))
+
+with Session(engine) as session:
+
+    # start cleanup
+    stmt = select(User)
+    for user in session.scalars(stmt):
+        session.delete(user)
+    stmt = select(Address)
+    for address in session.scalars(stmt):
+        session.delete(address)
+    session.commit()
+    # end cleanup
+
+    
+    # write
+    spongebob = User(
+        name="spongebob", 
+        fullname="Spongebob Squarepants",
+        addresses=[Address(email_address="spongebob@sqlalchemy.org")]
+    )
+    sandy = User(
+        name="sandy",
+        fullname="Sandy Cheeks",
+        addresses=[
+            Address(email_address="sandy@sqlalchemy.org"),
+            Address(email_address="sandy@squirrelpower.org"),
+        ],
+    )
+    patrick = User(name="patrick", fullname="Patrick Star")
+
+    session.add_all([spongebob, sandy, patrick])
+    session.commit()
+
+    # read
+    stmt = select(User).where(User.name.in_(["spongebob", "sandy"]))
+
+    for user in session.scalars(stmt):
+        print(user)
+
+    # join
+    stmt = (
+        select(Address)
+        .join(Address.user)
+        .where(User.name == "sandy")
+        .where(Address.email_address == "sandy@sqlalchemy.org")
+    )
+
+    sandy_address = session.scalars(stmt).one()
+    print(sandy_address)
+
+
+    # update
+    stmt = select(User).where(User.name == "patrick")
+    patrick = session.scalars(stmt).one()
+    patrick.addresses.append(Address(email_address="patrickstar@sqlalchemy.org"))
+
+    sandy_address.email_address = "sandy_cheeks@sqlalchemy.org"
+
+    session.commit()
+
+
+    # delete
+    sandy = session.get(User,2)
+    sandy.addresses.remove(sandy_address)
+
+    session.delete(patrick)
+    session.commit()
+
+
+    
+
+
