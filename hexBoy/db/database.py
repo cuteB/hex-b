@@ -8,7 +8,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship,
 connectionPath = 'hexBoy/db/hex_sqlite.db'
 connectionString = 'sqlite:///' + connectionPath
 
-engine = create_engine(connectionString, echo=True)
+engine = create_engine(connectionString) # use 'echo = true' parameter for all of the print statements
 # echo parameter adds the sql representation of the queries to the console
 
 '''---
@@ -60,13 +60,9 @@ with Session(engine) as session:
     stmt = select(User)
     for user in session.scalars(stmt):
         session.delete(user)
-    stmt = select(Address)
-    for address in session.scalars(stmt):
-        session.delete(address)
     session.commit()
     # end cleanup
 
-    
     # write
     spongebob = User(
         name="spongebob", 
@@ -83,8 +79,12 @@ with Session(engine) as session:
     )
     patrick = User(name="patrick", fullname="Patrick Star")
 
+    print(sandy) # id = none
+
     session.add_all([spongebob, sandy, patrick])
     session.commit()
+
+    print(sandy) # id is now set. 
 
     # read
     stmt = select(User).where(User.name.in_(["spongebob", "sandy"]))
@@ -101,7 +101,7 @@ with Session(engine) as session:
     )
 
     sandy_address = session.scalars(stmt).one()
-    print(sandy_address)
+    print(sandy_address) # id = none
 
 
     # update
@@ -117,6 +117,8 @@ with Session(engine) as session:
     # delete
     sandy = session.get(User,2)
     sandy.addresses.remove(sandy_address)
+
+    print(sandy) # id is set once record is written/read from the database
 
     session.delete(patrick)
     session.commit()
