@@ -2,8 +2,10 @@
 
 from hexBoy.hex.node.HexNode import Hex
 from typing import List, Optional
-from sqlalchemy import create_engine, ForeignKey, String, select
+from sqlalchemy import create_engine, ForeignKey, String, select, Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+
+
 
 class Base(DeclarativeBase):
     pass
@@ -33,42 +35,92 @@ class Move(Base):
     __tablename__ = "game_move"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("hex_game.id"))
+    game: Mapped["Game"] = relationship(back_populates="moves")
     player: Mapped[int]
-    move: Mapped[tuple]
+    # move: Mapped["TupleElement"] = relationship(back_populates="moveId")
+    x = Mapped[int]
+    y = Mapped[int]
+
+    sequence = Mapped[int]
+
+    def __init__(self, player: int, move: Hex, sequence: int):
+        self.player = player
+        self.x, self.y = move
+        self.sequence = sequence
 
     game: Mapped["Game"] = relationship(back_populates="moves")
 
+
+
     def __repr__(self) -> str:
-        return (f"Move(id={self.id!r}, player={self.player!r}, move={self.move!r})") 
-    
+        return (f"Move(id={self.id!r}, gameId={self.game_id!r}, player={self.player!r}, move=({self.x!r},{self.y!r}), sequence={self.sequence!r})") 
+
+
+class DBManager:
+    connectionPath = 'hexBoy/db/hex_sqlite.db' # TODO there is some garbage tables still in here
+    connectionString = 'sqlite:///' + connectionPath
+    engine: Engine
+
+    currentGame: Game
+    currentGameId: int
+    gameSequence: int
+
+    def __init__(self):
+        self.engine = create_engine(self.connectionString)
+
+    def resetDB(self):
+        Game.__table__.drop(self.engine)
+
+    def initDBTables(self) -> None:
+        Base.metadata.create_all(self.engine)
+
+
+    def startGame(self, blueAgent: str, redAgent: str):
+        currentGame = Game(
+            blueAgent = blueAgent,
+            redAgent = redAgent
+        )
+        self.gameSequence = 0 # IDK if this should be inside here
+
+        with Session(self.engine) as session:
+            session.add(currentGame)
+            session.commit()
+            self.currentGameId = currentGame.id
+
+    def addMove(self, player, move):
+
+        with Session(self.engine) as session: 
+            m = Move(player, move, self.gameSequence)
+            query = (
+                select(Game)
+                .where(Game.id == self.currentGameId)
+            )
+            currentGame = session.scalars(query).one()
+            currentGame.moves.append(m)
+            session.commit()
+
+    def printMoveForGame(self):
+        with Session(self.engine) as session:
+            query = (
+                select(Move)
+                .where(Move.game_id == self.currentGameId)
+            )
+
+            for m  in session.scalars(query):
+                print(m, m.x, m.y)
+                print(5 == m.x)
+
 
 
 def initDB() -> None:
-    connectionPath = 'hexBoy/db/hex_sqlite.db' # TODO there is some garbage tables still in here
-    connectionString = 'sqlite:///' + connectionPath
+    dbm = DBManager()
 
-    engine = create_engine(connectionString) # use 'echo = true' parameter for all of the print statements
-    # echo parameter adds the sql representation of the queries to the console
+    dbm.resetDB()
+    dbm.initDBTables()
 
+    dbm.startGame("blue", "red")
 
+    dbm.addMove(1, (5,5))
 
-    Base.metadata.create_all(engine)
-
-    # Open DB Session
-    with Session(engine) as session:
-
-        # cleanup
-        query = select(Game)
-        for g in session.scalars(query):
-            session.delete(g)
-        session.commit()
-
-
-        testGame = Game(
-            blueAgent = "bran",
-            redAgent = "Agent_Rand"
-        )
-
-        session.add(testGame)
-
-        print(testGame)
+    dbm.printMoveForGame()
