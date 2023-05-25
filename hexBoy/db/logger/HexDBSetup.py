@@ -38,18 +38,16 @@ class Move(Base):
     game_id: Mapped[int] = mapped_column(ForeignKey("hex_game.id"))
     game: Mapped["Game"] = relationship(back_populates="moves")
     player: Mapped[int]
-    # move: Mapped["TupleElement"] = relationship(back_populates="moveId")
-    x = Mapped[int]
-    y = Mapped[int]
+    x: Mapped[int] 
+    y: Mapped[int]
 
-    sequence = Mapped[int]
+    sequence: Mapped[int]
 
     def __init__(self, player: int, move: Hex, sequence: int):
         self.player = player
-        self.x, self.y = move
+        self.x, self.y = move 
         self.sequence = sequence
 
-    game: Mapped["Game"] = relationship(back_populates="moves")
 
 
 
@@ -71,6 +69,7 @@ class DBManager:
 
     def resetDB(self):
         Game.__table__.drop(self.engine)
+        Move.__table__.drop(self.engine)
 
     def initDBTables(self) -> None:
         Base.metadata.create_all(self.engine)
@@ -99,6 +98,7 @@ class DBManager:
             currentGame = session.scalars(query).one()
             currentGame.moves.append(m)
             session.commit()
+            self.gameSequence += 1
 
     def printMoveForGame(self):
         with Session(self.engine) as session:
@@ -109,8 +109,6 @@ class DBManager:
 
             for m  in session.scalars(query):
                 print(m, m.x, m.y)
-                print(5 == m.x)
-
 
 
 def initDB() -> None:
@@ -122,5 +120,10 @@ def initDB() -> None:
     dbm.startGame("blue", "red")
 
     dbm.addMove(1, (5,5))
+    dbm.addMove(2, (5,6))
+    dbm.addMove(1, (5,7))
+    dbm.addMove(2, (5,8))
+    dbm.addMove(1, (5,9))
+    dbm.addMove(2, (5,10))
 
     dbm.printMoveForGame()
