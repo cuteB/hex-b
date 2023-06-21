@@ -27,4 +27,6 @@ with too extra edges
                 \___/
 ```
 
-Just run `python main.py` for now
+[Checkout the setup](./wiki/Setup.md)
+
+
