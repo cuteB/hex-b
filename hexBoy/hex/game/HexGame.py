@@ -15,6 +15,8 @@ from hexBoy.hex.graphics.HexGraphics import HexGraphics
 from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
+from hexBoy.db.logger.HexDBSetup import HexLogger
+
 # Custom Events
 BEFORE_TURN = pygame.USEREVENT + 1
 PLAYER_TURN = pygame.USEREVENT + 2
@@ -60,6 +62,8 @@ class HexGame:
 
     _nextMove: tuple
 
+    _xLogger: HexLogger
+
     def __init__(
         self,
         agent1: HexAgent = None,
@@ -86,7 +90,7 @@ class HexGame:
         self._bluePathFinder = PathBoy(
             self._gameBoard,
             HexGameRules.getCheckIfBarrierFunc(1,useEmpty=False),
-            HexGameRules.getHeuristicFunc(2)
+            HexGameRules.getHeuristicFunc(1)
         )
         self._redPathFinder = PathBoy(
             self._gameBoard,
@@ -98,6 +102,7 @@ class HexGame:
         self._redAgent = None
         self._blueName = ""
         self._redName = ""
+
         # Set AIs if provided
         if agent1 != None:
             self._blueAgent = agent1
@@ -108,6 +113,10 @@ class HexGame:
             self._redAgent = agent2
             self._redName = self._redAgent.getName()
             self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
+
+        # Logger
+        self._xLogger = HexLogger()
+
 
     '''---
     Game Loops
@@ -148,6 +157,7 @@ class HexGame:
     '''---
     Events and handlers
     ---'''
+    # COMEBACK change names to _triggerEvent
     def _eventStartTurn(self):
         """Trigger Game Event Start Turn"""
         pygame.event.post(pygame.event.Event(BEFORE_TURN))
@@ -186,6 +196,8 @@ class HexGame:
             self._gameBoard.makeMove(player, move)
             self._updateAgentBoards()
             self._eventAfterTurn()
+
+            self._xLogger.logMove(player, move)
 
     '''---
     Game Management
@@ -245,6 +257,8 @@ class HexGame:
         self._winPath = None
         self._eventStartTurn()
 
+        self._xLogger.logStartGame(self._blueName, self._redName)
+
     def _updateGameWindow(self) -> None:
         """Update Graphics"""
 
@@ -265,6 +279,7 @@ class HexGame:
         self._gameInProgress = False
         self._forceQuit = True
 
+    # TODO I think this function should be move visible in the file
     def _playGame(self) -> None:
         """Play a game"""
 
@@ -276,12 +291,16 @@ class HexGame:
             self._updateGameWindow()
             self._gameEventLoop()
 
+        # TODO Add post game function. Maybe
         # Post Game
         self._updateGameWindow()
         if self._currentPlayer == 1:
             self._blueWins += 1
         else:
             self._redWins += 1
+
+        self._xLogger.logEndGame(self._currentPlayer)
+        self._xLogger.printMoveForGame()
 
         self._gameInProgress = True
         while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:

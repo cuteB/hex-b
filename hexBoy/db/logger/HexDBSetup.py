@@ -1,4 +1,6 @@
-# import sqlite3
+# TODO probably rename this file and create a setup file that is separate from the logger
+
+# import sqlite3 
 
 from hexBoy.hex.node.HexNode import Hex
 from typing import List, Optional
@@ -7,6 +9,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship,
 
 '''
 [ ] I think I want to add the time to the logs
+[ ] create logger interface so I can swap out the DB later
+[ ] A GameHistory table that tracks the start/ end logs. Something for sequence of games as well
+[ ] Track who is playing to get stats on each agent. 
+[ ] log force quit
 '''
 
 class Base(DeclarativeBase):
