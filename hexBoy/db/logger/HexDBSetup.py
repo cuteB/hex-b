@@ -5,11 +5,13 @@ from typing import List, Optional
 from sqlalchemy import create_engine, ForeignKey, String, select, Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
-
+'''
+[ ] I think I want to add the time to the logs
+'''
 
 class Base(DeclarativeBase):
     pass
-
+     
 '''---
 Game
 ---'''
@@ -19,7 +21,7 @@ class Game(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     blueAgent: Mapped[str]
     redAgent: Mapped[str]
-    winner: Mapped[Optional[str]]
+    winner: Mapped[Optional[int]]
 
     moves: Mapped[List["Move"]] = relationship(
         back_populates="game", cascade="all, delete-orphan"
@@ -55,7 +57,7 @@ class Move(Base):
         return (f"Move(id={self.id!r}, gameId={self.game_id!r}, player={self.player!r}, move=({self.x!r},{self.y!r}), sequence={self.sequence!r})") 
 
 
-class DBManager:
+class HexLogger:
     connectionPath = 'hexBoy/db/hex_sqlite.db' # TODO there is some garbage tables still in here
     connectionString = 'sqlite:///' + connectionPath
     engine: Engine
@@ -63,9 +65,11 @@ class DBManager:
     currentGame: Game
     currentGameId: int
     gameSequence: int
+    gameInProgress: bool # COMEBACK I might want to merge this with the currentGameId to track if a game is in progress
 
     def __init__(self):
         self.engine = create_engine(self.connectionString)
+        self.gameInProgress = False
 
     def resetDB(self):
         Game.__table__.drop(self.engine)
@@ -75,19 +79,24 @@ class DBManager:
         Base.metadata.create_all(self.engine)
 
 
-    def startGame(self, blueAgent: str, redAgent: str):
+    def logStartGame(self, blueAgent: str, redAgent: str) -> None:
+        """"""
         currentGame = Game(
             blueAgent = blueAgent,
             redAgent = redAgent
         )
         self.gameSequence = 0 # IDK if this should be inside here
+        self.gameInProgress = True
 
         with Session(self.engine) as session:
             session.add(currentGame)
             session.commit()
             self.currentGameId = currentGame.id
 
-    def addMove(self, player, move):
+    def logMove(self, player: int, move: Hex) -> None:
+
+        if (not self.gameInProgress):
+            return # COMEBACK do I want this? I might want this to fail or say something 
 
         with Session(self.engine) as session: 
             m = Move(player, move, self.gameSequence)
@@ -100,30 +109,69 @@ class DBManager:
             session.commit()
             self.gameSequence += 1
 
-    def printMoveForGame(self):
+    def logEndGame(self, winnerId: int) -> None:
+        self.gameInProgress = False
+
+        with Session(self.engine) as session:
+            query = (
+                select(Game)
+                .where(Game.id == self.currentGameId)
+            )
+
+            g = session.scalars(query).one()
+            g.winner = winnerId
+
+            session.commit()
+
+    def printMoveForGame(self) -> None:
         with Session(self.engine) as session:
             query = (
                 select(Move)
                 .where(Move.game_id == self.currentGameId)
             )
 
-            for m  in session.scalars(query):
+            for m in session.scalars(query):
                 print(m, m.x, m.y)
 
+            query = (
+                select(Game)
+                .where(Game.id == self.currentGameId)
+            )
+
+            g = session.scalars(query).one()
+            print(g)
 
 def initDB() -> None:
-    dbm = DBManager()
+    xLogger = HexLogger()
 
-    dbm.resetDB()
-    dbm.initDBTables()
+    xLogger.resetDB()
+    xLogger.initDBTables()
 
-    dbm.startGame("blue", "red")
+    xLogger.logStartGame("blue", "red")
 
-    dbm.addMove(1, (5,5))
-    dbm.addMove(2, (5,6))
-    dbm.addMove(1, (5,7))
-    dbm.addMove(2, (5,8))
-    dbm.addMove(1, (5,9))
-    dbm.addMove(2, (5,10))
+    xLogger.logMove(2, (5,6))
+    xLogger.logMove(1, (5,7))
+    xLogger.logMove(1, (5,5))
+    xLogger.logMove(2, (5,8))
+    xLogger.logMove(1, (5,9))
+    xLogger.logMove(2, (5,10))
 
-    dbm.printMoveForGame()
+    xLogger.printMoveForGame()
+
+    xLogger.logEndGame(1)
+
+    xLogger.printMoveForGame()
+
+    xLogger.logStartGame("one", "two")
+
+    xLogger.logMove(2, (5,6))
+    xLogger.logMove(1, (5,7))
+    xLogger.logMove(1, (5,5))
+    xLogger.logMove(2, (5,8))
+    xLogger.logMove(1, (5,9))
+    xLogger.logMove(2, (5,10))
+
+
+    xLogger.logEndGame(2)
+
+    xLogger.printMoveForGame()
