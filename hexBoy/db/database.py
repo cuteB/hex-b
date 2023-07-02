@@ -4,7 +4,6 @@ from typing import List, Optional
 from sqlalchemy import create_engine, ForeignKey, String, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
-
 connectionPath = 'hexBoy/db/hex_sqlite.db'
 connectionString = 'sqlite:///' + connectionPath
 

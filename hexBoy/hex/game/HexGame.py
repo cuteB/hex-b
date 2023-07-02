@@ -117,7 +117,6 @@ class HexGame:
         # Logger
         self._xLogger = HexLogger()
 
-
     '''---
     Game Loops
     ---'''
@@ -143,7 +142,7 @@ class HexGame:
 
             # End Turn
             elif event.type == AFTER_TURN:
-                self._endTurn()
+                self._handleEndTurn()
 
     def _endGameEventLoop(self) -> None:
         """Event loop after a game has been completed"""
@@ -155,9 +154,8 @@ class HexGame:
                 self._terminateGame()
 
     '''---
-    Events and handlers
+    Event Triggers
     ---'''
-    # COMEBACK change names to _triggerEvent
     def _eventStartTurn(self):
         """Trigger Game Event Start Turn"""
         pygame.event.post(pygame.event.Event(BEFORE_TURN))
@@ -170,6 +168,9 @@ class HexGame:
         """Trigger Game Event End Turn"""
         pygame.event.post(pygame.event.Event(AFTER_TURN))
 
+    '''---
+    Event Handlers
+    ---'''
     def _handleMouseClick(self, mousePos: Hex) -> None:
         """Handle a click on the Game Board"""
 
@@ -199,10 +200,7 @@ class HexGame:
 
             self._xLogger.logMove(player, move)
 
-    '''---
-    Game Management
-    ---'''
-    def _endTurn(self) -> None:
+    def _handleEndTurn(self) -> None:
         """Check the board for a winner or switch turns"""
 
         if self._currentPlayer == 1:
@@ -233,6 +231,9 @@ class HexGame:
             self._switchTurns()
             self._eventStartTurn()
 
+    '''---
+    Game Management
+    ---'''
     def _validatePlayer(self) -> bool:
         """Validate if the current player is a human"""
 
@@ -279,34 +280,6 @@ class HexGame:
         self._gameInProgress = False
         self._forceQuit = True
 
-    # TODO I think this function should be move visible in the file
-    def _playGame(self) -> None:
-        """Play a game"""
-
-        # Pre Game
-        self._preGameSetup()
-
-        # Game
-        while self._gameInProgress:
-            self._updateGameWindow()
-            self._gameEventLoop()
-
-        # TODO Add post game function. Maybe
-        # Post Game
-        self._updateGameWindow()
-        if self._currentPlayer == 1:
-            self._blueWins += 1
-        else:
-            self._redWins += 1
-
-        self._xLogger.logEndGame(self._currentPlayer)
-        self._xLogger.printMoveForGame()
-
-        self._gameInProgress = True
-        while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:
-            self._endGameEventLoop()
-            self._updateGameWindow()
-
     def _switchTurns(self) -> None:
         """Switch between blue and red turns"""
 
@@ -350,6 +323,35 @@ class HexGame:
         print()
         print("Blue%s Win:  %0.2f" % (self._blueName, blueWinPercent))
         print("Red%s Win:  %0.2f" % (self._redName, redWinPercent))
+
+    '''---
+    Play Game
+    ---'''
+    def _playGame(self) -> None:
+        """Play a game"""
+
+        # Pre Game
+        self._preGameSetup()
+
+        # Play Game
+        while self._gameInProgress:
+            self._updateGameWindow()
+            self._gameEventLoop()
+
+        # Post Game
+        self._updateGameWindow()
+        if self._currentPlayer == 1:
+            self._blueWins += 1
+        else:
+            self._redWins += 1
+
+        self._xLogger.logEndGame(self._currentPlayer)
+        self._xLogger.printMoveForGame()
+
+        self._gameInProgress = True
+        while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:
+            self._endGameEventLoop()
+            self._updateGameWindow()
 
     '''---
     public
