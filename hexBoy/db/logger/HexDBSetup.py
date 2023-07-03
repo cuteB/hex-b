@@ -4,7 +4,7 @@
 
 from hexBoy.hex.node.HexNode import Hex
 from typing import List, Optional
-from sqlalchemy import create_engine, ForeignKey, String, select, Engine
+from sqlalchemy import create_engine, ForeignKey, String, select, Engine, asc
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
 '''
@@ -147,37 +147,28 @@ class HexLogger:
             g = session.scalars(query).one()
             print(g)
 
+    def getMovesForGameId(self, gameId: int) -> List[tuple]:
+        moves: List[tuple] = []
+        with Session(self.engine) as session:
+            query = (
+                select(Move)
+                .where(Move.game_id == gameId)
+                .order_by(asc(Move.sequence))
+            )
+
+            for m in session.scalars(query):
+                moves.append((m.player, (m.x, m.y)))
+
+        return moves
+            
+
+
+            
+
 def initDB() -> None:
     xLogger = HexLogger()
 
-    xLogger.resetDB()
-    xLogger.initDBTables()
-
-    xLogger.logStartGame("blue", "red")
-
-    xLogger.logMove(2, (5,6))
-    xLogger.logMove(1, (5,7))
-    xLogger.logMove(1, (5,5))
-    xLogger.logMove(2, (5,8))
-    xLogger.logMove(1, (5,9))
-    xLogger.logMove(2, (5,10))
-
-    xLogger.printMoveForGame()
-
-    xLogger.logEndGame(1)
-
-    xLogger.printMoveForGame()
-
-    xLogger.logStartGame("one", "two")
-
-    xLogger.logMove(2, (5,6))
-    xLogger.logMove(1, (5,7))
-    xLogger.logMove(1, (5,5))
-    xLogger.logMove(2, (5,8))
-    xLogger.logMove(1, (5,9))
-    xLogger.logMove(2, (5,10))
+    uhh = xLogger.getMovesForGameId(4)
+    print(uhh)
 
 
-    xLogger.logEndGame(2)
-
-    xLogger.printMoveForGame()

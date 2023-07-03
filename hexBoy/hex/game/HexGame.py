@@ -288,6 +288,9 @@ class HexGame:
         else:
             self._currentPlayer = 1
 
+    '''---
+    Printing
+    ---'''
     def _printGameSummary(self) -> None:
         """Print the current game number and current win summary"""
 
