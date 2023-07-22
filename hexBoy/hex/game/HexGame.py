@@ -28,6 +28,7 @@ class HexGameOptions:
     showEndGame: bool = False # Sorta works but only with one game
     startingPlayer: int = 1
     alternateStartingPlayer: bool = True
+    playground: bool = False
 
 '''----------------------------------
 Main hex game class
@@ -59,6 +60,8 @@ class HexGame:
     _redName: str
 
     _nextMove: tuple
+
+    _playground: bool
 
     def __init__(
         self,
@@ -291,10 +294,12 @@ class HexGame:
     def _switchTurns(self) -> None:
         """Switch between blue and red turns"""
 
-        if self._currentPlayer == 1:
-            self._currentPlayer = 2
-        else:
-            self._currentPlayer = 1
+        if not self._options.playground:
+            if self._currentPlayer == 1:
+                self._currentPlayer = 2
+            else:
+                self._currentPlayer = 1
+
 
     def _printGameSummary(self) -> None:
         """Print the current game number and current win summary"""
@@ -353,6 +358,12 @@ class HexGame:
 
         return True # return true to show that the game finished
 
+
+    def main_playground(self) -> bool:
+        self._playGame()
+
+
+
 '''----------------------------------
 Main
 ----------------------------------'''
@@ -379,3 +390,20 @@ def Hex_Play(
     )
 
     game.main(numGames)
+
+
+
+'''
+[ ] Toggle player swapping. Manually pick what colour to place. Red, Blue, Black, Clear
+[ ] Turn on best path cost for each node. for each player
+[ ] clear board
+'''
+
+def Hex_Playground():
+    options = HexGameOptions(
+        showDisplay=True,
+        playground=True
+    )
+
+    game = HexGame(options=options)
+    game.main_playground()

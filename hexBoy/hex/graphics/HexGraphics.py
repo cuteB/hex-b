@@ -50,7 +50,7 @@ class HexGraphics:
         self._fps = 60
         self._clock = pygame.time.Clock()
 
-        self._xWindowLength = 400
+        self._xWindowLength = 700
         self._yWindowHeight = 700 
         self._screen = pygame.display.set_mode((self._xWindowLength, self._yWindowHeight))
 
