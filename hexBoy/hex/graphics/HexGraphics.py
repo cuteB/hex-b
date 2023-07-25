@@ -74,13 +74,14 @@ class HexGraphics:
 
         return (xPos, yPos)
 
-    def _getHexagonGraphic(self, xType: HexType, inWinPath: bool) -> HexagonGraphic:
+    def _getHexagonGraphic(self, xType: HexType, inWinPath: bool, text: str = "") -> HexagonGraphic:
         """Return the Hexagons Graphic given a Hex Node"""
 
         if (xType.player == 1): # blue
             if (xType.xType == 1): # hex
                 if (not inWinPath): # regular hex
-                    return self._Hexagons.blue
+                    # return self._Hexagons.blue
+                    return HexagonGraphic(Colours.BLUE, self._hexSize, True, text)
                 else: # win Hex
                     return self._Hexagons.blueWin
             else: # edge
@@ -89,14 +90,16 @@ class HexGraphics:
         elif (xType.player == 2): # red
             if (xType.xType == 1): # hex
                 if (not inWinPath): # regular hex
-                    return self._Hexagons.red
+                    return HexagonGraphic(Colours.RED, self._hexSize, True, text)
+                    # return self._Hexagons.red
                 else: # win Hex
                     return self._Hexagons.redWin
             else: # edge
                 return self._Hexagons.redEdge
 
         else: # White
-            return self._Hexagons.white
+            return  HexagonGraphic(Colours.WHITE, self._hexSize, True, text)
+            # return self._Hexagons.white
 
     '''---
     Public
@@ -108,9 +111,8 @@ class HexGraphics:
         self._screen.fill(Colours.WHITE)
         self.updateWindow(gameBoard, [], True)
 
-    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False):
+    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, agentBoard: HexBoard = None):
         """Update the Game Window"""
-
         nodeDict: dict = gameBoard.getNodeDict()
         # Render Board Nodes
         for key in nodeDict:
@@ -118,8 +120,28 @@ class HexGraphics:
             inWinPath = (winPath != None and X in winPath)
             xType = X.getHexType()
             if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
+                value = ""
+                if agentBoard != None:
+                    value = str(agentBoard.getNodeDict()[key].getBest())
+
+
+                    """
+                    This value needs some fixes
+                    [ ] Needs to white over the previous value. Currently writing text over existing black text. Looks ugly
+                        - only occurs with the white hexes. Player hexes seem to change text as it should. 
+                    [ ] Need to update at the start
+                    [ ] Not sure why it is showing the cost to get to the node and not the total cost of the path. probs A*
+                    [ ] some sort of colour change maybe to show the gradient of the cost. The text might be good enough. 
+                    [ ] Need to do something about the opponent hex values. not sure what sets them to what they are. Probably want them simply empty
+                    [ ] A* not updating properly? Sometimes connected hexes have different values. Maybe if they weren't in the best path or something
+                    """
+
+
+
+
+
                 pos = self._getHexPos(X)
-                self._screen.blit(self._getHexagonGraphic(xType, inWinPath).getHexagon(), pos)
+                self._screen.blit(self._getHexagonGraphic(xType, inWinPath, value).getHexagon(), pos)
 
         # Render Black spaces
         if (renderEdges): 

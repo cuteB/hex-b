@@ -58,6 +58,10 @@ class HexAgent(ABC):
         """Get Agent's name"""
 
         return self._name
+    
+
+    def getBoard(self) -> HexBoard:
+        return self._gameBoard
 
     '''---
     private

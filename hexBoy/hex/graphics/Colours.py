@@ -1,6 +1,6 @@
 class Colours:
     # COLOURS    R    G    B
-    WHITE =     (255, 255, 255)
+    WHITE =     (255, 255, 254)
     BLACK =     (  0,   0,   0)
     RED =       (255,   0,   0)
     BLUE =      (  0,   0, 255)
