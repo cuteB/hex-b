@@ -62,6 +62,9 @@ class HexAgent(ABC):
 
     def getBoard(self) -> HexBoard:
         return self._gameBoard
+    
+    def getAgentBoard(self) -> HexBoard:
+        return self._agentBoard
 
     '''---
     private

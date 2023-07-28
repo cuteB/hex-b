@@ -3,6 +3,7 @@ from hexBoy.AI.agents.AgentRand import AgentRand
 from hexBoy.AI.agents.AgentRL import AgentRL
 from hexBoy.AI.agents.AgentSmart import AgentSmart
 from hexBoy.AI.agents.AgentStrong import AgentStrong
+from hexBoy.AI.agents.AgentPaths import AgentPaths
 from hexBoy.AI.HexAgent import HexAgent
 
 # COMEBACK Change this into plugin architecture.
@@ -30,6 +31,9 @@ def GetAgent(agentDifficulty=0) -> HexAgent:
     # Smart
     elif agentDifficulty == 4:
         return AgentSmart()
+    
+    elif agentDifficulty == 5:
+        return AgentPaths()
 
     # just put in human
     else:
@@ -43,4 +47,4 @@ def PrintAgentHelp() -> None:
     print("\t2 \tAgent Strong")
     print("\t3 \tAgent RL")
     print("\t4 \tAgent Smart")
-    print()
+    print("\t5 \tAgent Paths")

@@ -252,7 +252,7 @@ class HexGame:
         """Update Graphics"""
 
         if self._options.showDisplay:
-            self._graphics.updateWindow(self._gameBoard, self._winPath, agentBoard=self._redAgent.getBoard())
+            self._graphics.updateWindow(self._gameBoard, self._winPath, nodeDict=self._redAgent.getAgentBoard().getNodeDict())
 
     def _updateAgentBoards(self) -> None:
         """Update Agents Boards because it changed"""

@@ -12,5 +12,7 @@ def SyncBoard(board: HexBoard, parentBoard: HexBoard, moveCallback: Callable[[He
         player, move = parentBoard.getMoveHistory()[i]
         board.makeMove(player, move)
 
+        print("update", player, move)
+
         if moveCallback != None:
             moveCallback(player, move)

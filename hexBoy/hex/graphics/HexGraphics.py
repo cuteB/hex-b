@@ -5,6 +5,8 @@ from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.graphics.Colours import Colours
 from hexBoy.hex.graphics.HexagonGraphic import HexagonGraphic
 from hexBoy.hex.node.HexNode import Hex, HexType
+from hexBoy.AI.HexAgent import HexAgent
+from hexBoy.models.SortedDict import SortedDict
 """
 Improvements
 - Populate the space with the current turn and who is playing (agent, player)
@@ -111,7 +113,7 @@ class HexGraphics:
         self._screen.fill(Colours.WHITE)
         self.updateWindow(gameBoard, [], True)
 
-    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, agentBoard: HexBoard = None):
+    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, nodeDict: SortedDict = None):
         """Update the Game Window"""
         nodeDict: dict = gameBoard.getNodeDict()
         # Render Board Nodes
@@ -121,8 +123,8 @@ class HexGraphics:
             xType = X.getHexType()
             if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
                 value = ""
-                if agentBoard != None:
-                    value = str(agentBoard.getNodeDict()[key].getBest())
+                if nodeDict != None:
+                    value = str(nodeDict[key].getPathsToNode())
 
 
                     """
