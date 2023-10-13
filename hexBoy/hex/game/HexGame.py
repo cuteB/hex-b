@@ -41,7 +41,7 @@ class HexGame:
     - Each player takes turns placing a piece on the board. 
     - The goal is to connect your sides of the board.
     - The first player to connect their sides wins.
-
+227
     Public:
 
     > Thank you Hex for changing my life
@@ -222,10 +222,12 @@ class HexGame:
             self._nextMove = self._redAgent.getAgentMove()
             self._eventDoPlayerMove()
 
-    def _handleNextMove(self) -> None:
-        """Handle the next move"""
-        player = self.player
-        move = self.move
+    def _handleNextMove(self, player = None, move = None) -> None:
+        """Handle the next move
+        - optional parameters for tests to manually pass in the player and move for the test
+        """
+        player = player if (player != None) else self._currentPlayer
+        move = move if ( move != None) else self._nextMove
 
         if self._gameBoard.validateMove(move):
             self._gameBoard.makeMove(player, move)

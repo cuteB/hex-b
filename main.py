@@ -5,7 +5,6 @@ from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 # COMEBACK
 """
 I'll put ideas here
-- Tests, do them. I wanna tryout the TTD
 - Command line args to make easy to play games
 - Push to GitHub more to learn make the history pretty.
 - pylint
