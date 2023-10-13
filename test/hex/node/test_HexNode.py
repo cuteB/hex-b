@@ -110,3 +110,122 @@ def test_InitHexTypeNode(tmpdir):
     assert xType.player == tmpdir.testHexType.player
     assert xType.cost == tmpdir.testHexType.cost
     assert xType.xType == tmpdir.testHexType.xType
+
+# test dads
+def test_DadGetSet(tmpdir):
+    """Test the get and set functions for dad"""
+
+    assert tmpdir.X.getDad() == None
+
+    tmpdir.X.setDad(tmpdir.end)
+    assert tmpdir.X.getDad() == tmpdir.end
+
+def test_DadAdd(tmpdir):
+    """Test the add function for dad"""
+
+    tmpdir.X.addDad(tmpdir.end)
+    assert tmpdir.X.getDad() == tmpdir.end
+
+def test_DadDel(tmpdir):
+    """Test the del function for dad"""
+
+    tmpdir.X.addDad(tmpdir.end)
+    assert tmpdir.X.getDad() == tmpdir.end
+
+    tmpdir.X.delDad(tmpdir.end)
+    assert tmpdir.X.getDad() == None
+
+def test_getDads(tmpdir):
+    """Test the get function for dads"""
+
+    assert tmpdir.X.getDads() == []
+
+    tmpdir.X.addDad(tmpdir.end)
+    assert tmpdir.X.getDads() == [tmpdir.end]
+
+# test sons
+def test_SonGetSet(tmpdir):
+    """Test the get and set functions for son"""
+
+    assert tmpdir.X.getSon() == None
+
+    tmpdir.X.setSon(tmpdir.end)
+    assert tmpdir.X.getSon() == tmpdir.end
+
+def test_SonAdd(tmpdir):
+    """Test the add function for son"""
+
+    tmpdir.X.addSon(tmpdir.end)
+    assert tmpdir.X.getSon() == tmpdir.end
+
+def test_SonDel(tmpdir):
+    """Test the del function for son"""
+
+    tmpdir.X.addSon(tmpdir.end)
+    assert tmpdir.X.getSon() == tmpdir.end
+
+    tmpdir.X.delSon(tmpdir.end)
+    assert tmpdir.X.getSon() == None
+
+def test_getSons(tmpdir):
+    """Test the get function for sons"""
+
+    assert tmpdir.X.getSons() == []
+
+    tmpdir.X.addSon(tmpdir.end)
+    assert tmpdir.X.getSons() == [tmpdir.end]
+
+# test pathsToNode
+def test_PathsToNodeGetSet(tmpdir):
+    """Test the get and set functions for pathsToNode"""
+
+    assert tmpdir.X.getPathsToNode() == 0
+
+    tmpdir.X.setPathsToNode(5)
+    assert tmpdir.X.getPathsToNode() == 5
+
+def test_UpdatePathsToNodeWithDads(tmpdir):
+    """Test the update function for pathsToNode with dads"""
+
+    assert tmpdir.X.getPathsToNode() == 0
+
+    dad1 = HexNode((1, 1))
+    dad1.setPathsToNode(1)
+
+    dad2 = HexNode((2, 2))
+    dad2.setPathsToNode(2)
+
+    tmpdir.X.addDad(dad1)
+    tmpdir.X.updatePathsToNodeWithDads()
+    assert tmpdir.X.getPathsToNode() == 1
+
+    tmpdir.X.addDad(dad2)
+    tmpdir.X.updatePathsToNodeWithDads()
+    assert tmpdir.X.getPathsToNode() == 3
+
+    tmpdir.X.delDad(dad1)
+    tmpdir.X.updatePathsToNodeWithDads()
+    assert tmpdir.X.getPathsToNode() == 2
+
+def test_UpdatePathsFromNodesWithSons(tmpdir):
+    """Test the update function for pathsFromNode with sons"""
+
+    assert tmpdir.X.getPathsFromNode() == 0
+
+    son1 = HexNode((1, 1))
+    son1.setPathsFromNode(1)
+
+    son2 = HexNode((2, 2))
+    son2.setPathsFromNode(2)
+
+    tmpdir.X.addSon(son1)
+    tmpdir.X.updatePathsFromNodeWithSons()
+    assert tmpdir.X.getPathsFromNode() == 1
+
+    tmpdir.X.addSon(son2)
+    tmpdir.X.updatePathsFromNodeWithSons()
+    assert tmpdir.X.getPathsFromNode() == 3
+
+    tmpdir.X.delSon(son1)
+    tmpdir.X.updatePathsFromNodeWithSons()
+    assert tmpdir.X.getPathsFromNode() == 2
