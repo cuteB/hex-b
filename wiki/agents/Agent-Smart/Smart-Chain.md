@@ -6,7 +6,7 @@
 
 So I got agent smart to pick the best moves. The problem is it it doesn't know how they work. Thats where the chain comes in.
 
-![Chain with bonus points hex](/wiki/images/TheChain.png)
+![Chain with bonus points hex](/wiki/zImages/TheChain.png)
 
 ### Bonus Points
 
