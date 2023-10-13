@@ -4,10 +4,6 @@
 
 ![Hex Game Board played by two A Star agents](../zImages/boards/AStarGameBoard.png)
 
-The hexes with x or y values of 10 are just "a" because it looks prettier. These are only the playable hexes and there is a boarder around for the end zone. For the sake of the game these will be left out of the board.
-
-> Its Hex Duh. If you're doing coordinates the wrong way get out your note pad.
-
 ## Board Definitions
 
 The HexBoard has two parts the [play area](#play-area) and the [end zones](#end-zones).
@@ -56,6 +52,10 @@ The play area is any `(x,y)` coordinates with `x in range [0,10]` and `y in rang
                                     \___/a,a\
                                         \___/ 
 ```
+
+> Its Hex Duh. If you're doing coordinates the wrong way get out your note pad.
+
+The hexes with x or y values of 10 are just "a" because it looks prettier. These are only the playable hexes and there is a boarder around for the end zone. For the sake of the game these will be left out of the board.
 
 #### Empty space
 
