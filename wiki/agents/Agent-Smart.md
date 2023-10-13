@@ -17,8 +17,6 @@ The biggest goal I want to accomplish with this agent is the ability to detect [
 
 ## Game Plan
 
----
-
 AgentSmart's game plan will be three parts: early, mid, late game. These stages will be as follows
 
 - **Early game** Make the best first move. Super simple. I don't want to over complicate this agent's strategy apart from strong moves. For now this may be pretty hard coded and put a move closest to the center.
@@ -35,7 +33,7 @@ Given a board state, get all strong moves for a player. For now just identify wh
 
 #### Strong Move Example Notes
 
-![Strong Move Evaluation](/wiki/images/resize.png)
+![Strong Move Evaluation](/wiki/zImages/resize.png)
 
 - Need to count based off of a single hex. Hexes with 2 (D) or 3 (C) from different hexes aren't that strong because they can be easily blocked.
 - Hexes with 4 (E) are very strong if they create 2 sets of strong moves. Need to change up evaluation based on previous point.
@@ -117,7 +115,7 @@ Agent Strong | 50% | 50% | Agent strong is very good at messing with the opponen
 
     These moves are not good. If the opponent takes the middle hex then all of the other connections become weak connections. The opponent will be able to block the connection and its a waste of a move. I think this is due to the original strong move not being part of the best path (doesn't make the path shorter) so the chain doesn't use it.
 
-    ![Triangle connection issue](/wiki/images/AgentSmartTriangleIssue.png)
+    ![Triangle connection issue](/wiki/zImages/AgentSmartTriangleIssue.png)
 
 ### Closing thoughts
 
