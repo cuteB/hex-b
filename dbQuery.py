@@ -10,19 +10,19 @@ def main():
         print("Invalid query. Only one argument allowed.")
         return
     
+    print()
+    
     if (len(inputs) == 1):
         param = ""
     else:
         param = inputs[1]
     
     query = inputs[0]
-    print(query)
 
     if (query == "resetDatabase_DANGER"):
         resetDatabase()
 
     if (query == "listGames"):
-        print("uhh")
         listGames(param)
     
 
