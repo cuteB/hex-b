@@ -1,6 +1,7 @@
 import sys
-from hexBoy.db.logger.HexDBSetup import initDB, resetDatabase
+from hexBoy.db.logger.HexDBSetup import resetDatabase
 from hexBoy.db.query.listGames import listGames
+from hexBoy.db.query.listMovesForGame import listMovesForGame
 
 def main():
 
@@ -24,7 +25,9 @@ def main():
 
     if (query == "listGames"):
         listGames(param)
-    
+
+    if (query == "listMovesForGame"):
+        listMovesForGame(param)
 
     
 
