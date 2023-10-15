@@ -10,6 +10,13 @@ connectionString = 'sqlite:///' + connectionPath
 engine = create_engine(connectionString) # use 'echo = true' parameter for all of the print statements
 # echo parameter adds the sql representation of the queries to the console
 
+
+# This is just a test file to see how to do stuff
+# This is just a test file to see how to do stuff
+# This is just a test file to see how to do stuff
+# This is just a test file to see how to do stuff
+# This is just a test file to see how to do stuff
+
 '''---
 Copy Pasted these two
 ---'''

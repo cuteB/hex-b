@@ -258,7 +258,7 @@ class HexGame:
         self._winPath = None
         self._eventStartTurn()
 
-        self._xLogger.logStartGame(self._blueName, self._redName)
+        self._xLogger.logStartGame(self._blueName, self._redName, self._currentPlayer)
 
     def _updateGameWindow(self) -> None:
         """Update Graphics"""
@@ -349,7 +349,7 @@ class HexGame:
             self._redWins += 1
 
         self._xLogger.logEndGame(self._currentPlayer)
-        self._xLogger.printMoveForGame()
+        self._xLogger.printGameSequence()
 
         self._gameInProgress = True
         while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:

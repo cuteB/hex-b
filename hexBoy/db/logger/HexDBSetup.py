@@ -27,14 +27,17 @@ class Game(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     blueAgent: Mapped[str]
     redAgent: Mapped[str]
-    winner: Mapped[Optional[int]]
+    startingPlayer: Mapped[int] # 1 for blue, 2 for red
+    # end game optional stuff
+    winner: Mapped[Optional[int]] # 1 for blue, 2 for red, None for unfinished game
+    endSequence: Mapped[Optional[int]] # The total number of moves in the finished game
 
     moves: Mapped[List["Move"]] = relationship(
         back_populates="game", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"Game(id={self.id!r}, blueAgent={self.blueAgent!r}, redAgent={self.redAgent!r}, winner={self.winner!r})"
+        return f"Game(id={self.id!r}, blueAgent={self.blueAgent!r}, redAgent={self.redAgent!r}, startingPlayer={self.startingPlayer!r}, winner={self.winner!r}, endSequence={self.endSequence!r})"
 
 '''---
 Move
@@ -56,14 +59,11 @@ class Move(Base):
         self.x, self.y = move 
         self.sequence = sequence
 
-
-
-
     def __repr__(self) -> str:
         return (f"Move(id={self.id!r}, gameId={self.game_id!r}, player={self.player!r}, move=({self.x!r},{self.y!r}), sequence={self.sequence!r})") 
 
-
-class HexLogger:
+# COMEBACK this guy will need their own file
+class HexLogger:  
     connectionPath = 'hexBoy/db/hex_sqlite.db' # TODO there is some garbage tables still in here
     connectionString = 'sqlite:///' + connectionPath
     engine: Engine
@@ -85,13 +85,14 @@ class HexLogger:
         Base.metadata.create_all(self.engine)
 
 
-    def logStartGame(self, blueAgent: str, redAgent: str) -> None:
+    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int) -> None:
         """"""
         currentGame = Game(
             blueAgent = blueAgent,
-            redAgent = redAgent
+            redAgent = redAgent,
+            startingPlayer = startingPlayer
         )
-        self.gameSequence = 0 # IDK if this should be inside here
+        self.gameSequence = -1 # IDK if this should be inside here. start at -1 so the first move is 0
         self.gameInProgress = True
 
         with Session(self.engine) as session:
@@ -105,6 +106,7 @@ class HexLogger:
             return # COMEBACK do I want this? I might want this to fail or say something 
 
         with Session(self.engine) as session: 
+            self.gameSequence += 1
             m = Move(player, move, self.gameSequence)
             query = (
                 select(Game)
@@ -113,12 +115,12 @@ class HexLogger:
             currentGame = session.scalars(query).one()
             currentGame.moves.append(m)
             session.commit()
-            self.gameSequence += 1
 
     def logEndGame(self, winnerId: int) -> None:
         self.gameInProgress = False
 
         with Session(self.engine) as session:
+
             query = (
                 select(Game)
                 .where(Game.id == self.currentGameId)
@@ -126,10 +128,12 @@ class HexLogger:
 
             g = session.scalars(query).one()
             g.winner = winnerId
+            g.endSequence = self.gameSequence
 
             session.commit()
 
-    def printMoveForGame(self) -> None:
+    def printGameSequence(self) -> None:
+        print()
         with Session(self.engine) as session:
             query = (
                 select(Move)
@@ -137,7 +141,7 @@ class HexLogger:
             )
 
             for m in session.scalars(query):
-                print(m, m.x, m.y)
+                print(m)
 
             query = (
                 select(Game)
@@ -146,6 +150,7 @@ class HexLogger:
 
             g = session.scalars(query).one()
             print(g)
+        print()
 
     def getMovesForGameId(self, gameId: int) -> List[tuple]:
         moves: List[tuple] = []
@@ -171,4 +176,13 @@ def initDB() -> None:
     uhh = xLogger.getMovesForGameId(4)
     print(uhh)
 
+def resetDatabase() -> None:
+    """This creates the tables for the logger and refreshes the database probably"""
+    xLogger = HexLogger()
+    xLogger.resetDB()
+    xLogger.initDBTables()
+
+
+    # TODO need some sort of confirmation to prevent accidental resets
+    print("Database reset")
 

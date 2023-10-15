@@ -1,4 +1,3 @@
-from hexBoy.db.logger.HexDBSetup import initDB
-from hexBoy.hex.game.GameLoader import testFunc
+from hexBoy.db.logger.HexDBSetup import initDB, resetDatabase
 
-testFunc()
+resetDatabase()
