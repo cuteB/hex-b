@@ -31,13 +31,15 @@ class Game(Base):
     # end game optional stuff
     winner: Mapped[Optional[int]] # 1 for blue, 2 for red, None for unfinished game
     endSequence: Mapped[Optional[int]] # The total number of moves in the finished game
+    gameType: Mapped[str] # mostly to check if the game is a test game
+    gameNote: Mapped[str] # Additional notes on the game if needed. Probably for testing
 
     moves: Mapped[List["Move"]] = relationship(
         back_populates="game", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"Game(id={self.id!r}, blueAgent={self.blueAgent!r}, redAgent={self.redAgent!r}, startingPlayer={self.startingPlayer!r}, winner={self.winner!r}, endSequence={self.endSequence!r})"
+        return f"Game(id={self.id!r}, blueAgent={self.blueAgent!r}, redAgent={self.redAgent!r}, startingPlayer={self.startingPlayer!r}, winner={self.winner!r}, endSequence={self.endSequence!r}, gameType={self.gameType!r}, gameNote={self.gameNote!r})"
 
 '''---
 Move
@@ -85,7 +87,7 @@ class HexLogger:
         Base.metadata.create_all(self.engine)
 
 
-    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int) -> None:
+    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, ) -> None:
         """"""
         currentGame = Game(
             blueAgent = blueAgent,
