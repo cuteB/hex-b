@@ -12,7 +12,7 @@ from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.game.HexGameRules import HexGameRules
 from hexBoy.hex.graphics.HexGraphics import HexGraphics
-from hexBoy.hex.node.HexNode import HexNode, Hex
+from hexBoy.hex.node.HexNode import Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
 from hexBoy.db.logger.HexDBSetup import HexLogger
@@ -350,7 +350,6 @@ class HexGame:
             self._redWins += 1
 
         self._xLogger.logEndGame(self._currentPlayer)
-        self._xLogger.printGameSequence()
 
         self._gameInProgress = True
         while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:
