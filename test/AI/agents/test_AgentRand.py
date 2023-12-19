@@ -2,7 +2,7 @@ import pytest
 
 from hexBoy.AI.agents.AgentRand import AgentRand
 from hexBoy.hex.board.HexBoard import HexBoard
-from hexBoy.hex.game.HexGame import HexGame
+from hexBoy.hex.game.HexGame import HexGame, HexGameOptions
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
@@ -22,9 +22,11 @@ def test_AgentRandMakesValidMove(tmpdir):
 
 def test_AgentRandFullGame(tmpdir):
     """Test full game with the agent playing both sides"""
+    testOptions = HexGameOptions(gameType="test")
     game = HexGame(
         agent1=AgentRand(),
         agent2=AgentRand(),
+        options=testOptions
     )
 
     assert game.main() == True

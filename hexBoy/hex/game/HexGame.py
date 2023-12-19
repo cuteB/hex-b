@@ -30,6 +30,7 @@ class HexGameOptions:
     showEndGame: bool = False # Sorta works but only with one game
     startingPlayer: int = 1
     alternateStartingPlayer: bool = True
+    gameType: str = "" # Type of game to label it as in the logger.
 
 '''----------------------------------
 Main hex game class
@@ -258,7 +259,7 @@ class HexGame:
         self._winPath = None
         self._eventStartTurn()
 
-        self._xLogger.logStartGame(self._blueName, self._redName, self._currentPlayer)
+        self._xLogger.logStartGame(self._blueName, self._redName, self._currentPlayer, self._options.gameType)
 
     def _updateGameWindow(self) -> None:
         """Update Graphics"""

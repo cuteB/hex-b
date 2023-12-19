@@ -1,14 +1,16 @@
 import pytest
 
 from hexBoy.AI.GetAgent import GetAgent
-from hexBoy.hex.game.HexGame import HexGame
+from hexBoy.hex.game.HexGame import HexGame, HexGameOptions
 
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
+    testOptions = HexGameOptions(gameType="test")
     tmpdir.game = HexGame(
         agent1=GetAgent(1),
         agent2=GetAgent(1),
+        options=testOptions
     )
 
     # ^^^ before ^^^

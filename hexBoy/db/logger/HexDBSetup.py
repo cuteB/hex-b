@@ -87,12 +87,15 @@ class HexLogger:
         Base.metadata.create_all(self.engine)
 
 
-    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, ) -> None:
-        """"""
+    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
+        """Log the start of a game"""
+
         currentGame = Game(
             blueAgent = blueAgent,
             redAgent = redAgent,
-            startingPlayer = startingPlayer
+            startingPlayer = startingPlayer,
+            gameType = gameType,
+            gameNote = gameNote
         )
         self.gameSequence = -1 # IDK if this should be inside here. start at -1 so the first move is 0
         self.gameInProgress = True
