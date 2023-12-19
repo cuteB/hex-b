@@ -4,9 +4,6 @@ from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 
 """
 I'll put ideas here
-- Tests, do them. I wanna tryout the TTD
-- Command line args to make easy to play games
-- Push to GitHub more to learn make the history pretty.
 """
 
 """ Main Function """
@@ -84,10 +81,6 @@ def printHelp() -> None:
     print("----------------------")
     print("\tCan be used in any order. Flags that are expecting an argument need its argument directly after the flag")
     print()
-    print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
-    print("\tEnter Blue agent: \t`-b <arg>`")
-    print("\tEnter Red agent: \t`-r <arg>`") # TODO put this at the bottom before agent help()
-    print()
     print("Game Config")
     print("\tNumber of games \t`-n <arg>` \t(Default: 1)")
     print()
@@ -95,6 +88,10 @@ def printHelp() -> None:
     print("\tShow Display \t`-d` \t(Default: hide display)")
     print("\tShow Endgame \t`-e` \t(Default: Skip Endgame)")
     print("\tHide Prints \t`-p` \t(Default: Show print summaries)")
+    print()
+    print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
+    print("\tEnter Blue agent: \t`-b <arg>`")
+    print("\tEnter Red agent: \t`-r <arg>`") # TODO put this at the bottom before agent help()
     print()
     PrintAgentHelp()
 

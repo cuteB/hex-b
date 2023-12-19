@@ -5,8 +5,7 @@
 ## Install Dependencies
 
 ```bash
-> pip install pygame 
-> pip install pytest
+pip install -r requirements.txt
 ```
 
 then just run it
