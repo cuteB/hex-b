@@ -20,8 +20,9 @@ class HexagonGraphic:
         surface = pygame.Surface((hexSize, hexSize))
 
         # fill in background and set it as the transparent colour
-        surface.fill(Colours.WHITE)
-        surface.set_colorkey(Colours.WHITE)
+        # For some reason OFF white fixes the text overwrite issue
+        surface.fill(Colours.OFFWHITE)
+        surface.set_colorkey(Colours.OFFWHITE)
 
         half = hexSize / 2  # half of the hexagon size
         qter = hexSize / 4  # quarter of the hexagon size

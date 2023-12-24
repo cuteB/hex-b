@@ -24,6 +24,7 @@ class HexAgent(ABC):
 
     def __init__(self, name):
         self._name = name
+
     '''---
     public
     ---'''
