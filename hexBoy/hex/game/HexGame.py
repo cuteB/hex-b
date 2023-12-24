@@ -9,6 +9,7 @@ from typing import List
 
 from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
 from hexBoy.AI.HexAgent import HexAgent
+from hexBoy.AI.GetAgent import GetAgent
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.game.HexGameRules import HexGameRules
 from hexBoy.hex.graphics.HexGraphics import HexGraphics
@@ -61,7 +62,7 @@ class HexGame:
 
     _nextMove: tuple
 
-    _playground: bool
+    _playground: bool # TODO maybe remove because this is set in the options. See what I do with the other stuff in the options
 
     def __init__(
         self,
@@ -294,11 +295,11 @@ class HexGame:
     def _switchTurns(self) -> None:
         """Switch between blue and red turns"""
 
-        if not self._options.playground:
-            if self._currentPlayer == 1:
-                self._currentPlayer = 2
-            else:
-                self._currentPlayer = 1
+        #if not self._options.playground:
+        if self._currentPlayer == 1:
+            self._currentPlayer = 2
+        else:
+            self._currentPlayer = 1
 
 
     def _printGameSummary(self) -> None:
@@ -405,5 +406,5 @@ def Hex_Playground():
         playground=True
     )
 
-    game = HexGame(options=options)
+    game = HexGame(options=options, agent2=GetAgent(1))
     game.main_playground()

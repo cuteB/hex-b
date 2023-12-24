@@ -124,7 +124,7 @@ class HexGraphics:
             if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
                 value = ""
                 if nodeDict != None:
-                    value = str(nodeDict[key].getPathsToNode())
+                    value = str(nodeDict[key].getBest())
 
 
                     """
