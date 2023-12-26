@@ -17,6 +17,8 @@ class AgentAStar(HexAgent):
     def __init__(self):
         HexAgent.__init__(self, "Agent_A*")
 
+        self._moveCallback = self.pathMoveCallback
+
     # Override
     def getAgentMove(self) -> Hex:
         # Find best path to win
@@ -42,4 +44,10 @@ class AgentAStar(HexAgent):
             self._gameBoard, 
             HexGameRules.getCheckIfBarrierFunc(self._playerInfo.player), 
             HexGameRules.getHeuristicFunc(self._playerInfo.player)
+        )
+
+    def pathMoveCallback(self, player: int, X: Hex) -> None:
+        self._pf.findPath(
+            self._playerInfo.start,
+            self._playerInfo.end,
         )

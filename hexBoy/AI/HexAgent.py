@@ -45,6 +45,7 @@ class HexAgent(ABC):
         """Start the game and reset the board and other stuff"""
 
         self._agentBoard.resetGameBoard()
+        # TODO need to update the board values before the game starts
 
     def setGameBoardAndPlayer(self, gameBoard: HexBoard, player:int) -> None:  
         """Link the game board and setup the player info"""

@@ -21,6 +21,7 @@ class HexagonGraphic:
 
         # fill in background and set it as the transparent colour
         # For some reason OFF white fixes the text overwrite issue
+        # COMEBACK This might be the reason that the render is super slow. Maybe the surface is rendering lots of layers. 
         surface.fill(Colours.OFFWHITE)
         surface.set_colorkey(Colours.OFFWHITE)
 
@@ -54,6 +55,7 @@ class HexagonGraphic:
             pygame.draw.line(surface, Colours.BLACK, point6, point1, 1)
             
             # Put in text
+            # TODO disable during non playground game
             font = pygame.font.Font('freesansbold.ttf', 15)
             text = font.render(self.text, True, (0,0,0), self.colour)
             textRect = text.get_rect()

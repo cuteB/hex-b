@@ -4,7 +4,7 @@ from typing import List
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.graphics.Colours import Colours
 from hexBoy.hex.graphics.HexagonGraphic import HexagonGraphic
-from hexBoy.hex.node.HexNode import Hex, HexType
+from hexBoy.hex.node.HexNode import Hex, HexType, HexNode
 from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.models.SortedDict import SortedDict
 """
@@ -113,18 +113,20 @@ class HexGraphics:
         self._screen.fill(Colours.WHITE)
         self.updateWindow(gameBoard, [], True)
 
-    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, nodeDict: SortedDict = None):
+    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, agentDict: SortedDict = None):
         """Update the Game Window"""
         nodeDict: dict = gameBoard.getNodeDict()
         # Render Board Nodes
         for key in nodeDict:
-            X = nodeDict[key]
+            X: HexNode = nodeDict[key]
             inWinPath = (winPath != None and X in winPath)
             xType = X.getHexType()
             if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
                 value = ""
                 if nodeDict != None:
-                    value = str(nodeDict[key].getBest())
+                    if nodeDict[key].getHexType().player != 1 and agentDict != None: #TODO change this to only show playable hexes for a certain player. Need to have the graphics "Display for a certain player". This line will prevent blue hexes from having text
+                        value = str(agentDict[key].getPathsToNode()) 
+                        
 
 
                     """

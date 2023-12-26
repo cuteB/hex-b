@@ -21,8 +21,10 @@ class AgentPaths(HexAgent):
         self._moveCallback = self.pathMoveCallback
 
 
-
-        
+    # Override
+    def startGame(self) -> None:
+        HexAgent.startGame(self)
+        self._npf.initEmptyBoard()
 
     # Override
     def getAgentMove(self) -> Hex:
@@ -33,19 +35,13 @@ class AgentPaths(HexAgent):
     # Override
     def setGameBoardAndPlayer(self, gameBoard: HexBoard, player: int) -> None:
         HexAgent.setGameBoardAndPlayer(self, gameBoard, player)
-
-
         
         self._npf = NumPathFinder(
             self._agentBoard,
             player
         )
 
-        self._npf.initEmptyBoard()
-        print(self._agentBoard.getNodeDict()[(5,5)].getPathsToNode())
-
+        self._npf.initEmptyBoard() # Might not need this one because initEmptyBoard is in startGame()
 
     def pathMoveCallback(self, player: int, X: Hex) -> None:
-        print(player, X)
         self._npf.updateMove(player, X)
-        print(self._agentBoard.getNodeDict()[(5,5)].getPathsToNode())

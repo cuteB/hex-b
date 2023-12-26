@@ -253,7 +253,7 @@ class HexGame:
         """Update Graphics"""
 
         if self._options.showDisplay:
-            self._graphics.updateWindow(self._gameBoard, self._winPath, nodeDict=self._redAgent.getAgentBoard().getNodeDict())
+            self._graphics.updateWindow(self._gameBoard, self._winPath, agentDict=self._redAgent.getAgentBoard().getNodeDict())
 
     def _updateAgentBoards(self) -> None:
         """Update Agents Boards because it changed"""
@@ -406,5 +406,5 @@ def Hex_Playground():
         playground=True
     )
 
-    game = HexGame(options=options, agent2=GetAgent(1))
+    game = HexGame(options=options, agent2=GetAgent(5))
     game.main_playground()
