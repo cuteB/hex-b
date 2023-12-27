@@ -19,9 +19,9 @@ class HexagonGraphic:
         hexSize = self.hexSize
         surface = pygame.Surface((hexSize, hexSize))
 
+        # COMEBACK This might be the reason that the render is super slow. Maybe the surface is rendering lots of layers
         # fill in background and set it as the transparent colour
         # For some reason OFF white fixes the text overwrite issue
-        # COMEBACK This might be the reason that the render is super slow. Maybe the surface is rendering lots of layers. 
         surface.fill(Colours.OFFWHITE)
         surface.set_colorkey(Colours.OFFWHITE)
 
@@ -40,6 +40,8 @@ class HexagonGraphic:
         point6 = (0, half)
 
         # Change colour if white and tracking the depth of each node
+        # COMEBACK make this something
+
 
         # draw hexagon points and fill in with colour
         points = [point1, point2, point3, point4, point5, point6]

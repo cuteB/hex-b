@@ -126,23 +126,17 @@ class HexGraphics:
                 if nodeDict != None:
                     if nodeDict[key].getHexType().player != 1 and agentDict != None: #TODO change this to only show playable hexes for a certain player. Need to have the graphics "Display for a certain player". This line will prevent blue hexes from having text
                         value = str(agentDict[key].getPathsToNode()) 
-                        
-
 
                     """
                     This value needs some fixes
-                    [ ] Needs to white over the previous value. Currently writing text over existing black text. Looks ugly
+                    [x] Needs to white over the previous value. Currently writing text over existing black text. Looks ugly
                         - only occurs with the white hexes. Player hexes seem to change text as it should. 
-                    [ ] Need to update at the start
-                    [ ] Not sure why it is showing the cost to get to the node and not the total cost of the path. probs A*
+                    [x] Need to update at the start
+                    [x] Not sure why it is showing the cost to get to the node and not the total cost of the path. probs A*
                     [ ] some sort of colour change maybe to show the gradient of the cost. The text might be good enough. 
                     [ ] Need to do something about the opponent hex values. not sure what sets them to what they are. Probably want them simply empty
-                    [ ] A* not updating properly? Sometimes connected hexes have different values. Maybe if they weren't in the best path or something
+                    [x] A* not updating properly? Sometimes connected hexes have different values. Maybe if they weren't in the best path or something
                     """
-
-
-
-
 
                 pos = self._getHexPos(X)
                 self._screen.blit(self._getHexagonGraphic(xType, inWinPath, value).getHexagon(), pos)
