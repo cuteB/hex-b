@@ -58,7 +58,7 @@ class HexagonGraphic:
             
             # Put in text
             # TODO disable during non playground game
-            font = pygame.font.Font('freesansbold.ttf', 15)
+            font = pygame.font.Font('freesansbold.ttf', 15) # TODO change the text size based on the length of the text
             text = font.render(self.text, True, (0,0,0), self.colour)
             textRect = text.get_rect()
             textRect.center = (self.hexSize/2,self.hexSize/2)

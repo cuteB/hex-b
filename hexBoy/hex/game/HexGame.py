@@ -12,7 +12,7 @@ from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.AI.GetAgent import GetAgent
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.game.HexGameRules import HexGameRules
-from hexBoy.hex.graphics.HexGraphics import HexGraphics
+from hexBoy.hex.graphics.HexGraphics import HexGraphics, GameDisplayOptions, getDefaultHexagonGraphic
 from hexBoy.hex.node.HexNode import HexNode, Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
@@ -64,6 +64,8 @@ class HexGame:
 
     _playground: bool # TODO maybe remove because this is set in the options. See what I do with the other stuff in the options
 
+    _defaultGameDisplayOptions: GameDisplayOptions
+
     def __init__(
         self,
         agent1: HexAgent = None,
@@ -86,6 +88,11 @@ class HexGame:
 
         if self._options.showDisplay:
             self._graphics = HexGraphics()
+            self._defaultGameDisplayOptions = GameDisplayOptions(
+                name = "Default",
+                board = self._gameBoard,
+                getHexagonGraphic = getDefaultHexagonGraphic
+            )
 
         self._bluePathFinder = PathBoy(
             self._gameBoard,
@@ -112,6 +119,8 @@ class HexGame:
             self._redAgent = agent2
             self._redName = self._redAgent.getName()
             self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
+
+
 
     '''---
     Game Loops
@@ -252,8 +261,19 @@ class HexGame:
     def _updateGameWindow(self) -> None:
         """Update Graphics"""
 
+        extraBoards = [self._redAgent.getAgentBoard().getNodeDict()]
+
+
+        # [ ] extra boards to display
+        # To display multiple boards with different display options provide a list of game boards and HexGraphic classes
+        # A HexGraphic class should be able to give the colour and text of any given node in the dict.
+        # always provide the original game board with default HexGraphic options.
+        # [ ] add watching agents that watch as a certain player. They update their boards but don't get asked to provide a move.
+        
+
         if self._options.showDisplay:
-            self._graphics.updateWindow(self._gameBoard, self._winPath, agentDict=self._redAgent.getAgentBoard().getNodeDict())
+            displayBoards = [self._defaultGameDisplayOptions]
+            self._graphics.updateWindow(self._gameBoard, self._winPath, extraBoards=extraBoards, displayBoards = displayBoards)
 
     def _updateAgentBoards(self) -> None:
         """Update Agents Boards because it changed"""
@@ -300,7 +320,6 @@ class HexGame:
             self._currentPlayer = 2
         else:
             self._currentPlayer = 1
-
 
     def _printGameSummary(self) -> None:
         """Print the current game number and current win summary"""

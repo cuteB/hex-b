@@ -1,5 +1,6 @@
 import pygame
-from typing import List
+from typing import List, Callable
+from dataclasses import dataclass
 
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.graphics.Colours import Colours
@@ -28,6 +29,15 @@ class Hexagons:
         self.blueWin = HexagonGraphic(Colours.DARK_BLUE, hexSize, True)
         self.redWin = HexagonGraphic(Colours.DARK_RED, hexSize, True)
 
+@dataclass
+class GameDisplayOptions:
+    name: int
+    board: HexBoard
+    getHexagonGraphic: Callable[[HexNode], HexagonGraphic]
+
+DEFAULT_HEX_SIZE: int = 40
+    
+
 '''----------------------------------
 Hex Graphics
 ----------------------------------'''
@@ -44,7 +54,7 @@ class HexGraphics:
     _Hexagons: Hexagons
 
     """Graphics window for the Hex Game"""
-    def __init__(self, boardSize=11, hexSize=40):
+    def __init__(self, boardSize=11, hexSize=DEFAULT_HEX_SIZE):
         self._hexSize = hexSize  # Hexagon size in pixels
         self._boardSize = boardSize  # Board size in Hexagons
         self._caption = "Hex Game"
@@ -57,6 +67,7 @@ class HexGraphics:
         self._screen = pygame.display.set_mode((self._xWindowLength, self._yWindowHeight))
 
         self._Hexagons: Hexagons = Hexagons(hexSize=self._hexSize)
+
 
     '''---
     Private
@@ -113,33 +124,45 @@ class HexGraphics:
         self._screen.fill(Colours.WHITE)
         self.updateWindow(gameBoard, [], True)
 
-    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, agentDict: SortedDict = None):
+    def updateWindow(self, gameBoard: HexBoard, winPath: List[Hex]=[], renderEdges: bool = False, extraBoards: List[SortedDict] = None, displayBoards: List[GameDisplayOptions] = []):
         """Update the Game Window"""
-        nodeDict: dict = gameBoard.getNodeDict()
+        # nodeDict: dict = gameBoard.getNodeDict()
+
+        # new start
+        if len(displayBoards) > 0:
+            currentDisplayBoard:GameDisplayOptions = displayBoards[0]
+            nodeDict: dict = currentDisplayBoard.board.getNodeDict()
+            _getHexagonGraphic = currentDisplayBoard.getHexagonGraphic 
+        else:
+
+            nodeDict: dict = gameBoard.getNodeDict()
+            _getHexagonGraphic = getDefaultHexagonGraphic
+
         # Render Board Nodes
         for key in nodeDict:
             X: HexNode = nodeDict[key]
-            inWinPath = (winPath != None and X in winPath)
+
+            # TODO the rest of this function can probably go into a modular function that only needs the HexNode to provide what should be displayed. The render edge check should probably stay but other than that all of this should be changeable. 
+
             xType = X.getHexType()
-            if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
-                value = ""
-                if nodeDict != None:
-                    if nodeDict[key].getHexType().player != 1 and agentDict != None: #TODO change this to only show playable hexes for a certain player. Need to have the graphics "Display for a certain player". This line will prevent blue hexes from having text
-                        value = str(agentDict[key].getPathsToNode()) 
+            # if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
 
-                    """
-                    This value needs some fixes
-                    [x] Needs to white over the previous value. Currently writing text over existing black text. Looks ugly
-                        - only occurs with the white hexes. Player hexes seem to change text as it should. 
-                    [x] Need to update at the start
-                    [x] Not sure why it is showing the cost to get to the node and not the total cost of the path. probs A*
-                    [ ] some sort of colour change maybe to show the gradient of the cost. The text might be good enough. 
-                    [ ] Need to do something about the opponent hex values. not sure what sets them to what they are. Probably want them simply empty
-                    [x] A* not updating properly? Sometimes connected hexes have different values. Maybe if they weren't in the best path or something
-                    """
+                # def temp_getHexagonGraphic(X: HexNode):
+                #     inWinPath = (winPath != None and X in winPath)
 
-                pos = self._getHexPos(X)
-                self._screen.blit(self._getHexagonGraphic(xType, inWinPath, value).getHexagon(), pos)
+                #     value = ""
+                #     if nodeDict != None:
+                #         if nodeDict[key].getHexType().player != 1 and extraBoards != None: #TODO change this to only show playable hexes for a certain player. Need to have the graphics "Display for a certain player". This line will prevent blue hexes from having text
+                #             agentDict: SortedDict = extraBoards[0]
+
+                #             value = str(agentDict[key].getPathsToNode()) 
+
+                #     return self._getHexagonGraphic(xType, inWinPath, value).getHexagon()
+
+            pos = self._getHexPos(X)
+            # self._screen.blit(_getHexagonGraphic(X).getHexagon(), pos)
+            self._screen.blit(_getHexagonGraphic(X).getHexagon(), pos)
+                
 
         # Render Black spaces
         if (renderEdges): 
@@ -193,5 +216,38 @@ class HexGraphics:
 
         # make sure type int
         return (int(xRow), int(yRow))
+    
+def getDefaultHexagonGraphic(X: HexNode) -> HexagonGraphic:
+    _hexSize = DEFAULT_HEX_SIZE
+    _Hexagons: Hexagons = Hexagons(_hexSize)
+
+    player = X.getHexType().player
+    xType = X.getHexType().xType
+    inWinPath = X.getBest() == 0
+
+    if (player == 1): # blue
+        if (xType == 1): # hex
+            if (not inWinPath): # regular hex
+                # return self._Hexagons.blue
+                return HexagonGraphic(Colours.BLUE,_hexSize, True)
+            else: # win Hex
+                return _Hexagons.blueWin
+        else: # edge
+            return _Hexagons.blueEdge
+
+    elif (player == 2): # red
+        if (xType == 1): # hex
+            if (not inWinPath): # regular hex
+                return HexagonGraphic(Colours.RED,_hexSize, True)
+                # return self._Hexagons.red
+            else: # win Hex
+                return _Hexagons.redWin
+        else: # edge
+            return _Hexagons.redEdge
+
+    else: # White
+        return  HexagonGraphic(Colours.WHITE, _hexSize, True)
+        # return self._Hexagons.white
+
 
 # ty https://github.com/ThomasRush/py_a_star for the Hexagon rendering ideas
