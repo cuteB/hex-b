@@ -245,7 +245,9 @@ class HexGame:
     def _preGameSetup(self) -> None: 
         """Setup board and graphics, trigger start turn event"""
 
+        print(self._gameBoard.getNodeDict()[(5,5)].getBest()) # XXX
         self._gameBoard.resetGameBoard()
+        print(self._gameBoard.getNodeDict()[(5,5)].getBest()) # XXX
 
         if self._options.showDisplay:
             self._graphics.setupWindow(self._gameBoard)
@@ -263,13 +265,11 @@ class HexGame:
 
         extraBoards = [self._redAgent.getAgentBoard().getNodeDict()]
 
-
         # [ ] extra boards to display
         # To display multiple boards with different display options provide a list of game boards and HexGraphic classes
         # A HexGraphic class should be able to give the colour and text of any given node in the dict.
         # always provide the original game board with default HexGraphic options.
         # [ ] add watching agents that watch as a certain player. They update their boards but don't get asked to provide a move.
-        
 
         if self._options.showDisplay:
             displayBoards = [self._defaultGameDisplayOptions]

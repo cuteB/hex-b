@@ -87,24 +87,25 @@ class HexGraphics:
 
         return (xPos, yPos)
 
-    def _getHexagonGraphic(self, xType: HexType, inWinPath: bool, text: str = "") -> HexagonGraphic:
+    def _old_getHexagonGraphic(self, xType: HexType, inWinPath: bool = False, text: str = "") -> HexagonGraphic:
         """Return the Hexagons Graphic given a Hex Node"""
 
         if (xType.player == 1): # blue
             if (xType.xType == 1): # hex
                 if (not inWinPath): # regular hex
-                    # return self._Hexagons.blue
-                    return HexagonGraphic(Colours.BLUE, self._hexSize, True, text)
+                    return self._Hexagons.blue
+                    # return HexagonGraphic(Colours.BLUE, self._hexSize, True, text)
                 else: # win Hex
                     return self._Hexagons.blueWin
             else: # edge
+
                 return self._Hexagons.blueEdge
 
         elif (xType.player == 2): # red
             if (xType.xType == 1): # hex
                 if (not inWinPath): # regular hex
-                    return HexagonGraphic(Colours.RED, self._hexSize, True, text)
-                    # return self._Hexagons.red
+                    # return HexagonGraphic(Colours.RED, self._hexSize, True, text)
+                    return self._Hexagons.red
                 else: # win Hex
                     return self._Hexagons.redWin
             else: # edge
@@ -131,6 +132,7 @@ class HexGraphics:
         # new start
         if len(displayBoards) > 0:
             currentDisplayBoard:GameDisplayOptions = displayBoards[0]
+            # currentDisplayBoard:GameDisplayOptions = gameBoard
             nodeDict: dict = currentDisplayBoard.board.getNodeDict()
             _getHexagonGraphic = currentDisplayBoard.getHexagonGraphic 
         else:
@@ -144,7 +146,7 @@ class HexGraphics:
 
             # TODO the rest of this function can probably go into a modular function that only needs the HexNode to provide what should be displayed. The render edge check should probably stay but other than that all of this should be changeable. 
 
-            xType = X.getHexType()
+            # xType = X.getHexType()
             # if (xType.xType == 1 or renderEdges): # always render hexes, sometimes render edges
 
                 # def temp_getHexagonGraphic(X: HexNode):
@@ -224,6 +226,7 @@ def getDefaultHexagonGraphic(X: HexNode) -> HexagonGraphic:
     player = X.getHexType().player
     xType = X.getHexType().xType
     inWinPath = X.getBest() == 0
+
 
     if (player == 1): # blue
         if (xType == 1): # hex
