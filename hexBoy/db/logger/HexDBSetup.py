@@ -1,7 +1,5 @@
 # TODO probably rename this file and create a setup file that is separate from the logger
 
-# import sqlite3 
-
 from hexBoy.hex.node.HexNode import Hex
 from typing import List, Optional
 from sqlalchemy import create_engine, ForeignKey, String, select, Engine, asc
@@ -64,6 +62,9 @@ class Move(Base):
     def __repr__(self) -> str:
         return (f"Move(id={self.id!r}, gameId={self.game_id!r}, player={self.player!r}, move=({self.x!r},{self.y!r}), sequence={self.sequence!r})") 
 
+'''---
+HexLogger
+---'''
 # COMEBACK this guy will need their own file
 class HexLogger:  
     connectionPath = 'hexBoy/db/hex_sqlite.db' # TODO there is some garbage tables still in here
@@ -172,15 +173,12 @@ class HexLogger:
         return moves
             
 
-
-            
-
 def initDB() -> None:
+    """Create the actual database and initialize the tables"""
     xLogger = HexLogger()
-
-    uhh = xLogger.getMovesForGameId(4)
-    print(uhh)
-
+    xLogger.initDBTables()
+    print("Database initialized")
+    
 def resetDatabase() -> None:
     """This creates the tables for the logger and refreshes the database probably"""
     xLogger = HexLogger()

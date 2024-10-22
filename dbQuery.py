@@ -1,5 +1,5 @@
 import sys
-from hexBoy.db.logger.HexDBSetup import resetDatabase
+from hexBoy.db.logger.HexDBSetup import resetDatabase, initDB
 from hexBoy.db.query.listGames import listGames
 from hexBoy.db.query.listMovesForGame import listMovesForGame
 
@@ -23,16 +23,20 @@ def main():
     if (query=="help"):
         plsHelp()
 
-    if (query == "resetDatabase_DANGER"):
+    elif (query=="init_db"):
+        initDB()
+
+    elif (query == "resetDatabase_DANGER"):
         resetDatabase()
 
-    if (query == "listGames"):
+    elif (query == "listGames"):
         listGames(param)
 
-    if (query == "listMovesForGame"):
+    elif (query == "listMovesForGame"):
         listMovesForGame(param)
 
-    
+    else:
+        print("Invalid query. type 'help' for the list of queries")
 
 def plsHelp():
     """Print out the list of queries I have"""
