@@ -24,7 +24,7 @@ def test_AgentAStarMakesValidMove(tmpdir):
 def test_AgentAStarFullGame(tmpdir):
     """Test full game with the agent playing both sides"""
 
-    testOptions = HexGameOptions(gameType="test")
+    testOptions = HexGameOptions(gameType="test", testMode=True)
     game = HexGame(
         agent1=AgentAStar(),
         agent2=GetAgent(1),

@@ -15,7 +15,7 @@ from hexBoy.hex.graphics.HexGraphics import HexGraphics
 from hexBoy.hex.node.HexNode import Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
-from hexBoy.db.logger.HexDBSetup import HexLogger
+from hexBoy.db.logger.HexDBSetup import HexLogger, MockLogger
 
 # Custom Events
 BEFORE_TURN = pygame.USEREVENT + 1
@@ -31,6 +31,7 @@ class HexGameOptions:
     startingPlayer: int = 1
     alternateStartingPlayer: bool = True
     gameType: str = "" # Type of game to label it as in the logger.
+    testMode: bool = False # Disable the logger if true.
 
 '''----------------------------------
 Main hex game class
@@ -116,7 +117,10 @@ class HexGame:
             self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
 
         # Logger
-        self._xLogger = HexLogger()
+        if (self._options.testMode):
+            self._xLogger = MockLogger()
+        else:
+            self._xLogger = HexLogger()
 
     '''---
     Game Loops

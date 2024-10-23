@@ -6,7 +6,7 @@ from hexBoy.hex.game.HexGame import HexGame, HexGameOptions
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
-    testOptions = HexGameOptions(gameType="test")
+    testOptions = HexGameOptions(gameType="test", testMode=True)
     tmpdir.game = HexGame(
         agent1=GetAgent(1),
         agent2=GetAgent(1),

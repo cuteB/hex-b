@@ -23,7 +23,7 @@ def test_AgentStrongMakesValidMove(tmpdir):
 
 def test_AgentStrongFullGame(tmpdir):
     """Test full game with the agent playing both sides"""
-    testOptions = HexGameOptions(gameType="test")
+    testOptions = HexGameOptions(gameType="test", testMode=True)
     game = HexGame(
         agent1=AgentStrong(),
         agent2=AgentRand(),

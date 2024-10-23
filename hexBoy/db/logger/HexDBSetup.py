@@ -189,7 +189,7 @@ class HexLogger:
 '''---
 Mock Logger
 ---'''
-class MockLogger(HexLogger):
+class MockLogger():
     # COMEBACK should do something where there is an abstract logger and this and the other main logger inherit so there isn't any missed functions
 
     def __init__(self):
