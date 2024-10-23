@@ -39,7 +39,7 @@ Main hex game class
 class HexGame:
     """The Hex Game"""
 
-    _gameBoard: HexBoard  # Board, Hex Board Object #
+    _gameBoard: HexBoard  # Board, Hex Board Object 
     _options: HexGameOptions
 
     _currentPlayer: int  

@@ -80,6 +80,11 @@ class HexLogger:
         self.engine = create_engine(self.connectionString)
         self.gameInProgress = False
 
+    '''---
+    Database config
+    ---'''
+    # COMEBACK I may put this in another class to separate this from the actual telemetry logging
+
     def resetDB(self):
         Game.__table__.drop(self.engine)
         Move.__table__.drop(self.engine)
@@ -88,6 +93,9 @@ class HexLogger:
         Base.metadata.create_all(self.engine)
 
 
+    '''---
+    Actual logging methods
+    ---'''
     def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
         """Log the start of a game"""
 
@@ -138,6 +146,11 @@ class HexLogger:
 
             session.commit()
 
+
+    '''---
+    Query methods
+    ---'''
+    # COMEBACK just like the database management functions this should probably be in a HexQuery class
     def printGameSequence(self) -> None:
         print()
         with Session(self.engine) as session:
@@ -172,6 +185,26 @@ class HexLogger:
 
         return moves
             
+
+'''---
+Mock Logger
+---'''
+class MockLogger(HexLogger):
+    # COMEBACK should do something where there is an abstract logger and this and the other main logger inherit so there isn't any missed functions
+
+    def __init__(self):
+        pass
+
+    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
+        pass
+
+    def logMove(self, player: int, move: Hex) -> None:
+        pass
+
+    def logEndGame(self, winnerId: int) -> None:
+        pass
+
+
 
 def initDB() -> None:
     """Create the actual database and initialize the tables"""
