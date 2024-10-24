@@ -94,6 +94,7 @@ def printHelp() -> None:
     print("\tShow Display \t`-d` \t(Default: hide display)")
     print("\tShow Endgame \t`-e` \t(Default: Skip Endgame)")
     print("\tHide Prints \t`-p` \t(Default: Show print summaries)")
+    print("\tMock Logger \t`-mock` \t(Default: Use logger)")
     print()
     print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
     print("\tEnter Blue agent: \t`-b <arg>`")
