@@ -391,13 +391,15 @@ def Hex_Play(
     showDisplay=True,
     numGames=None,
     showPrint=True,
+    mockLogger=False
 ):
     """Main HexGame Function to play games given config"""
 
     options = HexGameOptions(
         showDisplay=showDisplay,
         showPrint=showPrint,
-        showEndGame=showEndGame
+        showEndGame=showEndGame,
+        testMode=mockLogger
     )
 
     game = HexGame(

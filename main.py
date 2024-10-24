@@ -14,6 +14,7 @@ def main() -> None:
     showDisplay = False
     numGames = 1
     showPrint = True
+    mockLogger = False
 
     opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
     args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
@@ -63,6 +64,10 @@ def main() -> None:
         elif (opts[i] == "-p"):
             showPrint = False
 
+        # -mock, disable logger and use mock logger
+        elif (opts[i] == "-mock"):
+            mockLogger = True
+
     Hex_Play(
         agentA,
         agentB,
@@ -70,6 +75,7 @@ def main() -> None:
         showDisplay,
         numGames,
         showPrint,
+        mockLogger
     )
 
 # TODO put the flag first so they are all in a nice line

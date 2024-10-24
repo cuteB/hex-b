@@ -76,6 +76,14 @@ class HexLogger:
     gameSequence: int
     gameInProgress: bool # COMEBACK I might want to merge this with the currentGameId to track if a game is in progress
 
+    '''
+    [ ] I want to be able to configure if I want to use the logger or not. Maybe just a flag that I can set in the config
+        In addition I think it would be cool for the logger to know if there isn't a database setup and then give a warning.
+        Maybe just use the mock logger but I would be mad if I ran tons of games and then realized I didn't have the logger on
+    [ ] Setup threads for the logger so that the w/r doesn't take time out of the agents. The logger should be its own thread and
+        the agents/game should put the events they want to log into a sink (maybe sync idk but thats what they say at work)
+    '''
+
     def __init__(self):
         self.engine = create_engine(self.connectionString)
         self.gameInProgress = False
