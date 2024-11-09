@@ -2,7 +2,10 @@
 
 > The only reason I'm here
 
-Hex, The game
+Hex, The game.
+
+[Game Setup](./wiki/Setup.md)
+
 
 ![Random Hex Game](/wiki/images/RandomHexBoard.png)
 
@@ -27,9 +30,8 @@ with too extra edges
                 \___/
 ```
 
-[Checkout the setup](./wiki/Setup.md)
 
 
-## [Database]()
+## [Data and Telemetry](./wiki/Data.md)
 
 [Database Setup](./wiki/Setup.md#database)

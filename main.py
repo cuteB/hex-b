@@ -67,7 +67,7 @@ def main() -> None:
             showPrint = False
 
         # -mock, disable logger and use mock logger
-        elif (opts[i] == "-mock"):
+        elif (opts[i] == "--mock"):
             mockLogger = True
 
     Hex_Play(

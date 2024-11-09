@@ -23,7 +23,7 @@ def main():
     if (query=="help"):
         plsHelp()
 
-    elif (query=="checkDB"):
+    elif (query=="checkDB`"):
         listGames(param) # TODO Change to something boring
 
 
