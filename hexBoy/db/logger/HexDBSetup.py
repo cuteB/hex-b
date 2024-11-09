@@ -1,4 +1,6 @@
 # TODO probably rename this file and create a setup file that is separate from the logger
+import threading
+
 
 from hexBoy.hex.node.HexNode import Hex
 from typing import List, Optional
@@ -10,7 +12,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship,
 [ ] create logger interface so I can swap out the DB later
 [ ] A GameHistory table that tracks the start/ end logs. Something for sequence of games as well
 [ ] Track who is playing to get stats on each agent. 
-[ ] log force quit
+[ ] log force quit, other user actions as well
 '''
 
 class Base(DeclarativeBase):
@@ -83,6 +85,7 @@ class HexLogger:
     [ ] Set config flag in main.py to use mock logger.
     [ ] Setup threads for the logger so that the w/r doesn't take time out of the agents. The logger should be its own thread and
         the agents/game should put the events they want to log into a sink (maybe sync idk but thats what they say at work)
+    [ ] Probs want to setup some logging class that handles the threading.
     '''
 
     def __init__(self):
@@ -124,20 +127,24 @@ class HexLogger:
             self.currentGameId = currentGame.id
 
     def logMove(self, player: int, move: Hex) -> None:
+        """Log move from a game"""
+        def _logMove(player: int, move: Hex) -> None:
+            if (not self.gameInProgress):
+                return # COMEBACK do I want this? I might want this to fail or say something 
 
-        if (not self.gameInProgress):
-            return # COMEBACK do I want this? I might want this to fail or say something 
+            with Session(self.engine) as session: 
+                self.gameSequence += 1
+                m = Move(player, move, self.gameSequence)
+                query = (
+                    select(Game)
+                    .where(Game.id == self.currentGameId)
+                )
+                currentGame = session.scalars(query).one()
+                currentGame.moves.append(m)
+                session.commit()
 
-        with Session(self.engine) as session: 
-            self.gameSequence += 1
-            m = Move(player, move, self.gameSequence)
-            query = (
-                select(Game)
-                .where(Game.id == self.currentGameId)
-            )
-            currentGame = session.scalars(query).one()
-            currentGame.moves.append(m)
-            session.commit()
+        x = threading.Thread(target=_logMove, args=(player, move,))
+        x.start()
 
     def logEndGame(self, winnerId: int) -> None:
         self.gameInProgress = False
@@ -154,7 +161,6 @@ class HexLogger:
             g.endSequence = self.gameSequence
 
             session.commit()
-
 
     '''---
     Query methods
@@ -195,6 +201,7 @@ class HexLogger:
         return moves
             
 
+
 '''---
 Mock Logger
 ---'''
@@ -214,7 +221,8 @@ class MockLogger():
         pass
 
 
-
+# [ ] Move these to a place within the database class and title these as setup functions
+# [ ] Add some additional console logs to show how cool my setup is
 def initDB() -> None:
     """Create the actual database and initialize the tables"""
     xLogger = HexLogger()

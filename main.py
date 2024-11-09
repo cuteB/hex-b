@@ -23,6 +23,8 @@ def main() -> None:
         printHelp()
         return
 
+    # TODO check if any of the arguments are garbage/unexpected
+    # - Accidentally running the main.py with random strings should complain and not run the default options
     argNum = 0 # what opt the arg is for
     for i in range(len(opts)):
 

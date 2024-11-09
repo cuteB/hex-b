@@ -30,3 +30,6 @@ with too extra edges
 [Checkout the setup](./wiki/Setup.md)
 
 
+## [Database]()
+
+[Database Setup](./wiki/Setup.md#database)
