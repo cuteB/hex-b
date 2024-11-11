@@ -3,9 +3,13 @@ from os import environ
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 import sys
+import threading, concurrent
+import time
+
 from dataclasses import dataclass
 from pygame.locals import *
 from typing import List
+
 
 from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
 from hexBoy.AI.HexAgent import HexAgent
@@ -116,11 +120,21 @@ class HexGame:
             self._redName = self._redAgent.getName()
             self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
 
+
+
+
+
+
+
+
         # Logger
         if (self._options.testMode):
             self._xLogger = MockLogger()
         else:
             self._xLogger = HexLogger()
+        # HACK
+
+        
 
     '''---
     Game Loops
@@ -191,9 +205,11 @@ class HexGame:
         if self._currentPlayer == 1 and self._blueAgent != None:
             self._nextMove = self._blueAgent.getAgentMove()
             self._eventDoPlayerMove()
+
         if self._currentPlayer == 2 and self._redAgent != None:
             self._nextMove = self._redAgent.getAgentMove()
             self._eventDoPlayerMove()
+
 
     def _handleNextMove(self, player: int, move: Hex) -> None:
         """Handle the next move"""
@@ -204,6 +220,8 @@ class HexGame:
             self._eventAfterTurn()
 
             self._xLogger.logMove(player, move)
+            
+            self._xLogger.xSet(str(player) + " " + str(move))
 
     def _handleEndTurn(self) -> None:
         """Check the board for a winner or switch turns"""
@@ -360,12 +378,14 @@ class HexGame:
             self._endGameEventLoop()
             self._updateGameWindow()
 
+
+
     '''---
-    public
+    Threads
     ---'''
-    def main(self, numGames=1) -> bool:
-        """Play a number of hex games"""
+    def _gameThread(self, event, numGames: int) -> None:
         
+
         self._printGameSummary()
 
         for i in range(numGames):
@@ -378,6 +398,31 @@ class HexGame:
 
         # Post summary
         self._printPostGameSummary()
+
+        event.set()
+        print("\nGame Done")
+
+ 
+
+
+    '''---
+    public
+    ---'''
+    def main(self, numGames=1) -> bool:
+        """Play a number of hex games"""
+        
+
+        event = threading.Event() # might change this to a global in the class
+
+
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        #     # COMEBACK I wonder if there is an issue with the threads being in the same class. Probs just need to be careful
+        #     executor.submit(self._gameThread, event, numGames)
+        #     executor.submit(self._xLogger._loggerThread, event)
+
+        #     time.sleep(5)
+        #     event.set()
+        #     print('\n Main ending')
 
         return True # return true to show that the game finished
 

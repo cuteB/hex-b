@@ -1,5 +1,6 @@
 # TODO probably rename this file and create a setup file that is separate from the logger
 import threading
+import queue
 
 
 from hexBoy.hex.node.HexNode import Hex
@@ -64,6 +65,22 @@ class Move(Base):
     def __repr__(self) -> str:
         return (f"Move(id={self.id!r}, gameId={self.game_id!r}, player={self.player!r}, move=({self.x!r},{self.y!r}), sequence={self.sequence!r})") 
 
+
+
+
+# HACK 
+class LoggingPipeline(queue.Queue):
+    def __init__(self):
+        super().__init__(maxsize=1000) # TODO not 1000
+
+    def getMessage(self):
+        value = self.get()
+        return value
+    
+    def setMessage(self, value):
+        self.put(value)
+# HACK
+
 '''---
 HexLogger
 ---'''
@@ -73,10 +90,14 @@ class HexLogger:
     connectionString = 'sqlite:///' + connectionPath
     engine: Engine
 
+    _lock = threading.Lock()
+
     currentGame: Game
     currentGameId: int
     gameSequence: int
     gameInProgress: bool # COMEBACK I might want to merge this with the currentGameId to track if a game is in progress
+
+    _loggingPipeline: LoggingPipeline # I like sink better
 
     '''
     [ ] I want to be able to configure if I want to use the logger or not. Maybe just a flag that I can set in the config
@@ -88,9 +109,48 @@ class HexLogger:
     [ ] Probs want to setup some logging class that handles the threading.
     '''
 
+
+    
+
     def __init__(self):
         self.engine = create_engine(self.connectionString)
         self.gameInProgress = False
+
+        self._loggingPipeline = LoggingPipeline()
+
+
+
+        
+
+    '''---
+    Logging Thread
+    ---'''
+    def _loggerThread(self, event) -> None:
+
+        while not event.is_set():
+            message = self._loggingPipeline.getMessage()
+            # print("\nget", message)
+            event.set()
+        print()
+        print("\nLogger done")
+
+
+    def xSet(self, log):
+        # TODO need this for mock if using this but I'll probably deal with that in a better way within each log function
+        
+        # print("\nset", log)
+        self._loggingPipeline.setMessage(log)
+
+    def xGet(self):
+
+        uhh =  self._loggingPipeline.getMessage()
+        return uhh
+
+
+
+
+    
+
 
     '''---
     Database config
@@ -104,13 +164,13 @@ class HexLogger:
     def initDBTables(self) -> None:
         Base.metadata.create_all(self.engine)
 
-
     '''---
     Actual logging methods
     ---'''
     def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
         """Log the start of a game"""
-
+        
+        return
         currentGame = Game(
             blueAgent = blueAgent,
             redAgent = redAgent,
@@ -126,42 +186,50 @@ class HexLogger:
             session.commit()
             self.currentGameId = currentGame.id
 
+
+
     def logMove(self, player: int, move: Hex) -> None:
         """Log move from a game"""
-        def _logMove(player: int, move: Hex) -> None:
-            if (not self.gameInProgress):
-                return # COMEBACK do I want this? I might want this to fail or say something 
+        return
 
-            with Session(self.engine) as session: 
-                self.gameSequence += 1
-                m = Move(player, move, self.gameSequence)
-                query = (
-                    select(Game)
-                    .where(Game.id == self.currentGameId)
-                )
-                currentGame = session.scalars(query).one()
-                currentGame.moves.append(m)
-                session.commit()
+        if (not self.gameInProgress):
+            return # COMEBACK do I want this? I might want this to fail or say something 
 
-        x = threading.Thread(target=_logMove, args=(player, move,))
-        x.start()
-
-    def logEndGame(self, winnerId: int) -> None:
-        self.gameInProgress = False
-
-        with Session(self.engine) as session:
-
+        with Session(self.engine) as session: 
+            self.gameSequence += 1
+            m = Move(player, move, self.gameSequence)
             query = (
                 select(Game)
                 .where(Game.id == self.currentGameId)
             )
-
-            g = session.scalars(query).one()
-            g.winner = winnerId
-            g.endSequence = self.gameSequence
-
+            currentGame = session.scalars(query).one()
+            currentGame.moves.append(m)
             session.commit()
 
+
+
+    def logEndGame(self, winnerId: int) -> None:
+        return
+        def _logEndGame(winnerId: int) -> None:
+            self.gameInProgress = False
+
+            with Session(self.engine) as session:
+
+                query = (
+                    select(Game)
+                    .where(Game.id == self.currentGameId)
+                )
+
+                g = session.scalars(query).one()
+                g.winner = winnerId
+                g.endSequence = self.gameSequence
+
+                session.commit()
+
+        # Start thread to log
+        with self._lock:
+            x = threading.Thread(target=_logEndGame, args=(winnerId,))
+            x.start()
     '''---
     Query methods
     ---'''
@@ -201,6 +269,28 @@ class HexLogger:
         return moves
             
 
+'''---
+Logger Sink
+---'''
+# > Is it Sync or Sink. 
+
+class LoggerSink(queue.Queue):
+
+    def __init__(self):
+        super().__init__(maxsize=10) # idk if this needs to be bigger than 10 but I think it has to be set to something
+
+    def addLog(self, logType: str, kwargs) -> None:
+
+        _obj = {logType, kwargs}
+        self.put(_obj)
+
+
+    def getLog(self):
+
+        logType, kwargs = self.get()
+
+        print(logType, *kwargs)            
+
 
 '''---
 Mock Logger
@@ -218,6 +308,9 @@ class MockLogger():
         pass
 
     def logEndGame(self, winnerId: int) -> None:
+        pass
+
+    def xSet(self, log):
         pass
 
 
