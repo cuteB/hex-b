@@ -127,10 +127,13 @@ class HexLogger:
     ---'''
     def _loggerThread(self, event) -> None:
 
-        while not event.is_set():
-            message = self._loggingPipeline.getMessage()
-            # print("\nget", message)
-            event.set()
+        while not event.is_set() or self._loggingPipeline.qsize() != 0:
+            if self._loggingPipeline.qsize() != 0:
+                message = self._loggingPipeline.getMessage()
+                print("\nget", message)
+            
+            # TODO else maybe wait a milisec so it doesn't spin. idk gotta see if this ruins perf
+
         print()
         print("\nLogger done")
 

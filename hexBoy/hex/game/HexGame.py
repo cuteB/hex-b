@@ -399,7 +399,6 @@ class HexGame:
         # Post summary
         self._printPostGameSummary()
 
-        event.set()
         print("\nGame Done")
 
  
@@ -415,14 +414,32 @@ class HexGame:
         event = threading.Event() # might change this to a global in the class
 
 
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        #     # COMEBACK I wonder if there is an issue with the threads being in the same class. Probs just need to be careful
-        #     executor.submit(self._gameThread, event, numGames)
-        #     executor.submit(self._xLogger._loggerThread, event)
 
-        #     time.sleep(5)
-        #     event.set()
-        #     print('\n Main ending')
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            # COMEBACK I wonder if there is an issue with the threads being in the same class. Probs just need to be careful
+            # executor.submit(self._gameThread, event, numGames)
+            executor.submit(self._xLogger._loggerThread, event)
+            self._gameThread(event, numGames)
+
+            event.set()
+            print('\n Main ending')
+            pass
+
+        print("After main")
+
+        event.set()
+        print("\n game over")
+
+
+
+        # self._xLogger._loggerThread(event)
+
+
+
+
+
+
 
         return True # return true to show that the game finished
 
