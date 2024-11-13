@@ -2,6 +2,7 @@ import sys
 from hexBoy.db.logger.HexDBSetup import resetDatabase, initDB
 from hexBoy.db.query.listGames import listGames
 from hexBoy.db.query.listMovesForGame import listMovesForGame
+from hexBoy.db.query.listMovesForLastGame import listMovesForLastGame
 
 def main():
 
@@ -38,6 +39,9 @@ def main():
 
     elif (query == "listMovesForGame"):
         listMovesForGame(param)
+
+    elif (query == "lastGame"):
+        listMovesForLastGame()
 
     else:
         print("Invalid query. type 'help' for the list of queries")

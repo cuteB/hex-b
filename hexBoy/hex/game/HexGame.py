@@ -4,7 +4,6 @@ environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 import sys
 import threading, concurrent
-import time
 
 from dataclasses import dataclass
 from pygame.locals import *
@@ -19,7 +18,7 @@ from hexBoy.hex.graphics.HexGraphics import HexGraphics
 from hexBoy.hex.node.HexNode import Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
-from hexBoy.db.logger.HexDBSetup import HexLogger, MockLogger
+from hexBoy.db.logger.HexDBSetup import HexLogger, MockLogger, EventType
 
 # Custom Events
 BEFORE_TURN = pygame.USEREVENT + 1
@@ -219,9 +218,9 @@ class HexGame:
             self._updateAgentBoards()
             self._eventAfterTurn()
 
-            self._xLogger.logMove(player, move)
+            self._xLogger.logEvent(EventType.MOVE, (player, move))
+
             
-            self._xLogger.xSet(str(player) + " " + str(move))
 
     def _handleEndTurn(self) -> None:
         """Check the board for a winner or switch turns"""
@@ -281,7 +280,7 @@ class HexGame:
         self._winPath = None
         self._eventStartTurn()
 
-        self._xLogger.logStartGame(self._blueName, self._redName, self._currentPlayer, self._options.gameType)
+        self._xLogger.logEvent(EventType.START_GAME, (self._blueName, self._redName, self._currentPlayer, self._options.gameType))
 
     def _updateGameWindow(self) -> None:
         """Update Graphics"""
@@ -371,7 +370,7 @@ class HexGame:
         else:
             self._redWins += 1
 
-        self._xLogger.logEndGame(self._currentPlayer)
+        self._xLogger.logEvent(EventType.END_GAME, (self._currentPlayer,))
 
         self._gameInProgress = True
         while self._gameInProgress and self._options.showDisplay and self._options.showEndGame:
@@ -413,23 +412,24 @@ class HexGame:
 
         event = threading.Event() # might change this to a global in the class
 
-
-
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-            # COMEBACK I wonder if there is an issue with the threads being in the same class. Probs just need to be careful
-            # executor.submit(self._gameThread, event, numGames)
-            executor.submit(self._xLogger._loggerThread, event)
-            self._gameThread(event, numGames)
-
-            event.set()
-            print('\n Main ending')
-            pass
-
-        print("After main")
-
+        # For testing threads because errors within threads break the program
+        self._gameThread(event, numGames)
         event.set()
-        print("\n game over")
+        self._xLogger._loggerThread(event)
+
+
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        #     # COMEBACK I wonder if there is an issue with the threads being in the same class. Probs just need to be careful
+        #     # executor.submit(self._gameThread, event, numGames)
+        #     executor.submit(self._xLogger._loggerThread, event)
+        #     self._gameThread(event, numGames)
+
+        #     event.set()
+        #     print('\n Main ending')
+        #     pass
+
+        # print("After main")
+
 
 
 

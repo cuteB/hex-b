@@ -1,7 +1,9 @@
 # TODO probably rename this file and create a setup file that is separate from the logger
 import threading
 import queue
+import time
 
+from abc import ABC, abstractmethod
 
 from hexBoy.hex.node.HexNode import Hex
 from typing import List, Optional
@@ -69,9 +71,9 @@ class Move(Base):
 
 
 # HACK 
-class LoggingPipeline(queue.Queue):
+class LoggerSink(queue.Queue):
     def __init__(self):
-        super().__init__(maxsize=1000) # TODO not 1000
+        super().__init__(maxsize=1000) # not 1000 but idk maybe that many. how many logs is too many
 
     def getMessage(self):
         value = self.get()
@@ -80,6 +82,29 @@ class LoggingPipeline(queue.Queue):
     def setMessage(self, value):
         self.put(value)
 # HACK
+
+
+'''---
+BaseLogger
+---'''
+class BaseLogger(ABC):
+    """Base class for logging events to a database"""
+
+    @abstractmethod
+    def logEvent(self, event: str, obj: any) -> None:
+        """Log an event to the database"""
+
+    @abstractmethod
+    def loggerThread(self, event: threading.Event) -> None:
+        """Thread to log events to the database"""
+    
+
+
+# Enums for the types of events
+class EventType: # COMEBACK I don't like this name
+    START_GAME = "start_game"
+    MOVE = "move"
+    END_GAME = "end_game"
 
 '''---
 HexLogger
@@ -97,7 +122,7 @@ class HexLogger:
     gameSequence: int
     gameInProgress: bool # COMEBACK I might want to merge this with the currentGameId to track if a game is in progress
 
-    _loggingPipeline: LoggingPipeline # I like sink better
+    _LoggerSink: LoggerSink # I like sink better
 
     '''
     [ ] I want to be able to configure if I want to use the logger or not. Maybe just a flag that I can set in the config
@@ -109,45 +134,60 @@ class HexLogger:
     [ ] Probs want to setup some logging class that handles the threading.
     '''
 
-
-    
-
     def __init__(self):
         self.engine = create_engine(self.connectionString)
         self.gameInProgress = False
 
-        self._loggingPipeline = LoggingPipeline()
+        self._loggerSink = LoggerSink()
 
 
+    # Enums for the types of events
+    class EventType:
+        START_GAME = "start_game"
+        MOVE = "move"
+        END_GAME = "end_game"
 
-        
+    def logEvent(self, event: EventType, obj: any) -> None:
+        """Log an event to the database"""
+        self._loggerSink.setMessage((event, obj))
+
 
     '''---
     Logging Thread
     ---'''
     def _loggerThread(self, event) -> None:
+        """Thread to log events to the database"""
 
-        while not event.is_set() or self._loggingPipeline.qsize() != 0:
-            if self._loggingPipeline.qsize() != 0:
-                message = self._loggingPipeline.getMessage()
-                print("\nget", message)
-            
-            # TODO else maybe wait a milisec so it doesn't spin. idk gotta see if this ruins perf
+        while not event.is_set() or self._loggerSink.qsize() != 0: # Run until game over and queue is finished
+            if self._loggerSink.qsize() != 0:
+                # Log event in the database
+                message = self._loggerSink.getMessage()
 
-        print()
-        print("\nLogger done")
+                if message[0] == EventType.START_GAME:
+                    self._logStartGame(*message[1])
+
+                elif message[0] == EventType.MOVE:
+                    self._logMove(*message[1])
+
+                elif message[0] == EventType.END_GAME:
+                    self._logEndGame(*message[1])
+                
+            else: # sleep for a bit if no logs in queue
+                time.sleep(0.1) 
+
+        print("\nLogger done") # XXX
 
 
     def xSet(self, log):
         # TODO need this for mock if using this but I'll probably deal with that in a better way within each log function
         
-        # print("\nset", log)
-        self._loggingPipeline.setMessage(log)
+        print("\nset", log) # XXX
+        self._loggerSink.setMessage(log)
 
-    def xGet(self):
+    # def xGet(self): # I don't think this is used
 
-        uhh =  self._loggingPipeline.getMessage()
-        return uhh
+    #     uhh =  self._loggerSink.getMessage()
+    #     return uhh
 
 
 
@@ -170,10 +210,9 @@ class HexLogger:
     '''---
     Actual logging methods
     ---'''
-    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
+    def _logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
         """Log the start of a game"""
         
-        return
         currentGame = Game(
             blueAgent = blueAgent,
             redAgent = redAgent,
@@ -191,9 +230,8 @@ class HexLogger:
 
 
 
-    def logMove(self, player: int, move: Hex) -> None:
+    def _logMove(self, player: int, move: Hex) -> None:
         """Log move from a game"""
-        return
 
         if (not self.gameInProgress):
             return # COMEBACK do I want this? I might want this to fail or say something 
@@ -209,10 +247,8 @@ class HexLogger:
             currentGame.moves.append(m)
             session.commit()
 
-
-
-    def logEndGame(self, winnerId: int) -> None:
-        return
+    def _logEndGame(self, winnerId: int) -> None:
+        """Log the end of a game"""
         def _logEndGame(winnerId: int) -> None:
             self.gameInProgress = False
 
@@ -233,6 +269,10 @@ class HexLogger:
         with self._lock:
             x = threading.Thread(target=_logEndGame, args=(winnerId,))
             x.start()
+
+
+
+
     '''---
     Query methods
     ---'''
@@ -270,51 +310,48 @@ class HexLogger:
                 moves.append((m.player, (m.x, m.y)))
 
         return moves
+    
+        
             
 
-'''---
-Logger Sink
----'''
-# > Is it Sync or Sink. 
+# '''---
+# Logger Sink
+# ---'''
+# # > Is it Sync or Sink. 
 
-class LoggerSink(queue.Queue):
+# class LoggerSink(queue.Queue):
 
-    def __init__(self):
-        super().__init__(maxsize=10) # idk if this needs to be bigger than 10 but I think it has to be set to something
+#     def __init__(self):
+#         super().__init__(maxsize=10) # idk if this needs to be bigger than 10 but I think it has to be set to something
 
-    def addLog(self, logType: str, kwargs) -> None:
+#     def addLog(self, logType: str, kwargs) -> None:
 
-        _obj = {logType, kwargs}
-        self.put(_obj)
+#         _obj = {logType, kwargs}
+#         self.put(_obj)
 
 
-    def getLog(self):
+#     def getLog(self):
 
-        logType, kwargs = self.get()
+#         logType, kwargs = self.get()
 
-        print(logType, *kwargs)            
+#         print(logType, *kwargs)            
 
 
 '''---
 Mock Logger
 ---'''
-class MockLogger():
-    # COMEBACK should do something where there is an abstract logger and this and the other main logger inherit so there isn't any missed functions
-
-    def __init__(self):
+class MockLogger(BaseLogger):
+    """Mock logger that does nothing with events"""
+    
+    def logEvent(self, event: str, obj: any) -> None:
+        """Log an event to the database"""
         pass
 
-    def logStartGame(self, blueAgent: str, redAgent: str, startingPlayer: int, gameType: str = "", gameNote: str = "") -> None:
+    def loggerThread(self, event: threading.Event) -> None:
+        """Thread to log events to the database"""
         pass
 
-    def logMove(self, player: int, move: Hex) -> None:
-        pass
 
-    def logEndGame(self, winnerId: int) -> None:
-        pass
-
-    def xSet(self, log):
-        pass
 
 
 # [ ] Move these to a place within the database class and title these as setup functions
