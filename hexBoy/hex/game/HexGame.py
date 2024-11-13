@@ -382,7 +382,6 @@ class HexGame:
     ---'''
     def _gameThread(self, event, numGames: int) -> None:
         
-
         self._printGameSummary()
 
         for i in range(numGames):
