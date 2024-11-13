@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from pygame.locals import *
 from typing import List
 
-
 from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
 from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.hex.board.HexBoard import HexBoard
@@ -18,7 +17,8 @@ from hexBoy.hex.graphics.HexGraphics import HexGraphics
 from hexBoy.hex.node.HexNode import Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
-from hexBoy.db.logger.HexDBSetup import HexLogger, MockLogger, EventType
+from hexBoy.db.HexDBConfig import EventType
+from hexBoy.db.HexLogger import HexLogger, MockLogger
 
 # Custom Events
 BEFORE_TURN = pygame.USEREVENT + 1
@@ -377,8 +377,6 @@ class HexGame:
             self._endGameEventLoop()
             self._updateGameWindow()
 
-
-
     '''---
     Threads
     ---'''
@@ -398,48 +396,22 @@ class HexGame:
         # Post summary
         self._printPostGameSummary()
 
-        print("\nGame Done")
-
- 
-
-
     '''---
     public
     ---'''
     def main(self, numGames=1) -> bool:
         """Play a number of hex games"""
         
+        event = threading.Event() # Event to signal the end of the game
+        # TODO probs rename this to something more descriptive
 
-        event = threading.Event() # might change this to a global in the class
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            # Start threads
+            executor.submit(self._xLogger.loggerThread, event)
 
-        # For testing threads because errors within threads break the program
-        self._gameThread(event, numGames)
-        event.set()
-        self._xLogger._loggerThread(event)
-
-
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        #     # COMEBACK I wonder if there is an issue with the threads being in the same class. Probs just need to be careful
-        #     # executor.submit(self._gameThread, event, numGames)
-        #     executor.submit(self._xLogger._loggerThread, event)
-        #     self._gameThread(event, numGames)
-
-        #     event.set()
-        #     print('\n Main ending')
-        #     pass
-
-        # print("After main")
-
-
-
-
-        # self._xLogger._loggerThread(event)
-
-
-
-
-
-
+            # Start Game
+            self._gameThread(event, numGames)
+            event.set()
 
         return True # return true to show that the game finished
 

@@ -5,6 +5,9 @@ from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 """
 I'll put ideas here
 """
+'''
+[ ] Change print statements to the logging python library
+'''
 
 """ Main Function """
 def main() -> None:

@@ -1,6 +1,6 @@
 from hexBoy.hex.graphics.HexGraphics import HexGraphics
 from hexBoy.hex.board.HexBoard import HexBoard
-from hexBoy.db.logger.HexDBSetup import HexLogger
+from hexBoy.db.logger.HexDBConfig import HexLogger
 
 def loadBoardFromGameId(gameId: int) -> HexBoard:
     xLogger = HexLogger()
