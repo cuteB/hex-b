@@ -2,13 +2,10 @@ import sys
 from hexBoy.hex.game.HexGame import Hex_Play
 from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 
-# COMEBACK
-"""
-I'll put ideas here
-- Command line args to make easy to play games
-- Push to GitHub more to learn make the history pretty.
-- pylint
-"""
+
+'''
+[ ] Change print statements to the logging python library
+'''
 
 def main() -> None:
     """ Main Function to run the game"""
@@ -19,6 +16,7 @@ def main() -> None:
     showDisplay = False
     numGames = 1
     showPrint = True
+    mockLogger = False
 
     opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
     args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
@@ -27,6 +25,8 @@ def main() -> None:
         printHelp()
         return
 
+    # TODO check if any of the arguments are garbage/unexpected
+    # - Accidentally running the main.py with random strings should complain and not run the default options
     argNum = 0 # what opt the arg is for
     for i in range(len(opts)):
 
@@ -68,6 +68,10 @@ def main() -> None:
         elif (opts[i] == "-p"):
             showPrint = False
 
+        # -mock, disable logger and use mock logger
+        elif (opts[i] == "--mock"):
+            mockLogger = True
+
     Hex_Play(
         agentA,
         agentB,
@@ -75,6 +79,7 @@ def main() -> None:
         showDisplay,
         numGames,
         showPrint,
+        mockLogger
     )
 
 def printHelp() -> None:
@@ -89,13 +94,14 @@ def printHelp() -> None:
     print("`-n <arg>`\tNumber of games \t(Default: 1)")
     print()
     print("Basic Config Flags")
-    print("`-d`\t\tShow Display\t(Default: hide display)")
-    print("`-e`\t\tShow Endgame\t(Default: Skip Endgame)")
-    print("`-p`\t\tHide Prints\t(Default: Show print summaries)")
+    print("\tShow Display \t\t`-d` \t\t(Default: hide display)")
+    print("\tShow Endgame \t\t`-e` \t\t(Default: Skip Endgame)")
+    print("\tHide Prints \t\t`-p` \t\t(Default: Show print summaries)")
+    print("\tMock Logger \t\t`-mock` \t(Default: Use logger)")
     print()
     print("Agent Select: Enter an int for a specific agent or a string for a player (Default: AgentA*)")
-    print("`-b <arg>` \tDefine Blue agent")
-    print("`-r <arg>`\tDefine Red agent")
+    print("\tEnter Blue agent: \t`-b <arg>`")
+    print("\tEnter Red agent: \t`-r <arg>`") # TODO put this at the bottom before agent help()
     print()
     PrintAgentHelp()
 

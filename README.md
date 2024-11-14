@@ -2,7 +2,10 @@
 
 > The only reason I'm here
 
-Hex, The game
+Hex, The game.
+
+[Game Setup](./wiki/Setup.md)
+
 
 ## Quick Start Guide
 
@@ -41,7 +44,13 @@ Just treat them like squares with too extra edges.
                 \___/
 ```
 
-### [Game Agents](./wiki/Agents.md)
+
+
+## [Data and Telemetry](./wiki/Data.md)
+
+[Database Setup](./wiki/Setup.md#database)
+
+## [Game Agents](./wiki/Agents.md)
 
 The list of agents that know how to play the game.
 How do you compare?

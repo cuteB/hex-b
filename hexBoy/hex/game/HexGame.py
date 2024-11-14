@@ -3,6 +3,8 @@ from os import environ
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 import sys
+import threading, concurrent
+
 from dataclasses import dataclass
 from pygame.locals import *
 from typing import List
@@ -12,8 +14,11 @@ from hexBoy.AI.HexAgent import HexAgent
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.game.HexGameRules import HexGameRules
 from hexBoy.hex.graphics.HexGraphics import HexGraphics
-from hexBoy.hex.node.HexNode import HexNode, Hex
+from hexBoy.hex.node.HexNode import Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
+
+from hexBoy.db.HexDBConfig import EventType
+from hexBoy.db.HexLogger import HexLogger, MockLogger
 
 # Custom Events
 BEFORE_TURN = pygame.USEREVENT + 1
@@ -28,6 +33,8 @@ class HexGameOptions:
     showEndGame: bool = False # Sorta works but only with one game
     startingPlayer: int = 1
     alternateStartingPlayer: bool = True
+    gameType: str = "" # Type of game to label it as in the logger.
+    testMode: bool = False # Disable the logger if true.
 
 '''----------------------------------
 Main hex game class
@@ -47,7 +54,7 @@ class HexGame:
     > Thank you Hex for changing my life
     """
 
-    _gameBoard: HexBoard  # Board, Hex Board Object #
+    _gameBoard: HexBoard  # Board, Hex Board Object 
     _options: HexGameOptions
 
     _currentPlayer: int  
@@ -70,6 +77,8 @@ class HexGame:
     _redName: str
 
     _nextMove: tuple
+
+    _xLogger: HexLogger
 
     def __init__(
         self,
@@ -105,7 +114,7 @@ class HexGame:
         self._bluePathFinder = PathBoy(
             self._gameBoard,
             HexGameRules.getCheckIfBarrierFunc(1,useEmpty=False),
-            HexGameRules.getHeuristicFunc(2)
+            HexGameRules.getHeuristicFunc(1)
         )
         self._redPathFinder = PathBoy(
             self._gameBoard,
@@ -117,6 +126,7 @@ class HexGame:
         self._redAgent = None
         self._blueName = ""
         self._redName = ""
+
         # Set AIs if provided
         if agent1 != None:
             self._blueAgent = agent1
@@ -128,6 +138,13 @@ class HexGame:
             self._redName = self._redAgent.getName()
             self._redAgent.setGameBoardAndPlayer(self._gameBoard, 2)
 
+        # Logger
+        if (self._options.testMode):
+            self._xLogger = MockLogger()
+        else:
+            self._xLogger = HexLogger()
+
+        
         self._eventToHandler = {
             QUIT: self._terminateGame,
             MOUSEBUTTONDOWN: self._handleMouseClick,
@@ -143,8 +160,6 @@ class HexGame:
     def _gameEventLoop(self) -> None:
         """Main event Game Loop (Game in progress)"""
 
-        # TODO Turn this into a dictionary with the key being the event type and the value being the handler
-
         def noop():
             pass
 
@@ -152,26 +167,6 @@ class HexGame:
 
             handler = self._eventToHandler.get(event.type, noop)
             handler()
-
-            # # Quit button
-            # if event.type == QUIT:
-            #     self._terminateGame()
-
-            # # Mouse click
-            # elif event.type == MOUSEBUTTONDOWN:
-            #     self._handleMouseClick()
-
-            # # Start Turn
-            # elif event.type == BEFORE_TURN:
-            #     self._handleAgentTurn()
-
-            # # Handle Next move
-            # elif event.type == PLAYER_TURN:
-            #     self._handleNextMove()
-
-            # # End Turn
-            # elif event.type == AFTER_TURN:
-            #     self._endTurn()
 
     def _endGameEventLoop(self) -> None:
         """Event loop after a game has been completed"""
@@ -183,7 +178,7 @@ class HexGame:
                 self._terminateGame()
 
     '''---
-    Events and handlers
+    Event Triggers
     ---'''
     def _eventStartTurn(self):
         """Trigger Game Event Start Turn"""
@@ -197,6 +192,9 @@ class HexGame:
         """Trigger Game Event End Turn"""
         pygame.event.post(pygame.event.Event(AFTER_TURN))
 
+    '''---
+    Event Handlers
+    ---'''
     def _handleMouseClick(self, mousePos: Hex) -> None:
         """Handle a click on the Game Board
         
@@ -218,11 +216,12 @@ class HexGame:
         if self._currentPlayer == 1 and self._blueAgent != None:
             self._nextMove = self._blueAgent.getAgentMove()
             self._eventDoPlayerMove()
+
         if self._currentPlayer == 2 and self._redAgent != None:
             self._nextMove = self._redAgent.getAgentMove()
             self._eventDoPlayerMove()
 
-    def _handleNextMove(self, player = None, move = None) -> None:
+    def _handleNextMove(self, player: int = None, move: Hex = None) -> None:
         """Handle the next move
         - optional parameters for tests to manually pass in the player and move for the test
         """
@@ -232,6 +231,7 @@ class HexGame:
         if self._gameBoard.validateMove(move):
             self._gameBoard.makeMove(player, move)
             self._updateAgentBoards()
+            self._xLogger.logEvent(EventType.MOVE, (player, move))
             self._eventAfterTurn()
 
     '''---
@@ -271,6 +271,9 @@ class HexGame:
             self._switchTurns()
             self._eventStartTurn()
 
+    '''---
+    Game Management
+    ---'''
     def _validatePlayer(self) -> bool:
         """Validate if the current player is a human"""
 
@@ -298,6 +301,8 @@ class HexGame:
 
         self._winPath = None
         self._eventStartTurn()
+
+        self._xLogger.logEvent(EventType.START_GAME, (self._blueName, self._redName, self._currentPlayer, self._options.gameType))
 
     def _updateGameWindow(self) -> None:
         """Update Graphics screen"""
@@ -354,6 +359,9 @@ class HexGame:
         else:
             self._currentPlayer = 1
 
+    '''---
+    Printing
+    ---'''
     def _printGameSummary(self) -> None:
         """Print the current game number and current win summary
         - Overwrites the current line with each entry
@@ -401,14 +409,9 @@ class HexGame:
         print("Red%s Win:  %0.2f" % (self._redName, redWinPercent))
 
     '''---
-    public
+    Threads
     ---'''
-    def main(self, numGames=1) -> bool:
-        """Play a number of hex games
-        
-        Args:
-            numGames: int "Number of games to play"
-        """
+    def _gameThread(self, event, numGames: int) -> None:
         
         self._printGameSummary()
 
@@ -423,6 +426,23 @@ class HexGame:
         # Post summary
         self._printPostGameSummary()
 
+    '''---
+    public
+    ---'''
+    def main(self, numGames=1) -> bool:
+        """Play a number of hex games"""
+        
+        event = threading.Event() # Event to signal the end of the game
+        # TODO probs rename this to something more descriptive
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            # Start threads
+            executor.submit(self._xLogger.loggerThread, event)
+
+            # Start Game
+            self._gameThread(event, numGames)
+            event.set()
+
         return True # return true to show that the game finished
 
 '''----------------------------------
@@ -435,6 +455,7 @@ def Hex_Play(
     showDisplay=True,
     numGames=None,
     showPrint=True,
+    mockLogger=False
 ):
     """Main HexGame Function to play games given config
     
@@ -450,7 +471,8 @@ def Hex_Play(
     options = HexGameOptions(
         showDisplay=showDisplay,
         showPrint=showPrint,
-        showEndGame=showEndGame
+        showEndGame=showEndGame,
+        testMode=mockLogger
     )
 
     game: HexGame = HexGame(
