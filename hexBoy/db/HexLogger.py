@@ -6,9 +6,8 @@ from abc import ABC, abstractmethod
 from sqlalchemy import create_engine, select, Engine
 from sqlalchemy.orm import  Session
 
-from hexBoy.db.HexDBConfig import HexDBConfig, Game, Move
+from hexBoy.db.HexDBConfig import HexDBConfig, Game, Move, EventType
 from hexBoy.hex.node.HexNode import Hex
-
 
 class LoggerSink(queue.Queue):
     def __init__(self):
@@ -35,12 +34,6 @@ class BaseLogger(ABC):
     def loggerThread(self, event: threading.Event) -> None:
         """Thread to log events to the database"""
     
-# Enums for the types of events
-class EventType: # COMEBACK I don't like this name
-    START_GAME = "start_game"
-    MOVE = "move"
-    END_GAME = "end_game"
-
 '''---
 HexLogger
 ---'''
@@ -57,27 +50,11 @@ class HexLogger:
 
     _LoggerSink: LoggerSink # I like sink better
 
-    '''
-    [x] I want to be able to configure if I want to use the logger or not. Maybe just a flag that I can set in the config
-        In addition I think it would be cool for the logger to know if there isn't a database setup and then give a warning.
-        Maybe just use the mock logger but I would be mad if I ran tons of games and then realized I didn't have the logger on
-    [x] Set config flag in main.py to use mock logger.
-    [x] Setup threads for the logger so that the w/r doesn't take time out of the agents. The logger should be its own thread and
-        the agents/game should put the events they want to log into a sink (maybe sync idk but thats what they say at work)
-    [x] Probs want to setup some logging class that handles the threading.
-    '''
-
     def __init__(self):
         self.engine = create_engine(self.connectionString)
         self.gameInProgress = False
 
         self._loggerSink = LoggerSink()
-
-    # Enums for the types of events
-    class EventType:
-        START_GAME = "start_game"
-        MOVE = "move"
-        END_GAME = "end_game"
 
     def logEvent(self, event: EventType, obj: any) -> None:
         """Log an event to the database"""
@@ -106,7 +83,6 @@ class HexLogger:
             else: # sleep for a bit if no logs in queue
                 time.sleep(0.1) 
 
-
     '''---
     Actual logging methods
     ---'''
@@ -128,8 +104,6 @@ class HexLogger:
             session.commit()
             self.currentGameId = currentGame.id
 
-
-
     def _logMove(self, player: int, move: Hex) -> None:
         """Log move from a game"""
 
@@ -149,27 +123,20 @@ class HexLogger:
 
     def _logEndGame(self, winnerId: int) -> None:
         """Log the end of a game"""
-        def _logEndGame(winnerId: int) -> None:
-            self.gameInProgress = False
+        self.gameInProgress = False
 
-            with Session(self.engine) as session:
+        with Session(self.engine) as session:
 
-                query = (
-                    select(Game)
-                    .where(Game.id == self.currentGameId)
-                )
+            query = (
+                select(Game)
+                .where(Game.id == self.currentGameId)
+            )
 
-                g = session.scalars(query).one()
-                g.winner = winnerId
-                g.endSequence = self.gameSequence
+            g = session.scalars(query).one()
+            g.winner = winnerId
+            g.endSequence = self.gameSequence
 
-                session.commit()
-
-        # Start thread to log
-        with self._lock:
-            x = threading.Thread(target=_logEndGame, args=(winnerId,))
-            x.start()
-
+            session.commit()
 
 '''---
 Mock Logger

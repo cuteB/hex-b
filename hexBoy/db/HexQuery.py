@@ -1,5 +1,3 @@
-# TODO probably rename this file and create a setup file that is separate from the logger
-
 from typing import List
 from sqlalchemy import  select, Engine, asc
 from sqlalchemy.orm import  Session
@@ -9,7 +7,6 @@ from hexBoy.db.HexDBConfig import HexDBConfig, Game, Move
 '''---
 HexQuery class
 ---'''
-# COMEBACK this guy will need their own file
 class HexQuery:  
     connectionString = HexDBConfig.connectionString
     engine: Engine

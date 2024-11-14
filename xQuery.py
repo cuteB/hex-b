@@ -27,7 +27,6 @@ def main():
     elif (query=="checkDB`"):
         listGames(param) # TODO Change to something boring
 
-
     elif (query=="init_db"):
         initDB()
 
@@ -50,7 +49,6 @@ def plsHelp():
     """Print out the list of queries I have"""
     print("listGames\t\t\tList all of the games in the db")
     print("listMovesForGame <gameId> \tList all of the moves for a single game")    
-
 
 if __name__ == "__main__":
     main()

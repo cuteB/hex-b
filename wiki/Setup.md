@@ -43,5 +43,3 @@ Initialize the sqlite database and tables
 ```bash
 $ python xQuery.py init_db
 ```
-
-

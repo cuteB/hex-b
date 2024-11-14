@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from hexBoy.db.HexDBConfig import  Game, Move
 from hexBoy.db.HexQuery import  HexQuery
 
-
 def listMovesForLastGame() -> None:
     """List all of the  moves for the last game played."""
 

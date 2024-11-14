@@ -168,7 +168,6 @@ class HexGame:
             handler = self._eventToHandler.get(event.type, noop)
             handler()
 
-
     def _endGameEventLoop(self) -> None:
         """Event loop after a game has been completed"""
 
@@ -408,7 +407,6 @@ class HexGame:
         print()
         print("Blue%s Win:  %0.2f" % (self._blueName, blueWinPercent))
         print("Red%s Win:  %0.2f" % (self._redName, redWinPercent))
-
 
     '''---
     Threads

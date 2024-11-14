@@ -86,7 +86,6 @@ class HexDBManager:
     def __init__(self):
         self.engine = create_engine(self.connectionString)
 
-
     def resetDB(self):
         print("Dropping DB Tables")
         Game.__table__.drop(self.engine)

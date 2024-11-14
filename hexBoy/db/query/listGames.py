@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from hexBoy.db.HexDBConfig import  Game, Move
+from hexBoy.db.HexDBConfig import  Game
 from hexBoy.db.HexQuery import  HexQuery
 
 def listGames() -> None:

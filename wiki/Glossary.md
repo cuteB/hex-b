@@ -4,7 +4,6 @@
 
 [X](../README.md)
 
-
 ## Adjacent Hex
 
 A hex that is beside one of the players existing hexes. Could also be an Opponent's Adjacent Hex if its a hex beside one of their hexes, or perhaps a conflict Adjacent hex if it is between one of your and your opponent's hexes.
