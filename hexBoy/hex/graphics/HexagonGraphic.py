@@ -9,6 +9,10 @@ class HexagonGraphic:
     """Drawing of a hexagon"""
 
     def __init__(self, colour, size, drawEdges):
+        """@param colour
+        @param size
+        
+        """
         self.colour = colour
         self.hexSize = size
         self.drawEdges = drawEdges

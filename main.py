@@ -2,15 +2,14 @@ import sys
 from hexBoy.hex.game.HexGame import Hex_Play
 from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 
-"""
-I'll put ideas here
-"""
+
 '''
 [ ] Change print statements to the logging python library
 '''
 
-""" Main Function """
 def main() -> None:
+    """ Main Function to run the game"""
+
     agentA = GetAgent(1)
     agentB = GetAgent(1)
     showEndGame = False
@@ -83,7 +82,6 @@ def main() -> None:
         mockLogger
     )
 
-# TODO put the flag first so they are all in a nice line
 def printHelp() -> None:
     """Help I forgot how to run the game"""
 
@@ -93,7 +91,7 @@ def printHelp() -> None:
     print("\tCan be used in any order. Flags that are expecting an argument need its argument directly after the flag")
     print()
     print("Game Config")
-    print("\tNumber of games \t`-n <arg>` \t(Default: 1)")
+    print("`-n <arg>`\tNumber of games \t(Default: 1)")
     print()
     print("Basic Config Flags")
     print("\tShow Display \t\t`-d` \t\t(Default: hide display)")

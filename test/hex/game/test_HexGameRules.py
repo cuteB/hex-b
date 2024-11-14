@@ -65,3 +65,20 @@ def test_HexPlayerInfo(tmpdir):
 
     assert HexGameRules.getPlayerHex(1) == HexGameRules.blue.hex
     assert HexGameRules.getPlayerHex(2) == HexGameRules.red.hex
+
+def test_GetHeuristicFunc(tmpdir):
+    """Get the heuristic function for each player"""
+
+    blueFunc = HexGameRules.getHeuristicFunc(1)
+    assert blueFunc((0,0), (11,5)) == 11
+    assert blueFunc((5,5), (11,5)) == 6
+    assert blueFunc((10,10), (11,5)) == 1
+    assert blueFunc((5,10), (11,5)) == 1
+    assert blueFunc((10,5), (11,5)) == 6
+
+    redFunc = HexGameRules.getHeuristicFunc(2)
+    assert redFunc((0,0), (11,5)) == 11
+    assert redFunc((5,5), (11,5)) == 6
+    assert redFunc((10,10), (11,5)) == 1
+    assert redFunc((5,10), (11,5)) == 6
+    assert redFunc((10,5), (11,5)) == 1

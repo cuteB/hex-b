@@ -1,6 +1,6 @@
 # Glossary
 
-> At some point someone other than me will read this repo and you gonna think "Wow this guy can write markdown"
+> At some point, someone other than me will read this repo and you gonna think "Wow, this guy can write markdown"
 
 [X](../README.md)
 
@@ -19,9 +19,9 @@ Moves that can be used to connect hex groups that can't be easily blocked becaus
 
 ## Strong Move
 
-A move that is two spaces away with two possible moves to bridge the gap ([Bridge Move](#bridge-move)). Moves like this are essentially moving two spaces with one move because if your opponent takes one of the bridge moves, B<sup>1</sup>, then your next move is the the other bridge move, B <sup>2</sup>. The result is no change real change in board state.
+A move that is two spaces away with two possible moves to bridge the gap ([Bridge Move](#bridge-move)). Moves like this are essentially moving two spaces with one move because if your opponent takes one of the bridge moves, b<sup>1</sup>, then your next move is the the other bridge move, b<sup>2</sup>. The result is no change real change in board state.
 
-![Strong Move Example](/wiki/images/strong-move.png)
+![Strong Move Example](/wiki/zImages/patterns/strong-move.png)
 
 ### Bridge Move
 

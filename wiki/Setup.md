@@ -14,6 +14,8 @@ Then just [run](#run) the rest
 
 ## Run
 
+Check to see if it works
+
 ```bash
 $ python main.py --mock
 ```
@@ -28,7 +30,8 @@ Look at all of the flags that can be ran
 
 ## Test
 
-Run all tests
+Run all of the tests.
+
 ```bash
 $ python -m pytest
 ```

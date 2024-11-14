@@ -7,10 +7,24 @@ Hex, The game.
 [Game Setup](./wiki/Setup.md)
 
 
-![Random Hex Game](/wiki/images/RandomHexBoard.png)
+## Quick Start Guide
 
-Here is what the hex space looks like. just treat them like squares
-with too extra edges
+```bash
+$ pip install -r requirements.txt
+$ python main.py
+```
+
+This will run a game between two agents and won't really show much other than some text saying who wins. 
+To get some more options add the `--help` flag or checkout the [Hex Game Page](./wiki/hex.md)
+
+## [The Game and Rules](./wiki/hex/Hex-Rules.md)
+
+Here is an example game where Blue wins.
+
+![Random Hex Game](/wiki/zImages/boards/RandomHexBoard.png)
+
+This is what the hex space looks like. 
+Just treat them like squares with too extra edges.
 
 ```txt
  ___
@@ -35,3 +49,8 @@ with too extra edges
 ## [Data and Telemetry](./wiki/Data.md)
 
 [Database Setup](./wiki/Setup.md#database)
+
+## [Game Agents](./wiki/Agents.md)
+
+The list of agents that know how to play the game.
+How do you compare?

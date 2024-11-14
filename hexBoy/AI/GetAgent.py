@@ -38,9 +38,9 @@ def GetAgent(agentDifficulty=0) -> HexAgent:
 def PrintAgentHelp() -> None:
     """Print the id to Agent help message"""
     print("Agent List")
-    print("\t0 \tAgent Random")
-    print("\t1 \tAgent AStar")
-    print("\t2 \tAgent Strong")
-    print("\t3 \tAgent RL")
-    print("\t4 \tAgent Smart")
+    print("0 \tAgent Random")
+    print("1 \tAgent AStar")
+    print("2 \tAgent Strong")
+    print("3 \tAgent RL")
+    print("4 \tAgent Smart")
     print()

@@ -16,7 +16,7 @@ def before_and_after_test(tmpdir):
     yield # run the rest
     # vvv after vvv
 
-def test_EmptySmartBoardNodePCDMiddle(tmpdir):
+def test_EmptyNumPathFinderNodePCDMiddle(tmpdir):
     """Nodes have PCD and family set"""
 
     # middle
@@ -69,7 +69,7 @@ def test_EmptySmartBoardNodePCDMiddle(tmpdir):
     assert set(X.getDads()) == set([(5,10)])
     assert set(X.getSons()) == set([])
 
-def test_MoreEmptySmartBoardNodePCDMiddle(tmpdir):
+def test_MoreEmptyNumPathFinderNodePCDMiddle(tmpdir):
     """Testing more nodes, Some nodes might be acting funny"""
 
     X: HexNode = tmpdir.board.getNodeDict()[(6,6)]
@@ -100,7 +100,7 @@ def test_MoreEmptySmartBoardNodePCDMiddle(tmpdir):
     assert set(X.getDads()) == set([(5,10)])
     assert set(X.getSons()) == set([])
 
-def test_EmptySmartBoardTotalPaths(tmpdir):
+def test_EmptyNumPathFinderTotalPaths(tmpdir):
     """Empty board paths for a player"""
 
     assert tmpdir.npf.getNumPaths() == 6144
@@ -119,8 +119,7 @@ def test_EmptySmartBoardTotalPaths(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((9, 10)) == 11
     assert tmpdir.npf.getNumPathsToHex((10, 10)) == 1
     
-
-def test_SmartBoardWithMiddleMove(tmpdir):
+def test_NumPathFinderWithMiddleMove(tmpdir):
     """Board with the move in the middle"""
 
     tmpdir.board.makeMove(1, (5,5))
@@ -172,7 +171,7 @@ def test_NodeValuesAfterTwoPlayerMoves(tmpdir):
     assert (set(X.getSons()) == set([(3,7)])
         or set(X.getSons()) == set([(2,7)]))
 
-def test_SmartBoardWithMiddleOppMove(tmpdir):
+def test_NumPathFinderWithMiddleOppMove(tmpdir):
     """Board with the opp move inn the middle"""
 
     tmpdir.board.makeMove(2, (5,5))
@@ -180,7 +179,7 @@ def test_SmartBoardWithMiddleOppMove(tmpdir):
 
     assert tmpdir.npf.getNumPaths() == 5120
 
-def test_SmartBoardWithTwoMoves(tmpdir):
+def test_NumPathFinderWithTwoMoves(tmpdir):
     """Board with two strong moves"""
 
     moves = [(5,5), (4,7)]
@@ -192,7 +191,7 @@ def test_SmartBoardWithTwoMoves(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
 
-def test_SmartBoardWithThreeMoves(tmpdir):
+def test_NumPathFinderWithThreeMoves(tmpdir):
     """Board with three strong moves"""
 
     moves = [(5,5), (4,7), (3,9)]
@@ -216,7 +215,7 @@ def test_ConnectingClustersWithThreeMoves(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
 
-def test_SmartBoardWithThreeMovesUpdateDad(tmpdir):
+def test_NumPathFinderWithThreeMovesUpdateDad(tmpdir):
     """Board with three strong moves in a different place"""
 
     moves = [(5,5), (4,7), (6,3)]
@@ -228,7 +227,7 @@ def test_SmartBoardWithThreeMovesUpdateDad(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((6,3)) == 8
     assert tmpdir.npf.getNumPathsFromHex((4,7)) == 8
 
-def test_SmartBoardWithMoveAndOppMove(tmpdir):
+def test_NumPathFinderWithMoveAndOppMove(tmpdir):
     """One Move from Each Player"""
  
     tmpdir.board.makeMove(1, (5,5))
@@ -240,7 +239,7 @@ def test_SmartBoardWithMoveAndOppMove(tmpdir):
     assert tmpdir.npf.getNumPathsToHex((5,5)) == 32
     assert tmpdir.npf.getNumPathsFromHex((5,5)) == 16
 
-def test_SmartBoardWithScatteredMoves(tmpdir):
+def test_NumPathFinderWithScatteredMoves(tmpdir):
     """A bunch of moves from one player"""
 
     moves = [(10,0), (10,10), (5,5), (2,8), (5,6), (6,6)]
