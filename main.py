@@ -1,5 +1,5 @@
 import sys
-from hexBoy.hex.game.HexGame import Hex_Play
+from hexBoy.hex.game.HexGame import Hex_Play, Hex_Playground
 from hexBoy.AI.GetAgent import GetAgent, PrintAgentHelp
 
 
@@ -23,6 +23,11 @@ def main() -> None:
 
     if (len(opts) == 1 and opts[0] == "--help"): 
         printHelp()
+        return
+    
+    # playground
+    if (len(opts) == 1 and opts[0] == "--playground"): 
+        Hex_Playground()
         return
 
     # TODO check if any of the arguments are garbage/unexpected

@@ -45,6 +45,7 @@ class HexAgent(ABC):
         """Start the game and reset the board and other stuff"""
 
         self._agentBoard.resetGameBoard()
+        # TODO need to update the board values before the game starts
 
     def setGameBoardAndPlayer(self, gameBoard: HexBoard, player:int) -> None:  
         """Link the game board and setup the player info"""
@@ -58,6 +59,13 @@ class HexAgent(ABC):
         """Get Agent's name"""
 
         return self._name
+    
+
+    def getBoard(self) -> HexBoard:
+        return self._gameBoard
+    
+    def getAgentBoard(self) -> HexBoard:
+        return self._agentBoard
 
     '''---
     private

@@ -11,9 +11,10 @@ from typing import List
 
 from hexBoy.AI.agentUtil.pathfinder.TrimPath import TrimEdgesFromPath
 from hexBoy.AI.HexAgent import HexAgent
+from hexBoy.AI.GetAgent import GetAgent
 from hexBoy.hex.board.HexBoard import HexBoard
 from hexBoy.hex.game.HexGameRules import HexGameRules
-from hexBoy.hex.graphics.HexGraphics import HexGraphics
+from hexBoy.hex.graphics.HexGraphics import HexGraphics, GameDisplayOptions, getDefaultHexagonGraphic
 from hexBoy.hex.node.HexNode import Hex
 from hexBoy.pathfinder.PathBoy import PathBoy
 
@@ -35,6 +36,7 @@ class HexGameOptions:
     alternateStartingPlayer: bool = True
     gameType: str = "" # Type of game to label it as in the logger.
     testMode: bool = False # Disable the logger if true.
+    playground: bool = False
 
 '''----------------------------------
 Main hex game class
@@ -80,6 +82,10 @@ class HexGame:
 
     _xLogger: HexLogger
 
+    _playground: bool # TODO maybe remove because this is set in the options. See what I do with the other stuff in the options
+
+    _defaultGameDisplayOptions: GameDisplayOptions
+
     def __init__(
         self,
         agent1: HexAgent = None,
@@ -110,6 +116,11 @@ class HexGame:
 
         if self._options.showDisplay:
             self._graphics = HexGraphics()
+            self._defaultGameDisplayOptions = GameDisplayOptions(
+                name = "Default",
+                board = self._gameBoard,
+                getHexagonGraphic = getDefaultHexagonGraphic
+            )
 
         self._bluePathFinder = PathBoy(
             self._gameBoard,
@@ -283,13 +294,10 @@ class HexGame:
             return self._redAgent == None
 
     def _preGameSetup(self) -> None: 
-        """Setup board and graphics, trigger start turn event
-        - Reset game board
-        - Setup graphics window 
-        - start game for both agents
-        """
+        """Setup board and graphics, trigger start turn event"""
 
         self._gameBoard.resetGameBoard()
+        print(self._gameBoard.getNodeDict()[(5,5)].getBest()) # XXX
 
         if self._options.showDisplay:
             self._graphics.setupWindow(self._gameBoard)
@@ -307,8 +315,17 @@ class HexGame:
     def _updateGameWindow(self) -> None:
         """Update Graphics screen"""
 
+        extraBoards = [self._redAgent.getAgentBoard().getNodeDict()]
+
+        # [ ] extra boards to display
+        # To display multiple boards with different display options provide a list of game boards and HexGraphic classes
+        # A HexGraphic class should be able to give the colour and text of any given node in the dict.
+        # always provide the original game board with default HexGraphic options.
+        # [ ] add watching agents that watch as a certain player. They update their boards but don't get asked to provide a move.
+
         if self._options.showDisplay:
-            self._graphics.updateWindow(self._gameBoard, self._winPath)
+            displayBoards = [self._defaultGameDisplayOptions]
+            self._graphics.updateWindow(self._gameBoard, self._winPath, extraBoards=extraBoards, displayBoards = displayBoards)
 
     def _updateAgentBoards(self) -> None:
         """Update Agents Boards because it changed"""
@@ -354,6 +371,7 @@ class HexGame:
     def _switchTurns(self) -> None:
         """Switch between blue and red turns"""
 
+        #if not self._options.playground:
         if self._currentPlayer == 1:
             self._currentPlayer = 2
         else:
@@ -445,6 +463,12 @@ class HexGame:
 
         return True # return true to show that the game finished
 
+
+    def main_playground(self) -> bool:
+        self._playGame()
+
+
+
 '''----------------------------------
 Main
 ----------------------------------'''
@@ -482,3 +506,20 @@ def Hex_Play(
     )
 
     game.main(numGames)
+
+
+
+'''
+[ ] Toggle player swapping. Manually pick what colour to place. Red, Blue, Black, Clear
+[ ] Turn on best path cost for each node. for each player
+[ ] clear board
+'''
+
+def Hex_Playground():
+    options = HexGameOptions(
+        showDisplay=True,
+        playground=True
+    )
+
+    game = HexGame(options=options, agent2=GetAgent(5))
+    game.main_playground()
