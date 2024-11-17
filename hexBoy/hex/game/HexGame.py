@@ -297,7 +297,7 @@ class HexGame:
         """Setup board and graphics, trigger start turn event"""
 
         self._gameBoard.resetGameBoard()
-        print(self._gameBoard.getNodeDict()[(5,5)].getBest()) # XXX
+        # print(self._gameBoard.getNodeDict()[(5,5)].getBest()) # XXX
 
         if self._options.showDisplay:
             self._graphics.setupWindow(self._gameBoard)
