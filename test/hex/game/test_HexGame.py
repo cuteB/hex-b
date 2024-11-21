@@ -3,6 +3,8 @@ import pytest
 from hexBoy.AI.GetAgent import GetAgent
 from hexBoy.hex.game.HexGame import HexGame, HexGameOptions
 
+# TODO Need to test mouse clicks for the game
+
 @pytest.fixture(autouse=True)
 def before_and_after_test(tmpdir):
     """Reset the board and pathfinder before each test"""
