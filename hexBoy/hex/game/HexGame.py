@@ -165,8 +165,6 @@ class HexGame:
 
         for event in pygame.event.get():
 
-            uhh: Hex = pygame.mouse.get_pos()
-
             handler = self._eventToHandler.get(event.type, noop)
             handler()
 
@@ -176,7 +174,6 @@ class HexGame:
         # loop through events.
         for event in pygame.event.get():
 
-            
             # quit
             if event.type == QUIT:
                 self._terminateGame()
