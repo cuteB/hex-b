@@ -173,6 +173,7 @@ class HexGame:
 
         # loop through events.
         for event in pygame.event.get():
+
             # quit
             if event.type == QUIT:
                 self._terminateGame()
@@ -195,14 +196,14 @@ class HexGame:
     '''---
     Event Handlers
     ---'''
-    def _handleMouseClick(self, mousePos: Hex) -> None:
+    def _handleMouseClick(self) -> None:
         """Handle a click on the Game Board
         
         Args:
             mousePos: Hex "Mouse position on the game board"
         """
 
-        mousePos = pygame.mouse.get_pos
+        mousePos = pygame.mouse.get_pos()
 
         if self._options.showDisplay:
             move = self._graphics.findHexagonCoordsForMousePos(mousePos)
